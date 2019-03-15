@@ -31,6 +31,7 @@ import androidx.lifecycle.Observer
 import tech.bigfig.romachat.R
 import tech.bigfig.romachat.databinding.FragmentLoginBinding
 import tech.bigfig.romachat.utils.LinkHelper
+import tech.bigfig.romachat.view.screen.main.MainActivity
 
 
 class LoginFragment : Fragment() {
@@ -47,7 +48,7 @@ class LoginFragment : Fragment() {
         viewModel.isUserLoggedIn.observe(this, Observer { isLoggedIn ->
             Log.d(LOG_TAG, "user logged in = $isLoggedIn")
             if (isLoggedIn) {
-                //TODO redirect to
+                MainActivity.start(activity!!)
             }
         })
 
@@ -61,7 +62,7 @@ class LoginFragment : Fragment() {
         viewModel.getAccount.observe(this, Observer { account ->
             Log.d(LOG_TAG, "successful login, account = ${account?.displayName}")
             if (account != null) {
-                //TODO redirect to main screen
+                MainActivity.start(activity!!)
             }
         })
 

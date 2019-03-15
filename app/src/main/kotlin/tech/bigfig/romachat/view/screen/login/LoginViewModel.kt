@@ -18,6 +18,8 @@
 package tech.bigfig.romachat.view.screen.login
 
 import android.app.Application
+import android.content.Context
+import android.content.SharedPreferences
 import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.*
@@ -36,6 +38,7 @@ import tech.bigfig.romachat.utils.validateDomain
  * 2. Using these credentials open OAuth url
  * 3. After OAuth login activity receives new intent with uri with a code
  * 4. Using this code fetch a token
+ * 5. Validate credentials and store user data
  */
 class LoginViewModel(application: Application, repository: Repository) : AndroidViewModel(application) {
 
@@ -52,6 +55,8 @@ class LoginViewModel(application: Application, repository: Repository) : Android
     private val fetchOAuthLiveData: MutableLiveData<FetchOAuthTokenParams> = MutableLiveData()
 
     val isUserLoggedIn: LiveData<Boolean> = repository.isLoggedIn()
+
+    private val loginTemporaryStorage: LoginTemporaryStorage = LoginTemporaryStorage(application)
 
     // User entered domain and clicked submit
     fun onSubmitClick(instanceValue: String) {
@@ -118,12 +123,24 @@ class LoginViewModel(application: Application, repository: Repository) : Android
         )
     }
 
+    override fun onCleared() {
+        super.onCleared()
+        Log.d(LOG_TAG, "onCleared, storing params")
+        //store already fetched params because activity might be killed while oauth
+        loginTemporaryStorage.save(LoginStoredParams(domain, appCredentials))
+    }
+
     //Called when activity receives intent after OAuth login
     fun onOauthRedirect(uri: Uri) {
         if (uri.toString().startsWith(oauthRedirectUri)) {
             // This should either have returned an authorization code or an error.
             val code = uri.getQueryParameter("code")
             val error = uri.getQueryParameter("error")
+
+            // Restore values if activity was recreated before oauth callback
+            val stored = loginTemporaryStorage.read()
+            if (domain.isEmpty() && stored.domain?.isNotEmpty() == true) domain = stored.domain
+            if (appCredentials == null && stored.appCredentials != null) appCredentials = stored.appCredentials
 
             if (code != null && domain.isNotEmpty() && appCredentials != null) {
                 isLoading.value = true
@@ -258,5 +275,46 @@ class LoginViewModel(application: Application, repository: Repository) : Android
                 LoginViewModel(application, repository) as T
             } else throw IllegalArgumentException("Wrong view model class")
         }
+    }
+}
+
+/**
+ * Since the login flow requires opening browser and return to the app after some time, we are storing previously
+ * fetched data to avoid losing them if activity dies
+ */
+class LoginStoredParams(
+    val domain: String?,
+    val appCredentials: AppCredentials?
+)
+
+class LoginTemporaryStorage(context: Context) {
+
+    private val preferences: SharedPreferences;
+
+    init {
+        preferences = context.getSharedPreferences(FILE_NAME, Context.MODE_PRIVATE)
+    }
+
+    fun save(data: LoginStoredParams) {
+        preferences.edit()
+            .putString(DOMAIN, data.domain)
+            .putString(CLIENT_ID, data.appCredentials?.clientId)
+            .putString(CLIENT_SECRET, data.appCredentials?.clientSecret)
+            .apply()
+    }
+
+    fun read(): LoginStoredParams {
+
+        return LoginStoredParams(
+            preferences.getString(DOMAIN, ""),
+            AppCredentials(preferences.getString(CLIENT_ID, "") ?: "", preferences.getString(CLIENT_SECRET, "") ?: "")
+        )
+    }
+
+    companion object {
+        private const val FILE_NAME = "tech.bigfig.roma.loginprefs"
+        private const val DOMAIN = "domain"
+        private const val CLIENT_ID = "clientId"
+        private const val CLIENT_SECRET = "clientSecret"
     }
 }

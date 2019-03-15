@@ -18,11 +18,9 @@
 package tech.bigfig.romachat.data.api
 
 import retrofit2.Call
-import retrofit2.http.Field
-import retrofit2.http.FormUrlEncoded
-import retrofit2.http.Header
-import retrofit2.http.POST
+import retrofit2.http.*
 import tech.bigfig.romachat.data.entity.AccessToken
+import tech.bigfig.romachat.data.entity.Account
 import tech.bigfig.romachat.data.entity.AppCredentials
 
 const val PLACEHOLDER_DOMAIN = "dummy.placeholder"
@@ -50,4 +48,7 @@ interface RestApi {
         @Field("code") code: String,
         @Field("grant_type") grantType: String
     ): Call<AccessToken>
+
+    @GET("api/v1/accounts/verify_credentials")
+    fun accountVerifyCredentials(): Call<Account>
 }

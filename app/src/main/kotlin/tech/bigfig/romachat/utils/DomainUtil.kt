@@ -15,7 +15,7 @@
  * see <http://www.gnu.org/licenses>.
  */
 
-package tech.bigfig.romachat.view.utils
+package tech.bigfig.romachat.utils
 
 import android.net.Uri
 import android.util.Patterns

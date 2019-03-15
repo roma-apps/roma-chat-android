@@ -1,5 +1,4 @@
-/*
- * Copyright (c) 2019 Vasily Kabunov
+/* Copyright 2018 Conny Duck
  *
  * This file is a part of Roma.
  *
@@ -12,29 +11,22 @@
  * Public License for more details.
  *
  * You should have received a copy of the GNU General Public License along with Roma; if not,
- * see <http://www.gnu.org/licenses>.
- */
+ * see <http://www.gnu.org/licenses>. */
 
-package tech.bigfig.romachat.data
+package tech.bigfig.romachat.data.db
 
+import androidx.room.*
+import tech.bigfig.romachat.data.db.entity.AccountEntity
 
-/**
- * A generic class that holds a value with its loading status.
- */
+@Dao
+interface AccountDao {
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertOrReplace(account: AccountEntity): Long
 
-data class Result<out T>(val status: ResultStatus, val data: T?, val error: Throwable?) {
-    companion object {
-        fun <T> success(data: T?): Result<T> {
-            return Result(ResultStatus.SUCCESS, data, null)
-        }
+    @Delete
+    fun delete(account: AccountEntity)
 
-        fun <T> error(error: Throwable): Result<T> {
-            return Result(ResultStatus.ERROR, null, error)
-        }
-    }
+    @Query("SELECT * FROM AccountEntity ORDER BY id ASC")
+    fun loadAll(): List<AccountEntity>
 
-    enum class ResultStatus {
-        SUCCESS,
-        ERROR
-    }
 }

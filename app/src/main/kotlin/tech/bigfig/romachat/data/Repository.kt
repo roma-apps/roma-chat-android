@@ -18,18 +18,35 @@
 package tech.bigfig.romachat.data
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import tech.bigfig.romachat.data.api.RestApi
+import tech.bigfig.romachat.data.db.AccountManager
 import tech.bigfig.romachat.data.entity.AccessToken
+import tech.bigfig.romachat.data.entity.Account
 import tech.bigfig.romachat.data.entity.AppCredentials
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 
 class Repository @Inject constructor(
-    private val restApi: RestApi
+    private val restApi: RestApi, private val accountManager: AccountManager
 ) {
+
+    fun isLoggedIn(): LiveData<Boolean> {
+        val res = MutableLiveData<Boolean>()
+        res.postValue(accountManager.activeAccount != null)
+        return res
+    }
+
+    fun addNewAccount(accessToken: String, domain: String) {
+        accountManager.addAccount(accessToken, domain)
+    }
+
+    fun updateAccount(account: Account) {
+        accountManager.updateActiveAccount(account)
+    }
 
     fun login(
         domain: String,
@@ -54,6 +71,11 @@ class Repository @Inject constructor(
             restApi.fetchOAuthToken(domain, clientName, clientSecret, redirectUri, code, "authorization_code")
         ) { it }
     }
+
+    fun verifyAccount(): LiveData<Result<Account?>> {
+        return request(restApi.accountVerifyCredentials())
+        { it }
+    }
 }
 
 private fun <T, R> request(call: Call<T>, transform: (T) -> R): LiveData<Result<R>> {
@@ -65,7 +87,7 @@ private fun <T, R> request(call: Call<T>, transform: (T) -> R): LiveData<Result<
             if (started.compareAndSet(false, true)) {
                 call.enqueue(object : Callback<T> {
                     override fun onResponse(call: Call<T>, response: Response<T>) {
-                        if (response.body()!=null) {
+                        if (response.body() != null) {
                             postValue(Result.success(transform((response.body()!!))))
                         } else {
                             postValue(Result.success(null))

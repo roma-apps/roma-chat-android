@@ -17,6 +17,9 @@
 
 package tech.bigfig.romachat.app.di
 
+import android.content.Context
+import android.text.Spanned
+import androidx.room.Room
 import com.google.gson.GsonBuilder
 import dagger.Module
 import dagger.Provides
@@ -28,6 +31,9 @@ import tech.bigfig.romachat.BuildConfig
 import tech.bigfig.romachat.data.api.InstanceSwitchAuthInterceptor
 import tech.bigfig.romachat.data.api.PLACEHOLDER_DOMAIN
 import tech.bigfig.romachat.data.api.RestApi
+import tech.bigfig.romachat.data.db.AccountManager
+import tech.bigfig.romachat.data.db.AppDatabase
+import tech.bigfig.romachat.utils.SpannedTypeAdapter
 
 import javax.inject.Singleton
 
@@ -36,33 +42,45 @@ class DataModule {
 
     @Provides
     @Singleton
-    fun provideRestApi(): RestApi {
+    fun provideDb(context: Context): AppDatabase {
+        return Room.databaseBuilder(context, AppDatabase::class.java, "romachatDB")
+            .allowMainThreadQueries()
+            .build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideAccountManager(appDatabase: AppDatabase): AccountManager {
+        return AccountManager(appDatabase)
+    }
+
+    @Provides
+    @Singleton
+    fun provideRestApi(accountManager: AccountManager): RestApi {
         val builder = Retrofit.Builder()
             .baseUrl("https://$PLACEHOLDER_DOMAIN")
             .addConverterFactory(buildGsonConverterFactory())
-            .client(buildOkHttpClient())
+            .client(buildOkHttpClient(accountManager))
             .build()
 
         return builder.create(RestApi::class.java)
     }
 
     private fun buildGsonConverterFactory(): GsonConverterFactory {
-        val gsonBuilder = GsonBuilder()
-
-        val gson = gsonBuilder.create()
-
+        val gson = GsonBuilder()
+            .registerTypeAdapter(Spanned::class.java, SpannedTypeAdapter())
+            .create()
         return GsonConverterFactory.create(gson)
     }
 
-    private fun buildOkHttpClient(): OkHttpClient {
+    private fun buildOkHttpClient(accountManager: AccountManager): OkHttpClient {
         val loggingInterceptor = HttpLoggingInterceptor()
         loggingInterceptor.level = if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY
         else HttpLoggingInterceptor.Level.NONE
 
         return OkHttpClient.Builder()
             .addInterceptor(loggingInterceptor)
-            .addInterceptor(InstanceSwitchAuthInterceptor())//TODO pass accountManager
+            .addInterceptor(InstanceSwitchAuthInterceptor(accountManager))
             .build()
     }
-
 }

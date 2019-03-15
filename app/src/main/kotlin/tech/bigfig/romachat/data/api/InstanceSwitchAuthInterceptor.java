@@ -20,6 +20,8 @@ import okhttp3.HttpUrl;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
+import tech.bigfig.romachat.data.db.AccountManager;
+import tech.bigfig.romachat.data.db.entity.AccountEntity;
 
 import java.io.IOException;
 
@@ -31,10 +33,10 @@ import static tech.bigfig.romachat.data.api.RestApiKt.PLACEHOLDER_DOMAIN;
  */
 
 public final class InstanceSwitchAuthInterceptor implements Interceptor {
-//    private AccountManager accountManager;
+    private AccountManager accountManager;
 
-    public InstanceSwitchAuthInterceptor(/*AccountManager accountManager*/) {
-//        this.accountManager = accountManager;
+    public InstanceSwitchAuthInterceptor(AccountManager accountManager) {
+        this.accountManager = accountManager;
     }
 
     @Override
@@ -44,7 +46,7 @@ public final class InstanceSwitchAuthInterceptor implements Interceptor {
 
         // only switch domains if the request comes from retrofit
         if (originalRequest.url().host().equals(PLACEHOLDER_DOMAIN)) {
-//            AccountEntity currentAccount = accountManager.getActiveAccount();
+            AccountEntity currentAccount = accountManager.getActiveAccount();
 
             Request.Builder builder = originalRequest.newBuilder();
 
@@ -54,12 +56,12 @@ public final class InstanceSwitchAuthInterceptor implements Interceptor {
                 builder.url(swapHost(originalRequest.url(), instanceHeader));
                 builder.removeHeader(DOMAIN_HEADER);
             }
-//            else if (currentAccount != null) {
-//                //use domain of current account
-//                builder.url(swapHost(originalRequest.url(), currentAccount.getDomain()))
-//                        .header("Authorization",
-//                                String.format("Bearer %s", currentAccount.getAccessToken()));
-//            }
+            else if (currentAccount != null) {
+                //use domain of current account
+                builder.url(swapHost(originalRequest.url(), currentAccount.getDomain()))
+                        .header("Authorization",
+                                String.format("Bearer %s", currentAccount.getAccessToken()));
+            }
             Request newRequest = builder.build();
 
             return chain.proceed(newRequest);

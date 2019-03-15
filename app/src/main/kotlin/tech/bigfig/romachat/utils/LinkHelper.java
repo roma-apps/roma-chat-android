@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along with Roma; if not,
  * see <http://www.gnu.org/licenses>. */
 
-package tech.bigfig.romachat.view.utils;
+package tech.bigfig.romachat.utils;
 
 import android.content.ActivityNotFoundException;
 import android.content.Context;

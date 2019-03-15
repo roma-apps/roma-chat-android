@@ -24,10 +24,11 @@ import androidx.lifecycle.*
 import tech.bigfig.romachat.BuildConfig
 import tech.bigfig.romachat.R
 import tech.bigfig.romachat.data.Repository
+import tech.bigfig.romachat.data.entity.Account
 import tech.bigfig.romachat.data.entity.AppCredentials
-import tech.bigfig.romachat.view.utils.buildQueryString
-import tech.bigfig.romachat.view.utils.canonicalizeDomain
-import tech.bigfig.romachat.view.utils.validateDomain
+import tech.bigfig.romachat.utils.buildQueryString
+import tech.bigfig.romachat.utils.canonicalizeDomain
+import tech.bigfig.romachat.utils.validateDomain
 
 /**
  * Login flow contains the following steps:
@@ -50,6 +51,8 @@ class LoginViewModel(application: Application, repository: Repository) : Android
 
     private val fetchOAuthLiveData: MutableLiveData<FetchOAuthTokenParams> = MutableLiveData()
 
+    val isUserLoggedIn: LiveData<Boolean> = repository.isLoggedIn()
+
     // User entered domain and clicked submit
     fun onSubmitClick(instanceValue: String) {
         isLoading.value = true
@@ -69,7 +72,7 @@ class LoginViewModel(application: Application, repository: Repository) : Android
     }
 
     // Subscribe to domain, make an API call, build OAuth uri or show any error
-    val login: LiveData<Uri?> = Transformations.switchMap(domainLiveData) {
+    val checkDomain: LiveData<Uri?> = Transformations.switchMap(domainLiveData) {
         Transformations.map(
             repository.login(
                 it,
@@ -146,7 +149,7 @@ class LoginViewModel(application: Application, repository: Repository) : Android
     }
 
     // Subscribe to OAuth result and fetch token or show errors
-    val fetchOAuthToken: LiveData<String?> = Transformations.switchMap(fetchOAuthLiveData) {
+    private val fetchOAuthToken: LiveData<String?> = Transformations.switchMap(fetchOAuthLiveData) {
         Transformations.map(
             repository.fetchOAuthToken(
                 it.domain,
@@ -168,6 +171,9 @@ class LoginViewModel(application: Application, repository: Repository) : Android
                 null
             } else {//success
                 if (result.data != null && !result.data.accessToken.isEmpty()) {
+                    Log.d(LOG_TAG, "oauth token = $result.data.accessToken")
+
+                    repository.addNewAccount(result.data.accessToken, domain)
 
                     result.data.accessToken
                 } else {
@@ -179,6 +185,33 @@ class LoginViewModel(application: Application, repository: Repository) : Android
         }
     }
 
+    // After fetching token verify credentials and get account
+    val getAccount: LiveData<Account?> = Transformations.switchMap(fetchOAuthToken) { token ->
+        Transformations.map(repository.verifyAccount())
+        { result ->
+            isLoading.value = false
+
+            if (result.error != null) {
+                showError(
+                    (getApplication() as Application).getString(R.string.error_authorization_unknown),
+                    e = result.error
+                )
+
+                null
+            } else {//success
+                if (result.data != null) {
+
+                    repository.updateAccount(result.data)
+
+                    result.data
+                } else {
+                    showError((getApplication() as Application).getString(R.string.error_authorization_unknown))
+
+                    null
+                }
+            }
+        }
+    }
 
     fun showError(error: String, logError: String = "", e: Throwable? = null) {
         isError.value = true

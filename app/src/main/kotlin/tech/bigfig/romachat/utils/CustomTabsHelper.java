@@ -1,4 +1,4 @@
-package tech.bigfig.romachat.view.utils;
+package tech.bigfig.romachat.utils;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;

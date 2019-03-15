@@ -30,7 +30,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import tech.bigfig.romachat.R
 import tech.bigfig.romachat.databinding.FragmentLoginBinding
-import tech.bigfig.romachat.view.utils.LinkHelper
+import tech.bigfig.romachat.utils.LinkHelper
 
 
 class LoginFragment : Fragment() {
@@ -44,16 +44,23 @@ class LoginFragment : Fragment() {
 
         viewModel = (activity as LoginActivity).obtainViewModel()
 
-        viewModel.login.observe(this, Observer { uri ->
+        viewModel.isUserLoggedIn.observe(this, Observer { isLoggedIn ->
+            Log.d(LOG_TAG, "user logged in = $isLoggedIn")
+            if (isLoggedIn) {
+                //TODO redirect to
+            }
+        })
+
+        viewModel.checkDomain.observe(this, Observer { uri ->
             Log.d(LOG_TAG, "login result uri = ${uri.toString()}")
             if (uri != null) {
                 openOauthUrl(uri)
             }
         })
 
-        viewModel.fetchOAuthToken.observe(this, Observer { token ->
-            Log.d(LOG_TAG, "oauth token = $token")
-            if (token != null) {
+        viewModel.getAccount.observe(this, Observer { account ->
+            Log.d(LOG_TAG, "successful login, account = ${account?.displayName}")
+            if (account != null) {
                 //TODO redirect to main screen
             }
         })

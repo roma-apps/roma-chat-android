@@ -15,19 +15,8 @@
  * see <http://www.gnu.org/licenses>.
  */
 
-package tech.bigfig.romachat.app.di
+package tech.bigfig.romachat.view.utils
 
-import dagger.Component
-import tech.bigfig.romachat.view.screen.chatlist.ChatListFragment
-import tech.bigfig.romachat.view.screen.login.LoginActivity
-import javax.inject.Singleton
-
-@Singleton
-@Component(modules = [AppModule::class, DataModule::class])
-interface AppComponent {
-
-    fun injectLoginActivity(activity: LoginActivity)
-
-    fun injectChatListFragment(fragment: ChatListFragment)
-
+interface RetryListener {
+    fun onRetry()
 }

@@ -79,6 +79,10 @@ class Repository @Inject constructor(
         return request(restApi.accountVerifyCredentials())
         { it }
     }
+
+    fun getFollowingUsers(): LiveData<Result<List<Account>>> {
+        return request(restApi.accountFollowing(accountManager.activeAccount?.accountId ?: "", "")) { it }
+    }
 }
 
 private fun <T, R> request(call: Call<T>, transform: (T) -> R): LiveData<Result<R>> {

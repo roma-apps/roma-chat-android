@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.text.TextUtils" />
+
+        <import type="android.view.View" />
+
+        <variable
+            name="account"
+            type="tech.bigfig.romachat.data.entity.Account" />
+
+    </data>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp">
+
+            <ImageView
+                android:id="@+id/chat_item_user_avatar"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:contentDescription="@string/a11y_user_avatar"
+                android:src="@drawable/default_user_avatar"
+                app:avatarUrl="@{account.avatar}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/chat_item_user_name"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:fontFamily="sans-serif-medium"
+                android:text="@{account.displayName}"
+                android:textSize="18sp"
+                app:layout_constraintBottom_toTopOf="@+id/chat_item_user_status"
+                app:layout_constraintStart_toEndOf="@+id/chat_item_user_avatar"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Account title" />
+
+            <TextView
+                android:id="@+id/chat_item_user_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@{account.username}"
+                android:textColor="#aaa"
+                android:textSize="14sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/chat_item_user_name"
+                app:layout_constraintTop_toBottomOf="@+id/chat_item_user_name"
+                tools:text="Account username" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:layout_gravity="bottom"
+            android:background="#ccc" />
+
+    </FrameLayout>
+
+</layout>

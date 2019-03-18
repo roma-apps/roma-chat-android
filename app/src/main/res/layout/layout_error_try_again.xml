@@ -1,0 +1,43 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <import type="tech.bigfig.romachat.data.ResultStatus" />
+
+        <variable
+            name="result"
+            type="tech.bigfig.romachat.data.Result" />
+        
+        <variable
+            name="retryListener"
+            type="tech.bigfig.romachat.view.utils.RetryListener"/>
+
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="@{result.status == ResultStatus.ERROR ? View.VISIBLE : View.INVISIBLE}">
+
+        <TextView
+            android:id="@+id/error_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/error_loading_common"
+            android:textSize="16sp" />
+
+        <Button
+            android:id="@+id/error_try_again"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:onClick="@{() -> retryListener.onRetry()}"
+            android:text="@string/error_try_again" />
+
+    </LinearLayout>
+
+</layout>

@@ -28,6 +28,9 @@ const val DOMAIN_HEADER = "domain"
 
 interface RestApi {
 
+    //------
+    // LOGIN
+
     @FormUrlEncoded
     @POST("api/v1/apps")
     fun authenticateApp(
@@ -51,4 +54,13 @@ interface RestApi {
 
     @GET("api/v1/accounts/verify_credentials")
     fun accountVerifyCredentials(): Call<Account>
+
+    //-----
+    // CHAT
+
+    @GET("api/v1/accounts/{id}/following")
+    fun accountFollowing(
+        @Path("id") accountId: String,
+        @Query("max_id") maxId: String
+    ): Call<List<Account>>
 }

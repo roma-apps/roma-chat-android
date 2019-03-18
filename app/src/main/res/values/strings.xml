@@ -12,4 +12,9 @@
     <string name="error_authorization_denied">Authorization was denied.</string>
     <string name="error_retrieving_oauth_token">Failed getting a login token.</string>
 
+    <string name="error_loading_common">An error occurred. Please try again</string>
+    <string name="error_try_again">Try again</string>
+
+    <string name="a11y_user_avatar">user avatar</string>
+
 </resources>

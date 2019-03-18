@@ -93,7 +93,7 @@ class LoginViewModel(application: Application, repository: Repository) : Android
             if (result.error != null) {
                 showError(
                     (getApplication() as Application).getString(R.string.error_failed_app_registration),
-                    e = result.error
+                    result.error
                 )
 
                 null
@@ -182,7 +182,7 @@ class LoginViewModel(application: Application, repository: Repository) : Android
             if (result.error != null) {
                 showError(
                     (getApplication() as Application).getString(R.string.error_retrieving_oauth_token),
-                    e = result.error
+                    result.error
                 )
 
                 null
@@ -211,7 +211,7 @@ class LoginViewModel(application: Application, repository: Repository) : Android
             if (result.error != null) {
                 showError(
                     (getApplication() as Application).getString(R.string.error_authorization_unknown),
-                    e = result.error
+                    result.error
                 )
 
                 null
@@ -230,13 +230,12 @@ class LoginViewModel(application: Application, repository: Repository) : Android
         }
     }
 
-    fun showError(error: String, logError: String = "", e: Throwable? = null) {
+    fun showError(error: String, logError: String = "") {
         isError.value = true
         errorMessage.value = error
 
         val sb = StringBuilder(error)
         if (!logError.isEmpty()) sb.append(" ").append(logError)
-        if (e != null) sb.append(" ").append(Log.getStackTraceString(e))
 
         Log.e(LOG_TAG, sb.toString())
 

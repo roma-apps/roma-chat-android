@@ -22,19 +22,24 @@ package tech.bigfig.romachat.data
  * A generic class that holds a value with its loading status.
  */
 
-data class Result<out T>(val status: ResultStatus, val data: T?, val error: Throwable?) {
+data class Result<out T>(val status: ResultStatus, val data: T?, val error: String?) {
     companion object {
         fun <T> success(data: T?): Result<T> {
             return Result(ResultStatus.SUCCESS, data, null)
         }
 
-        fun <T> error(error: Throwable): Result<T> {
+        fun <T> error(error: String): Result<T> {
             return Result(ResultStatus.ERROR, null, error)
         }
-    }
 
-    enum class ResultStatus {
-        SUCCESS,
-        ERROR
+        fun <T> loading(): Result<T> {
+            return Result(ResultStatus.LOADING, null, null)
+        }
     }
+}
+
+enum class ResultStatus {
+    SUCCESS,
+    ERROR,
+    LOADING
 }

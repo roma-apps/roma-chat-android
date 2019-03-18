@@ -17,6 +17,7 @@
 
 package tech.bigfig.romachat.data
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import retrofit2.Call
@@ -29,6 +30,8 @@ import tech.bigfig.romachat.data.entity.Account
 import tech.bigfig.romachat.data.entity.AppCredentials
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
+
+private const val LOG_TAG = "Repository"
 
 class Repository @Inject constructor(
     private val restApi: RestApi, private val accountManager: AccountManager
@@ -85,6 +88,7 @@ private fun <T, R> request(call: Call<T>, transform: (T) -> R): LiveData<Result<
         override fun onActive() {
             super.onActive()
             if (started.compareAndSet(false, true)) {
+                postValue(Result.loading())
                 call.enqueue(object : Callback<T> {
                     override fun onResponse(call: Call<T>, response: Response<T>) {
                         if (response.body() != null) {
@@ -92,10 +96,24 @@ private fun <T, R> request(call: Call<T>, transform: (T) -> R): LiveData<Result<
                         } else {
                             postValue(Result.success(null))
                         }
+
+                        if (response.isSuccessful) {
+                            val body = response.body()
+                            if (body == null || response.code() == 204) {
+                                postValue(Result.success(null))
+                            } else {
+                                postValue(Result.success(transform((response.body()!!))))
+                            }
+                        } else {
+                            val msg = response.errorBody()?.string()
+                            val errorMsg = if (msg.isNullOrEmpty()) response.message() else msg
+                            postValue(Result.error(errorMsg ?: "unknown error"))
+                        }
                     }
 
                     override fun onFailure(call: Call<T>, throwable: Throwable) {
-                        postValue(Result.error(throwable))
+                        Log.d(LOG_TAG, Log.getStackTraceString(throwable))
+                        postValue(Result.error(throwable.message ?: "api call onFailure()"))
                     }
                 })
             }

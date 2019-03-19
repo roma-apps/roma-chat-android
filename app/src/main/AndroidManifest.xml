@@ -18,7 +18,6 @@
         <activity
             android:name=".view.screen.login.LoginActivity"
             android:launchMode="singleInstance"
-            android:noHistory="true"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

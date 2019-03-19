@@ -28,6 +28,7 @@ import androidx.lifecycle.ViewModel
 import tech.bigfig.romachat.BuildConfig
 import tech.bigfig.romachat.R
 import tech.bigfig.romachat.data.Repository
+import tech.bigfig.romachat.data.ResultStatus
 import tech.bigfig.romachat.data.entity.Account
 import tech.bigfig.romachat.data.entity.AppCredentials
 import tech.bigfig.romachat.utils.buildQueryString
@@ -90,8 +91,6 @@ class LoginViewModel @Inject constructor(private val application: Context, repos
                 WEBSITE
             )
         ) { result ->
-
-            isLoading.value = false
 
             if (result.error != null) {
                 showError(
@@ -180,7 +179,7 @@ class LoginViewModel @Inject constructor(private val application: Context, repos
             )
         ) { result ->
 
-            isLoading.value = false
+            if (result.status == ResultStatus.LOADING) return@map null
 
             if (result.error != null) {
                 showError(
@@ -207,9 +206,12 @@ class LoginViewModel @Inject constructor(private val application: Context, repos
 
     // After fetching token verify credentials and get account
     val getAccount: LiveData<Account?> = Transformations.switchMap(fetchOAuthToken) { token ->
+        if (token.isNullOrEmpty()) return@switchMap null
+
         Transformations.map(repository.verifyAccount())
         { result ->
-            isLoading.value = false
+
+            if (result.status == ResultStatus.LOADING) return@map null
 
             if (result.error != null) {
                 showError(

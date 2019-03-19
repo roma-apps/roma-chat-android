@@ -48,21 +48,21 @@ class LoginFragment : Fragment() {
         viewModel.isUserLoggedIn.observe(this, Observer { isLoggedIn ->
             Log.d(LOG_TAG, "user logged in = $isLoggedIn")
             if (isLoggedIn) {
-                MainActivity.start(activity!!)
+                redirectToMain()
             }
         })
 
         viewModel.checkDomain.observe(this, Observer { uri ->
-            Log.d(LOG_TAG, "login result uri = ${uri.toString()}")
             if (uri != null) {
+                Log.d(LOG_TAG, "login result uri = $uri")
                 openOauthUrl(uri)
             }
         })
 
         viewModel.getAccount.observe(this, Observer { account ->
-            Log.d(LOG_TAG, "successful login, account = ${account?.displayName}")
             if (account != null) {
-                MainActivity.start(activity!!)
+                Log.d(LOG_TAG, "successful login, account = ${account.displayName}")
+                redirectToMain()
             }
         })
 
@@ -85,6 +85,13 @@ class LoginFragment : Fragment() {
             LinkHelper.openLinkInCustomTab(uri, activity!!)
         } catch (e: ActivityNotFoundException) {
             viewModel.showError(getString(R.string.error_no_web_browser_found))
+        }
+    }
+
+    private fun redirectToMain() {
+        if (activity != null) {
+            MainActivity.start(activity!!)
+            activity!!.finish()
         }
     }
 

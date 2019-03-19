@@ -17,16 +17,28 @@
 
 package tech.bigfig.romachat.app.di
 
-import android.content.Context
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import dagger.Binds
 import dagger.Module
-import dagger.Provides
-import tech.bigfig.romachat.app.App
-import javax.inject.Singleton
+import dagger.multibindings.IntoMap
+import tech.bigfig.romachat.view.screen.chatlist.ChatListViewModel
+import tech.bigfig.romachat.view.screen.login.LoginViewModel
+import tech.bigfig.romachat.view.utils.ViewModelFactory
 
 @Module
-class AppModule(private val application: App) {
+abstract class ViewModelModule {
 
-    @Provides
-    @Singleton
-    fun provideApplicationContext(): Context = application
+    @Binds
+    abstract fun bindViewModelFactory(factory: ViewModelFactory): ViewModelProvider.Factory
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(LoginViewModel::class)
+    abstract fun bindLoginViewModel(viewModel: LoginViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(ChatListViewModel::class)
+    abstract fun bindChatListViewModel(viewModel: ChatListViewModel): ViewModel
 }

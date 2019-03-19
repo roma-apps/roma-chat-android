@@ -25,10 +25,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import tech.bigfig.romachat.app.App
-import tech.bigfig.romachat.data.Repository
 import tech.bigfig.romachat.data.entity.Account
 import tech.bigfig.romachat.databinding.FragmentChatListBinding
 import tech.bigfig.romachat.view.utils.RetryListener
@@ -38,7 +38,7 @@ import javax.inject.Inject
 class ChatListFragment : Fragment() {
 
     @Inject
-    lateinit var repository: Repository//TODO add dagger rules to inject directly to viewmodel
+    lateinit var viewModelFactory: ViewModelProvider.Factory
 
     private lateinit var binding: FragmentChatListBinding
     private lateinit var viewModel: ChatListViewModel
@@ -50,7 +50,7 @@ class ChatListFragment : Fragment() {
 
         App.getApplication(activity!!).appComponent.injectChatListFragment(this)
 
-        viewModel = ViewModelProviders.of(this, ChatListViewModel.ModelFactory(activity!!.application, repository))
+        viewModel = ViewModelProviders.of(this, viewModelFactory)
             .get(ChatListViewModel::class.java)
 
         viewModel.friendList.observe(this, Observer { accounts ->

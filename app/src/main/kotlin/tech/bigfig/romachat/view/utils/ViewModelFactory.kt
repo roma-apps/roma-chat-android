@@ -15,28 +15,26 @@
  * see <http://www.gnu.org/licenses>.
  */
 
-package tech.bigfig.romachat.view.screen.chatlist
+package tech.bigfig.romachat.view.utils
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
-import tech.bigfig.romachat.data.Repository
-import tech.bigfig.romachat.data.Result
-import tech.bigfig.romachat.data.entity.Account
+import androidx.lifecycle.ViewModelProvider
 import javax.inject.Inject
+import javax.inject.Provider
+import javax.inject.Singleton
 
-class ChatListViewModel @Inject constructor(repository: Repository) : ViewModel() {
+@Singleton
+@Suppress("UNCHECKED_CAST")
+class ViewModelFactory
+@Inject constructor(private val creators: Map<Class<out ViewModel>,
+        @JvmSuppressWildcards Provider<ViewModel>>) : ViewModelProvider.Factory {
 
-    //TODO known issue: app is loading 40 following accounts, need to add fetching next 40 items after scroll to bottom
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        val creator = creators[modelClass] ?:
+        creators.asIterable().firstOrNull { modelClass.isAssignableFrom(it.key) }?.value ?:
+        throw IllegalArgumentException("Unknown ViewModel class " + modelClass)
 
-    private val loadData = MutableLiveData<Boolean>()
-
-    fun loadData() {
-        loadData.value = true
-    }
-
-    val friendList: LiveData<Result<List<Account>>> = Transformations.switchMap(loadData) {
-        repository.getFollowingUsers()
+        return try { creator.get() as T }
+        catch (e: Exception) { throw RuntimeException(e) }
     }
 }

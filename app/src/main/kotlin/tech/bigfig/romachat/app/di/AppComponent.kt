@@ -23,7 +23,7 @@ import tech.bigfig.romachat.view.screen.login.LoginActivity
 import javax.inject.Singleton
 
 @Singleton
-@Component(modules = [AppModule::class, DataModule::class])
+@Component(modules = [AppModule::class, DataModule::class, ViewModelModule::class])
 interface AppComponent {
 
     fun injectLoginActivity(activity: LoginActivity)

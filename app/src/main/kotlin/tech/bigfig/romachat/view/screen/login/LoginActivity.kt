@@ -21,17 +21,17 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import tech.bigfig.romachat.R
 import tech.bigfig.romachat.app.App
-import tech.bigfig.romachat.data.Repository
 import javax.inject.Inject
 
 
 class LoginActivity : AppCompatActivity() {
 
     @Inject
-    lateinit var repository: Repository//TODO add dagger rules to inject directly to viewmodel
+    lateinit var viewModelFactory: ViewModelProvider.Factory
 
     private lateinit var viewModel: LoginViewModel
 
@@ -43,7 +43,7 @@ class LoginActivity : AppCompatActivity() {
 
         viewModel = obtainViewModel()
 
-        if (savedInstanceState==null) {
+        if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction().add(R.id.fragment_container, LoginFragment.newInstance()).commit()
         }
     }
@@ -67,7 +67,7 @@ class LoginActivity : AppCompatActivity() {
      * to easily pass oauth results to viewmodel*/
     fun obtainViewModel(): LoginViewModel {
 
-        return ViewModelProviders.of(this, LoginViewModel.ModelFactory(application, repository))
+        return ViewModelProviders.of(this, viewModelFactory)
             .get(LoginViewModel::class.java)
     }
 

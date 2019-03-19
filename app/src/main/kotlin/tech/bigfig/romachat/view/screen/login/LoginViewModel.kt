@@ -17,12 +17,14 @@
 
 package tech.bigfig.romachat.view.screen.login
 
-import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
 import android.net.Uri
 import android.util.Log
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
+import androidx.lifecycle.ViewModel
 import tech.bigfig.romachat.BuildConfig
 import tech.bigfig.romachat.R
 import tech.bigfig.romachat.data.Repository
@@ -31,6 +33,7 @@ import tech.bigfig.romachat.data.entity.AppCredentials
 import tech.bigfig.romachat.utils.buildQueryString
 import tech.bigfig.romachat.utils.canonicalizeDomain
 import tech.bigfig.romachat.utils.validateDomain
+import javax.inject.Inject
 
 /**
  * Login flow contains the following steps:
@@ -40,7 +43,7 @@ import tech.bigfig.romachat.utils.validateDomain
  * 4. Using this code fetch a token
  * 5. Validate credentials and store user data
  */
-class LoginViewModel(application: Application, repository: Repository) : AndroidViewModel(application) {
+class LoginViewModel @Inject constructor(private val application: Context, repository: Repository) : ViewModel() {
 
     //LiveDatas to update UI
     val isLoading: MutableLiveData<Boolean> = MutableLiveData()
@@ -65,7 +68,7 @@ class LoginViewModel(application: Application, repository: Repository) : Android
         domain = canonicalizeDomain(instanceValue)
 
         if (!validateDomain(domain)) {
-            showError((getApplication() as Application).getString(R.string.error_invalid_domain), "domain = $domain")
+            showError(application.getString(R.string.error_invalid_domain), "domain = $domain")
 
             return
         }
@@ -81,7 +84,7 @@ class LoginViewModel(application: Application, repository: Repository) : Android
         Transformations.map(
             repository.login(
                 it,
-                (getApplication() as Application).getString(R.string.app_name),
+                application.getString(R.string.app_name),
                 oauthRedirectUri,
                 OAUTH_SCOPES,
                 WEBSITE
@@ -92,7 +95,7 @@ class LoginViewModel(application: Application, repository: Repository) : Android
 
             if (result.error != null) {
                 showError(
-                    (getApplication() as Application).getString(R.string.error_failed_app_registration),
+                    application.getString(R.string.error_failed_app_registration),
                     result.error
                 )
 
@@ -153,10 +156,10 @@ class LoginViewModel(application: Application, repository: Repository) : Android
             } else if (error != null) {
                 /* Authorization failed. Put the error response where the user can read it and they
                  * can try again. */
-                showError((getApplication() as Application).getString(R.string.error_authorization_denied), error)
+                showError(application.getString(R.string.error_authorization_denied), error)
             } else {
                 // This case means a junk response was received somehow.
-                showError((getApplication() as Application).getString(R.string.error_authorization_unknown))
+                showError(application.getString(R.string.error_authorization_unknown))
             }
         } else {
             // first show or user cancelled login
@@ -181,7 +184,7 @@ class LoginViewModel(application: Application, repository: Repository) : Android
 
             if (result.error != null) {
                 showError(
-                    (getApplication() as Application).getString(R.string.error_retrieving_oauth_token),
+                    application.getString(R.string.error_retrieving_oauth_token),
                     result.error
                 )
 
@@ -194,7 +197,7 @@ class LoginViewModel(application: Application, repository: Repository) : Android
 
                     result.data.accessToken
                 } else {
-                    showError((getApplication() as Application).getString(R.string.error_retrieving_oauth_token))
+                    showError(application.getString(R.string.error_retrieving_oauth_token))
 
                     null
                 }
@@ -210,7 +213,7 @@ class LoginViewModel(application: Application, repository: Repository) : Android
 
             if (result.error != null) {
                 showError(
-                    (getApplication() as Application).getString(R.string.error_authorization_unknown),
+                    application.getString(R.string.error_authorization_unknown),
                     result.error
                 )
 
@@ -222,7 +225,7 @@ class LoginViewModel(application: Application, repository: Repository) : Android
 
                     result.data
                 } else {
-                    showError((getApplication() as Application).getString(R.string.error_authorization_unknown))
+                    showError(application.getString(R.string.error_authorization_unknown))
 
                     null
                 }
@@ -244,7 +247,7 @@ class LoginViewModel(application: Application, repository: Repository) : Android
 
     private val oauthRedirectUri: String
         get() {
-            val scheme = (getApplication() as Application).getString(R.string.oauth_scheme)
+            val scheme = application.getString(R.string.oauth_scheme)
             val host = BuildConfig.APPLICATION_ID
             return "$scheme://$host/"
         }
@@ -265,16 +268,6 @@ class LoginViewModel(application: Application, repository: Repository) : Android
 
         private const val ENDPOINT_AUTHORIZE = "/oauth/authorize"
     }
-
-    class ModelFactory(private val application: Application, private val repository: Repository) :
-        ViewModelProvider.NewInstanceFactory() {
-
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return if (modelClass == LoginViewModel::class.java) {
-                LoginViewModel(application, repository) as T
-            } else throw IllegalArgumentException("Wrong view model class")
-        }
-    }
 }
 
 /**
@@ -288,7 +281,7 @@ class LoginStoredParams(
 
 class LoginTemporaryStorage(context: Context) {
 
-    private val preferences: SharedPreferences;
+    private val preferences: SharedPreferences
 
     init {
         preferences = context.getSharedPreferences(FILE_NAME, Context.MODE_PRIVATE)

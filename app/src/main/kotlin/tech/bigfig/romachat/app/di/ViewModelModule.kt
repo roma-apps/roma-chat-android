@@ -22,6 +22,7 @@ import androidx.lifecycle.ViewModelProvider
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap
+import tech.bigfig.romachat.view.screen.camera.CameraViewModel
 import tech.bigfig.romachat.view.screen.chatlist.ChatListViewModel
 import tech.bigfig.romachat.view.screen.login.LoginViewModel
 import tech.bigfig.romachat.view.utils.ViewModelFactory
@@ -41,4 +42,9 @@ abstract class ViewModelModule {
     @IntoMap
     @ViewModelKey(ChatListViewModel::class)
     abstract fun bindChatListViewModel(viewModel: ChatListViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(CameraViewModel::class)
+    abstract fun bindCameraViewModel(viewModel: CameraViewModel): ViewModel
 }

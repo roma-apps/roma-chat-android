@@ -48,7 +48,7 @@ class ChatListFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
 
-        App.getApplication(activity!!).appComponent.injectChatListFragment(this)
+        App.getApplication(activity!!).appComponent.inject(this)
 
         viewModel = ViewModelProviders.of(this, viewModelFactory)
             .get(ChatListViewModel::class.java)

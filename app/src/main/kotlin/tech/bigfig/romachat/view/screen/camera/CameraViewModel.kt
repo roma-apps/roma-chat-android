@@ -15,22 +15,14 @@
  * see <http://www.gnu.org/licenses>.
  */
 
-package tech.bigfig.romachat.app.di
+package tech.bigfig.romachat.view.screen.camera
 
-import dagger.Component
-import tech.bigfig.romachat.view.screen.camera.CameraFragment
-import tech.bigfig.romachat.view.screen.chatlist.ChatListFragment
-import tech.bigfig.romachat.view.screen.login.LoginActivity
-import javax.inject.Singleton
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import tech.bigfig.romachat.data.Repository
+import javax.inject.Inject
 
-@Singleton
-@Component(modules = [AppModule::class, DataModule::class, ViewModelModule::class])
-interface AppComponent {
+class CameraViewModel @Inject constructor(repository: Repository) : ViewModel() {
 
-    fun inject(activity: LoginActivity)
-
-    fun inject(fragment: ChatListFragment)
-
-    fun inject(fragment: CameraFragment)
-
+    val hasPermissions: MutableLiveData<Boolean> = MutableLiveData()
 }

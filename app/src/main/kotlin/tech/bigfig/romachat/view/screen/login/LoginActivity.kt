@@ -39,7 +39,7 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_single_fragment)
 
-        App.getApplication(this).appComponent.injectLoginActivity(this)
+        App.getApplication(this).appComponent.inject(this)
 
         viewModel = obtainViewModel()
 

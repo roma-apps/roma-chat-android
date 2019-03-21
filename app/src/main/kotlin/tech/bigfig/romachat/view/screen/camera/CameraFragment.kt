@@ -20,6 +20,7 @@ package tech.bigfig.romachat.view.screen.camera
 
 import android.Manifest
 import android.content.Context
+import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Matrix
 import android.graphics.Point
@@ -28,7 +29,9 @@ import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraManager
 import android.media.Image
+import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import android.util.Size
 import android.view.*
@@ -125,7 +128,11 @@ class CameraFragment : Fragment(), EasyPermissions.PermissionCallbacks, CameraHo
     }
 
     override fun onTurnOnPermissionClick() {
-        //TODO
+        if (activity != null) {
+            activity?.startActivity(Intent()
+                .setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                .setData(Uri.fromParts("package", activity!!.getPackageName(), null)))
+        }
     }
 
     override fun getRotation(): Int {

@@ -21,12 +21,12 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
-import tech.bigfig.romachat.data.Repository
+import tech.bigfig.romachat.data.ChatRepository
 import tech.bigfig.romachat.data.Result
 import tech.bigfig.romachat.data.entity.Account
 import javax.inject.Inject
 
-class ChatListViewModel @Inject constructor(repository: Repository) : ViewModel() {
+class ChatListViewModel @Inject constructor(repository: ChatRepository) : ViewModel() {
 
     //TODO known issue: app is loading 40 following accounts, need to add fetching next 40 items after scroll to bottom
 

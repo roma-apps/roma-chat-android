@@ -15,77 +15,19 @@
  * see <http://www.gnu.org/licenses>.
  */
 
-package tech.bigfig.romachat.data
+package tech.bigfig.romachat.data.api
 
 import android.util.Log
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import tech.bigfig.romachat.data.api.RestApi
-import tech.bigfig.romachat.data.db.AccountManager
-import tech.bigfig.romachat.data.entity.AccessToken
-import tech.bigfig.romachat.data.entity.Account
-import tech.bigfig.romachat.data.entity.AppCredentials
+import tech.bigfig.romachat.data.Result
 import java.util.concurrent.atomic.AtomicBoolean
-import javax.inject.Inject
 
-private const val LOG_TAG = "Repository"
+private const val LOG_TAG = "RestApiUtil"
 
-class Repository @Inject constructor(
-    private val restApi: RestApi, private val accountManager: AccountManager
-) {
-
-    fun isLoggedIn(): LiveData<Boolean> {
-        val res = MutableLiveData<Boolean>()
-        res.postValue(accountManager.activeAccount != null)
-        return res
-    }
-
-    fun addNewAccount(accessToken: String, domain: String) {
-        accountManager.addAccount(accessToken, domain)
-    }
-
-    fun updateAccount(account: Account) {
-        accountManager.updateActiveAccount(account)
-    }
-
-    fun login(
-        domain: String,
-        clientName: String,
-        redirectUri: String,
-        oauthScopes: String,
-        website: String
-    ): LiveData<Result<AppCredentials>> {
-        return request(
-            restApi.authenticateApp(domain, clientName, redirectUri, oauthScopes, website)
-        ) { it }
-    }
-
-    fun fetchOAuthToken(
-        domain: String,
-        clientName: String,
-        clientSecret: String,
-        redirectUri: String,
-        code: String
-    ): LiveData<Result<AccessToken?>> {
-        return request(
-            restApi.fetchOAuthToken(domain, clientName, clientSecret, redirectUri, code, "authorization_code")
-        ) { it }
-    }
-
-    fun verifyAccount(): LiveData<Result<Account?>> {
-        return request(restApi.accountVerifyCredentials())
-        { it }
-    }
-
-    fun getFollowingUsers(): LiveData<Result<List<Account>>> {
-        return request(restApi.accountFollowing(accountManager.activeAccount?.accountId ?: "", "")) { it }
-    }
-}
-
-private fun <T, R> request(call: Call<T>, transform: (T) -> R): LiveData<Result<R>> {
+fun <T, R> apiCallToLiveData(call: Call<T>, transform: (T) -> R): LiveData<Result<R>> {
 
     return object : LiveData<Result<R>>() {
         private var started = AtomicBoolean(false)

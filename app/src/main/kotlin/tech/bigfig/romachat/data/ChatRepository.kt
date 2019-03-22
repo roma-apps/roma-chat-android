@@ -15,14 +15,20 @@
  * see <http://www.gnu.org/licenses>.
  */
 
-package tech.bigfig.romachat.view.screen.camera
+package tech.bigfig.romachat.data
 
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import tech.bigfig.romachat.data.ChatRepository
+import androidx.lifecycle.LiveData
+import tech.bigfig.romachat.data.api.RestApi
+import tech.bigfig.romachat.data.api.apiCallToLiveData
+import tech.bigfig.romachat.data.db.AccountManager
+import tech.bigfig.romachat.data.entity.Account
 import javax.inject.Inject
 
-class CameraViewModel @Inject constructor(repository: ChatRepository) : ViewModel() {
+class ChatRepository @Inject constructor(
+    private val restApi: RestApi, private val accountManager: AccountManager
+) {
 
-    val hasPermissions: MutableLiveData<Boolean> = MutableLiveData()
+    fun getFollowingUsers(): LiveData<Result<List<Account>>> {
+        return apiCallToLiveData(restApi.accountFollowing(accountManager.activeAccount?.accountId ?: "", "")) { it }
+    }
 }

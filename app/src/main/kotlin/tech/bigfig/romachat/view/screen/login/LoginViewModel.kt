@@ -27,7 +27,7 @@ import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import tech.bigfig.romachat.BuildConfig
 import tech.bigfig.romachat.R
-import tech.bigfig.romachat.data.Repository
+import tech.bigfig.romachat.data.LoginRepository
 import tech.bigfig.romachat.data.ResultStatus
 import tech.bigfig.romachat.data.entity.Account
 import tech.bigfig.romachat.data.entity.AppCredentials
@@ -44,7 +44,7 @@ import javax.inject.Inject
  * 4. Using this code fetch a token
  * 5. Validate credentials and store user data
  */
-class LoginViewModel @Inject constructor(private val application: Context, repository: Repository) : ViewModel() {
+class LoginViewModel @Inject constructor(private val application: Context, repository: LoginRepository) : ViewModel() {
 
     //LiveDatas to update UI
     val isLoading: MutableLiveData<Boolean> = MutableLiveData()

@@ -15,7 +15,6 @@
 
 package tech.bigfig.romachat.data.entity
 
-import android.accounts.Account
 import android.text.Spanned
 import com.google.gson.annotations.SerializedName
 import java.util.*

@@ -22,6 +22,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import tech.bigfig.romachat.R
+import tech.bigfig.romachat.view.screen.chat.ChatMessagesService
 
 
 class MainActivity : AppCompatActivity() {
@@ -32,6 +33,8 @@ class MainActivity : AppCompatActivity() {
 
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction().add(R.id.fragment_container, MainFragment.newInstance()).commit()
+
+            ChatMessagesService.startFetchingMessages(this)
         }
     }
 

@@ -19,6 +19,7 @@ package tech.bigfig.romachat.app.di
 
 import dagger.Component
 import tech.bigfig.romachat.view.screen.camera.CameraFragment
+import tech.bigfig.romachat.view.screen.chat.ChatMessagesService
 import tech.bigfig.romachat.view.screen.chatlist.ChatListFragment
 import tech.bigfig.romachat.view.screen.login.LoginActivity
 import javax.inject.Singleton
@@ -33,4 +34,5 @@ interface AppComponent {
 
     fun inject(fragment: CameraFragment)
 
+    fun inject(service: ChatMessagesService)
 }

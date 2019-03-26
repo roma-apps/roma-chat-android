@@ -4,7 +4,7 @@
     package="tech.bigfig.romachat">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.CAMERA" />
 
     <application
         android:name=".app.App"
@@ -26,7 +26,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <intent-filter>
-                <!--required to get OAuth redirect from browser-->
+                <!-- required to get OAuth redirect from browser -->
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
@@ -39,6 +39,10 @@
         </activity>
 
         <activity android:name=".view.screen.main.MainActivity" />
+
+        <service
+            android:name=".view.screen.chat.ChatMessagesService"
+            android:exported="false" />
 
     </application>
 

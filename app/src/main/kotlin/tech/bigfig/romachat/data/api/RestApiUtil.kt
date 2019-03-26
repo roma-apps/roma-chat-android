@@ -22,6 +22,7 @@ import androidx.lifecycle.LiveData
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import tech.bigfig.romachat.data.Pagination
 import tech.bigfig.romachat.data.Result
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -37,18 +38,22 @@ fun <T, R> apiCallToLiveData(call: Call<T>, transform: (T) -> R): LiveData<Resul
                 postValue(Result.loading())
                 call.enqueue(object : Callback<T> {
                     override fun onResponse(call: Call<T>, response: Response<T>) {
-                        if (response.body() != null) {
-                            postValue(Result.success(transform((response.body()!!))))
-                        } else {
-                            postValue(Result.success(null))
-                        }
-
                         if (response.isSuccessful) {
                             val body = response.body()
                             if (body == null || response.code() == 204) {
                                 postValue(Result.success(null))
                             } else {
-                                postValue(Result.success(transform((response.body()!!))))
+                                var pagination: Pagination? = null
+                                val linkHeader = response.headers().get("link")
+                                if (!linkHeader.isNullOrEmpty()) {
+                                    val links = HttpHeaderLink.parse(linkHeader)
+                                    pagination = Pagination(
+                                        HttpHeaderLink.findByRelationType(links, "prev")?.uri,
+                                        HttpHeaderLink.findByRelationType(links, "next")?.uri
+                                    )
+                                }
+
+                                postValue(Result.success(transform(response.body()!!), pagination))
                             }
                         } else {
                             val msg = response.errorBody()?.string()

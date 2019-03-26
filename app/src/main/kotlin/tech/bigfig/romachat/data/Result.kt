@@ -17,26 +17,33 @@
 
 package tech.bigfig.romachat.data
 
+import android.net.Uri
+
 
 /**
  * A generic class that holds a value with its loading status.
  */
-
-data class Result<out T>(val status: ResultStatus, val data: T?, val error: String?) {
+data class Result<out T>(val status: ResultStatus, val data: T?, val pagination: Pagination?, val error: String?) {
     companion object {
         fun <T> success(data: T?): Result<T> {
-            return Result(ResultStatus.SUCCESS, data, null)
+            return Result(ResultStatus.SUCCESS, data, null, null)
+        }
+
+        fun <T> success(data: T?, pagination: Pagination?): Result<T> {
+            return Result(ResultStatus.SUCCESS, data, pagination, null)
         }
 
         fun <T> error(error: String): Result<T> {
-            return Result(ResultStatus.ERROR, null, error)
+            return Result(ResultStatus.ERROR, null, null, error)
         }
 
         fun <T> loading(): Result<T> {
-            return Result(ResultStatus.LOADING, null, null)
+            return Result(ResultStatus.LOADING, null, null, null)
         }
     }
 }
+
+class Pagination(val prev: Uri?, val next: Uri?)
 
 enum class ResultStatus {
     SUCCESS,

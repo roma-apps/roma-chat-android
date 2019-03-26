@@ -22,6 +22,7 @@ import retrofit2.http.*
 import tech.bigfig.romachat.data.entity.AccessToken
 import tech.bigfig.romachat.data.entity.Account
 import tech.bigfig.romachat.data.entity.AppCredentials
+import tech.bigfig.romachat.data.entity.Status
 
 const val PLACEHOLDER_DOMAIN = "dummy.placeholder"
 const val DOMAIN_HEADER = "domain"
@@ -63,4 +64,11 @@ interface RestApi {
         @Path("id") accountId: String,
         @Query("max_id") maxId: String
     ): Call<List<Account>>
+
+    @GET("api/v1/timelines/direct")
+    fun directTimeline(
+        @Query("max_id") maxId: String?,
+        @Query("since_id") sinceId: String?,
+        @Query("limit") limit: Int?
+    ): Call<List<Status>>
 }

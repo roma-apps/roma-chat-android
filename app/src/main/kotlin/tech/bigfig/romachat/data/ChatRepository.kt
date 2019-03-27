@@ -24,24 +24,26 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import tech.bigfig.romachat.data.api.RestApi
-import tech.bigfig.romachat.data.api.apiCallToLiveData
 import tech.bigfig.romachat.data.db.AccountManager
 import tech.bigfig.romachat.data.db.AppDatabase
+import tech.bigfig.romachat.data.db.entity.ChatAccountEntity
 import tech.bigfig.romachat.data.db.entity.MessageEntity
 import tech.bigfig.romachat.data.entity.Account
+import tech.bigfig.romachat.data.entity.ChatInfo
 import tech.bigfig.romachat.data.entity.Status
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 
-private const val MESSAGES_AMOUNT = 40//max available amount
+private const val MESSAGES_AMOUNT = 40 // max available amount to fetch at a time
+private const val MESSAGES_LOADING_AMOUNT = 10 // max repeats of fetching messages
 private const val LOG_TAG = "ChatRepository"
 
 class ChatRepository @Inject constructor(
     private val restApi: RestApi, private val accountManager: AccountManager, private val db: AppDatabase
 ) {
 
-    fun getFollowingUsers(): LiveData<Result<List<Account>>> {
-        return apiCallToLiveData(restApi.accountFollowing(accountManager.activeAccount?.accountId ?: "", "")) { it }
+    fun getAllChats(): LiveData<List<ChatInfo>> {
+        return db.messageDao().loadAllChats()
     }
 
     /**
@@ -62,25 +64,34 @@ class ChatRepository @Inject constructor(
                     var lastId: String? = null
                     var loadedCount = Int.MAX_VALUE
 
+                    val messages: MutableList<MessageEntity> = mutableListOf()
+                    val accounts: MutableMap<String, ChatAccountEntity?> = mutableMapOf()
+
                     GlobalScope.launch(Dispatchers.Main) {
                         async(Dispatchers.IO) {
+                            var repeatCount = 0
                             do {
+                                repeatCount++
                                 try {
                                     val response = restApi.directTimeline(lastId, null, MESSAGES_AMOUNT).execute()
                                     if (response.isSuccessful) {
                                         val body = response.body()
 
                                         loadedCount = body?.size ?: 0
-                                        Log.d(LOG_TAG, "Loaded messages: $loadedCount")
+                                        Log.d(LOG_TAG, "Loaded messages: $loadedCount ($repeatCount iteration)")
 
-                                        if (loadedCount > 0) {
+                                        if (loadedCount > 0 && repeatCount < MESSAGES_LOADING_AMOUNT) {
                                             lastId = body?.last()?.id
                                             Log.d(LOG_TAG, "Last message id: $lastId")
 
-                                            body?.forEach { message -> insertToDb(message) }
+                                            body?.forEach { message -> processMessage(message, messages, accounts) }
 
                                             postValue(Result.success(true))
-                                        } else {
+                                        } else { // no more messages
+                                            fillAccounts(accounts)
+
+                                            saveToDb(messages, accounts)
+
                                             postValue(Result.success(false))
                                         }
 
@@ -93,7 +104,7 @@ class ChatRepository @Inject constructor(
                                     Log.d(LOG_TAG, Log.getStackTraceString(e))
                                     postValue(Result.error(e.message ?: "unknown error"))
                                 }
-                            } while (loadedCount > 0)
+                            } while (loadedCount > 0 && repeatCount < MESSAGES_LOADING_AMOUNT)
                         }.await()
 
                     }
@@ -102,7 +113,11 @@ class ChatRepository @Inject constructor(
         }
     }
 
-    private fun insertToDb(message: Status) {
+    private fun processMessage(
+        message: Status,
+        messages: MutableList<MessageEntity>,
+        accounts: MutableMap<String, ChatAccountEntity?>
+    ) {
 
         //api returns mention for current user too, so excluding it
         val mentions = message.mentions.filter { it.id != accountManager.activeAccount?.accountId }
@@ -116,8 +131,19 @@ class ChatRepository @Inject constructor(
         val currentUserIsAuthor = message.account.id == accountManager.activeAccount?.accountId
 
         //TODO what to do if user mentioned two user in one message ("@user1 @user2 message")? use only the first one for now
-        val userId = if (currentUserIsAuthor) message.mentions.first().id else message.account.id
-        val username = if (currentUserIsAuthor) message.mentions.first().username else message.account.displayName
+        val userId = if (currentUserIsAuthor) mentions.first().id else message.account.id
+        val username = if (currentUserIsAuthor) mentions.first().username else message.account.username
+
+        //api doesn't return all the required account data in mentions, so we need to fetch missing account later
+        if (!currentUserIsAuthor) {
+            if (!accounts.contains(message.account.id) || accounts[message.account.id] == null) {
+                accounts[message.account.id] = accountToChatAccount(message.account)
+            }
+        } else {
+            if (!accounts.contains(mentions.first().id)) {
+                accounts[mentions.first().id!!] = null
+            }
+        }
 
         if (userId.isNullOrEmpty() || username.isNullOrEmpty()) {
             Log.d(
@@ -127,15 +153,60 @@ class ChatRepository @Inject constructor(
             return
         }
 
-        val res = MessageEntity(
-            message.id,
-            message.content.toString(),
-            userId,
-            username,
-            currentUserIsAuthor,
-            message.createdAt.time
-        )
+        Log.d(LOG_TAG, "$currentUserIsAuthor $userId $username")
 
-        db.messageDao().insert(res)
+        messages.add(
+            MessageEntity(
+                message.id,
+                message.content.toString(),
+                userId,
+                username,
+                currentUserIsAuthor,
+                message.createdAt.time
+            )
+        )
+    }
+
+    /**
+     * Api doesn't return all the required account data in mentions, so we need to fetch missing account data to show
+     * chat correctly
+     */
+    private fun fillAccounts(accounts: MutableMap<String, ChatAccountEntity?>) {
+        for (accountEntry in accounts.filter { it.value == null }) {
+            try {
+                val response = restApi.account(accountEntry.key).execute()
+                if (response.isSuccessful) {
+                    val body = response.body()
+                    if (body != null) {
+                        accounts[accountEntry.key] = accountToChatAccount(body)
+                    }
+                } else {
+                    val msg = response.errorBody()?.string()
+                    val errorMsg = if (msg.isNullOrEmpty()) response.message() else msg
+                    Log.d(LOG_TAG, "Error during fetching account $errorMsg")
+                }
+            } catch (e: Exception) {
+                Log.d(LOG_TAG, Log.getStackTraceString(e))
+            }
+        }
+    }
+
+    private fun saveToDb(messages: MutableList<MessageEntity>, accounts: MutableMap<String, ChatAccountEntity?>) {
+        Log.d(LOG_TAG, "Saving ${accounts.size} accounts and ${messages.size} messages")
+        accounts.forEach {
+            if (it.value != null) {
+                db.chatAccountDao().insert(it.value!!)
+            }
+        }
+        messages.forEach { db.messageDao().insert(it) }
+    }
+
+    private fun accountToChatAccount(account: Account): ChatAccountEntity {
+        return ChatAccountEntity(
+            account.id,
+            account.username,
+            account.displayName,
+            account.avatar
+        )
     }
 }

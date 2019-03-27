@@ -18,27 +18,25 @@
 package tech.bigfig.romachat.view.screen.chatlist
 
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.ImageView
-import androidx.recyclerview.widget.RecyclerView
-import tech.bigfig.romachat.data.entity.Account
-import tech.bigfig.romachat.databinding.LayoutChatListItemBinding
-import com.squareup.picasso.Picasso
 import androidx.databinding.BindingAdapter
+import androidx.recyclerview.widget.RecyclerView
+import com.squareup.picasso.Picasso
 import tech.bigfig.romachat.R
+import tech.bigfig.romachat.data.entity.ChatInfo
+import tech.bigfig.romachat.databinding.LayoutChatListItemBinding
 
 
 class ChatListAdapter(
-    private val context: Context,
     private val listener: ChatListAdapterListener?
 ) : RecyclerView.Adapter<ChatListAdapter.ViewHolder>() {
 
 
-    private var values: MutableList<Account> = mutableListOf()
+    private var values: MutableList<ChatInfo> = mutableListOf()
 
-    fun setItems(newValues: List<Account>) {
+    fun setItems(newValues: List<ChatInfo>) {
         values.clear()
         values.addAll(newValues)
 
@@ -58,16 +56,16 @@ class ChatListAdapter(
 
     inner class ViewHolder(val binding: LayoutChatListItemBinding) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(account: Account) {
-            binding.account = account
+        fun bind(chatInfo: ChatInfo) {
+            binding.chat = chatInfo
             binding.executePendingBindings()
 
-            binding.root.setOnClickListener { listener?.onChatClick(account) }
+            binding.root.setOnClickListener { listener?.onChatClick(chatInfo) }
         }
     }
 
     interface ChatListAdapterListener {
-        fun onChatClick(account: Account)
+        fun onChatClick(chatInfo: ChatInfo)
     }
 }
 

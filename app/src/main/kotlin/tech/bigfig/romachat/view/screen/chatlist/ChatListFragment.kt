@@ -29,7 +29,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import tech.bigfig.romachat.app.App
-import tech.bigfig.romachat.data.entity.Account
+import tech.bigfig.romachat.data.entity.ChatInfo
 import tech.bigfig.romachat.databinding.FragmentChatListBinding
 import tech.bigfig.romachat.view.utils.RetryListener
 import javax.inject.Inject
@@ -53,10 +53,10 @@ class ChatListFragment : Fragment() {
         viewModel = ViewModelProviders.of(this, viewModelFactory)
             .get(ChatListViewModel::class.java)
 
-        viewModel.friendList.observe(this, Observer { accounts ->
-            if (accounts.data != null) {
-                Log.d(LOG_TAG, "showing ${accounts.data.size} accounts")
-                adapter.setItems(accounts.data)
+        viewModel.chatList.observe(this, Observer { chats ->
+            if (chats != null) {
+                Log.d(LOG_TAG, "showing ${chats.size} chats")
+                adapter.setItems(chats)
             }
         })
 
@@ -72,7 +72,7 @@ class ChatListFragment : Fragment() {
             }
         }
 
-        adapter = ChatListAdapter(activity!!, adapterListener)
+        adapter = ChatListAdapter(adapterListener)
 
         binding.chatListView.layoutManager = LinearLayoutManager(context)
         binding.chatListView.adapter = adapter
@@ -82,7 +82,7 @@ class ChatListFragment : Fragment() {
     }
 
     private var adapterListener = object : ChatListAdapter.ChatListAdapterListener {
-        override fun onChatClick(account: Account) {
+        override fun onChatClick(chatInfo: ChatInfo) {
 
         }
     }

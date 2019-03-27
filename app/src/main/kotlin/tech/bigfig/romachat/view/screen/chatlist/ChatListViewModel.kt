@@ -22,13 +22,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import tech.bigfig.romachat.data.ChatRepository
-import tech.bigfig.romachat.data.Result
-import tech.bigfig.romachat.data.entity.Account
+import tech.bigfig.romachat.data.entity.ChatInfo
 import javax.inject.Inject
 
 class ChatListViewModel @Inject constructor(repository: ChatRepository) : ViewModel() {
-
-    //TODO known issue: app is loading 40 following accounts, need to add fetching next 40 items after scroll to bottom
 
     private val loadData = MutableLiveData<Boolean>()
 
@@ -36,7 +33,7 @@ class ChatListViewModel @Inject constructor(repository: ChatRepository) : ViewMo
         loadData.value = true
     }
 
-    val friendList: LiveData<Result<List<Account>>> = Transformations.switchMap(loadData) {
-        repository.getFollowingUsers()
+    val chatList: LiveData<List<ChatInfo>> = Transformations.switchMap(loadData) {
+        repository.getAllChats()
     }
 }

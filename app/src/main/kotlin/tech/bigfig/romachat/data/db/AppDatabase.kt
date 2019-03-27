@@ -17,7 +17,11 @@ package tech.bigfig.romachat.data.db
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import tech.bigfig.romachat.data.db.dao.AccountDao
+import tech.bigfig.romachat.data.db.dao.ChatAccountDao
+import tech.bigfig.romachat.data.db.dao.MessageDao
 import tech.bigfig.romachat.data.db.entity.AccountEntity
+import tech.bigfig.romachat.data.db.entity.ChatAccountEntity
 import tech.bigfig.romachat.data.db.entity.MessageEntity
 
 /**
@@ -25,11 +29,12 @@ import tech.bigfig.romachat.data.db.entity.MessageEntity
  */
 
 @Database(
-    entities = [AccountEntity::class, MessageEntity::class], version = 1
+    entities = [AccountEntity::class, MessageEntity::class, ChatAccountEntity::class], version = 1
 )
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun accountDao(): AccountDao
     abstract fun messageDao(): MessageDao
+    abstract fun chatAccountDao(): ChatAccountDao
 
 }

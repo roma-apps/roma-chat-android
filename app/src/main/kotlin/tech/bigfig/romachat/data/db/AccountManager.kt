@@ -16,6 +16,7 @@
 package tech.bigfig.romachat.data.db
 
 import android.util.Log
+import tech.bigfig.romachat.data.db.dao.AccountDao
 import tech.bigfig.romachat.data.db.entity.AccountEntity
 import tech.bigfig.romachat.data.entity.Account
 import tech.bigfig.romachat.data.entity.Status

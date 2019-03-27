@@ -1,4 +1,5 @@
-/* Copyright 2018 Conny Duck
+/*
+ * Copyright (c) 2019 Vasily Kabunov
  *
  * This file is a part of Roma.
  *
@@ -11,22 +12,18 @@
  * Public License for more details.
  *
  * You should have received a copy of the GNU General Public License along with Roma; if not,
- * see <http://www.gnu.org/licenses>. */
+ * see <http://www.gnu.org/licenses>.
+ */
 
-package tech.bigfig.romachat.data.db
+package tech.bigfig.romachat.data.entity
 
-import androidx.room.*
-import tech.bigfig.romachat.data.db.entity.AccountEntity
+import androidx.room.Embedded
+import tech.bigfig.romachat.data.db.entity.ChatAccountEntity
 
-@Dao
-interface AccountDao {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertOrReplace(account: AccountEntity): Long
+data class ChatInfo(
 
-    @Delete
-    fun delete(account: AccountEntity)
+    @Embedded
+    var account: ChatAccountEntity,
 
-    @Query("SELECT * FROM AccountEntity ORDER BY id ASC")
-    fun loadAll(): List<AccountEntity>
-
-}
+    var messageCount: Int
+)

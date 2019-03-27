@@ -71,4 +71,7 @@ interface RestApi {
         @Query("since_id") sinceId: String?,
         @Query("limit") limit: Int?
     ): Call<List<Status>>
+
+    @GET("api/v1/accounts/{id}")
+    fun account(@Path("id") accountId: String): Call<Account>
 }

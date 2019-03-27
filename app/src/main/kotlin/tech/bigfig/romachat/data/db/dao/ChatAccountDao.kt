@@ -15,31 +15,15 @@
  * see <http://www.gnu.org/licenses>.
  */
 
-package tech.bigfig.romachat.data.db.entity
+package tech.bigfig.romachat.data.db.dao
 
-import androidx.room.Entity
-import androidx.room.ForeignKey
-import androidx.room.ForeignKey.CASCADE
-import androidx.room.PrimaryKey
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import tech.bigfig.romachat.data.db.entity.ChatAccountEntity
 
-@Entity(
-    foreignKeys = [ForeignKey(
-        entity = ChatAccountEntity::class,
-        parentColumns = ["id"],
-        childColumns = ["accountId"],
-        onDelete = CASCADE
-    )]
-)
-data class MessageEntity(
-
-    @PrimaryKey
-    val id: String,
-    var content: String,
-
-    var accountId: String,
-    var accountName: String,
-
-    var fromMe: Boolean,
-
-    var createdAt: Long
-)
+@Dao
+interface ChatAccountDao {
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insert(message: ChatAccountEntity)
+}

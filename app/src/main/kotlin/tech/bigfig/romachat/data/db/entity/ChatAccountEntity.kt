@@ -15,20 +15,17 @@
  * see <http://www.gnu.org/licenses>.
  */
 
-package tech.bigfig.romachat.data.db
+package tech.bigfig.romachat.data.db.entity
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
-import tech.bigfig.romachat.data.db.entity.MessageEntity
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 
-@Dao
-interface MessageDao {
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    fun insert(message: MessageEntity)
+@Entity
+data class ChatAccountEntity(
+    @PrimaryKey
+    var id: String,
+    val username: String,
+    var displayName: String,
+    var avatarUrl: String
+)
 
-    @Query("SELECT * FROM MessageEntity ORDER BY createdAt ASC")
-    fun loadAll(): List<MessageEntity>
-
-}

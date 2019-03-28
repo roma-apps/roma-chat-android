@@ -27,8 +27,8 @@ interface MessageDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(message: MessageEntity)
 
-    @Query("SELECT * FROM MessageEntity ORDER BY createdAt DESC")
-    fun loadAll(): List<MessageEntity>
+    @Query("SELECT * FROM MessageEntity WHERE accountId = :accountId ORDER BY createdAt DESC")
+    fun loadAll(accountId:String): LiveData<List<MessageEntity>>
 
 //    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
     @Query("SELECT COUNT(m.id) as messageCount, m.id, * FROM MessageEntity m LEFT JOIN ChatAccountEntity a ON m.accountId = a.id GROUP BY accountId ORDER BY createdAt DESC")

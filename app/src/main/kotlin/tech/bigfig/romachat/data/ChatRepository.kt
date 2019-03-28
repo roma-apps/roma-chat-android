@@ -46,6 +46,10 @@ class ChatRepository @Inject constructor(
         return db.messageDao().loadAllChats()
     }
 
+    fun getChatMessages(accountId: String): LiveData<List<MessageEntity>> {
+        return db.messageDao().loadAll(accountId)
+    }
+
     /**
      * Load the messages from api and store them to db.
      *

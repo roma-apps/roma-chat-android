@@ -9,4 +9,7 @@
     <color name="validation_error">#F44336</color>
 
     <color name="custom_tab_toolbar">#313543</color>
+
+    <color name="chat_me">#E91E63</color>
+    <color name="chat_other">#2196F3</color>
 </resources>

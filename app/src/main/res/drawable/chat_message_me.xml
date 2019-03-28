@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:bottom="@dimen/chat_message_border_width_negative"
+        android:right="@dimen/chat_message_border_width_negative"
+        android:top="@dimen/chat_message_border_width_negative">
+        <shape android:shape="rectangle" >
+            <solid android:color="#00ffffff" />
+
+            <stroke
+                android:width="@dimen/chat_message_border_width"
+                android:color="@color/chat_me" />
+        </shape>
+    </item>
+
+</layer-list>

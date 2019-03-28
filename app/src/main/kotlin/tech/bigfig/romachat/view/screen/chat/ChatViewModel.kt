@@ -17,17 +17,21 @@
 
 package tech.bigfig.romachat.view.screen.chat
 
+import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
+import tech.bigfig.romachat.R
 import tech.bigfig.romachat.data.ChatRepository
-import tech.bigfig.romachat.data.db.entity.MessageEntity
+import java.text.SimpleDateFormat
+import java.util.*
 import javax.inject.Inject
 
-class ChatViewModel @Inject constructor(repository: ChatRepository) : ViewModel() {
+class ChatViewModel @Inject constructor(repository: ChatRepository, context: Context) : ViewModel() {
 
     var accountId: String? = null
+    var accountDisplayName: String? = null
 
     private val loadData = MutableLiveData<Boolean>()
 
@@ -35,7 +39,44 @@ class ChatViewModel @Inject constructor(repository: ChatRepository) : ViewModel(
         loadData.value = true
     }
 
-    val messageList: LiveData<List<MessageEntity>> = Transformations.switchMap(loadData) {
-        repository.getChatMessages(accountId ?: throw IllegalArgumentException("accountId is null"))
+    val messageList: LiveData<List<MessageViewData>> = Transformations.switchMap(loadData) {
+        Transformations.map(
+            repository.getChatMessages(
+                accountId ?: throw IllegalArgumentException("accountId is null")
+            )
+        )
+        { messages ->
+            @Suppress("DEPRECATION")
+            var lastDate = Date(1970, 1, 1)
+            var lastFromMe: Boolean? = null
+            val sdf = SimpleDateFormat("dd.MM.yy")
+
+            val res: MutableList<MessageViewData> = mutableListOf()
+
+            messages.forEach { message ->
+                val theSameDay = message.createdAt.theSameDay(lastDate)
+
+                res.add(
+                    MessageViewData(
+                        message.content,
+                        message.mentions,
+                        !theSameDay,
+                        sdf.format(message.createdAt),
+                        message.fromMe != lastFromMe || !theSameDay,
+                        if (message.fromMe) context.getString(R.string.chat_message_user_me) else accountDisplayName,
+                        message.fromMe
+                    )
+                )
+                lastDate = message.createdAt
+                lastFromMe = message.fromMe
+            }
+
+            return@map res.toList()
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    private fun Date.theSameDay(date: Date): Boolean {
+        return year == date.year && month == date.month && day == date.day
     }
 }

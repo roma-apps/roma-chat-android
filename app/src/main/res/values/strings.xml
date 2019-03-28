@@ -20,6 +20,7 @@
     <string name="camera_permission_rationale">To use the app, please allow access to your camera.</string>
     <string name="camera_permission_rationale_action">Turn on</string>
 
+    <string name="chat_message_user_me">ME</string>
     <string name="chat_send_message_hint">Send a message</string>
 
 </resources>

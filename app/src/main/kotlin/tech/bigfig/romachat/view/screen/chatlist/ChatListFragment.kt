@@ -87,7 +87,7 @@ class ChatListFragment : Fragment() {
         override fun onChatClick(chatInfo: ChatInfo) {
             //TODO replace with Navigation component
             activity!!.supportFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, ChatFragment.newInstance(chatInfo.account.id))
+                .replace(R.id.fragment_container, ChatFragment.newInstance(chatInfo.account.id, chatInfo.account.displayName))
                 .addToBackStack("ChatFragment")
                 .commit()
         }

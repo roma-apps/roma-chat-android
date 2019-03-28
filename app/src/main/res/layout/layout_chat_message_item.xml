@@ -11,9 +11,11 @@
 
         <import type="tech.bigfig.romachat.view.utils.TextFormatter" />
 
+        <import type="tech.bigfig.romachat.R" />
+
         <variable
             name="message"
-            type="tech.bigfig.romachat.data.db.entity.MessageEntity" />
+            type="tech.bigfig.romachat.view.screen.chat.MessageViewData" />
 
     </data>
 
@@ -24,17 +26,52 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="16dp">
+            android:paddingStart="8dp"
+            android:paddingEnd="16dp">
+
+            <TextView
+                android:id="@+id/chat_message_date"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:text="@{message.date}"
+                android:textAlignment="center"
+                android:textColor="#ccc"
+                android:textSize="12sp"
+                android:visibility="@{safeUnbox(message.showDate) ? View.VISIBLE : View.GONE}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Date" />
+
+            <TextView
+                android:id="@+id/chat_message_user"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@{message.account}"
+                android:textColor="@{message.fromMe ? @color/chat_me : @color/chat_other}"
+                android:textSize="12sp"
+                android:visibility="@{safeUnbox(message.showAccount) ? View.VISIBLE : View.GONE}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/chat_message_date"
+                tools:text="User" />
 
             <TextView
                 android:id="@+id/chat_message_content"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:background="@{message.fromMe ?@drawable/chat_message_me : @drawable/chat_message_other}"
+                android:paddingStart="12dp"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"
                 android:textColor="@color/text_color"
                 android:textSize="16sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/chat_message_user"
                 tools:text="Message" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>

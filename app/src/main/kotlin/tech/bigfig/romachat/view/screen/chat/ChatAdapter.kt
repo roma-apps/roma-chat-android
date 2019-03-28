@@ -21,7 +21,6 @@ package tech.bigfig.romachat.view.screen.chat
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import tech.bigfig.romachat.data.db.entity.MessageEntity
 import tech.bigfig.romachat.databinding.LayoutChatMessageItemBinding
 import tech.bigfig.romachat.view.utils.TextFormatter
 
@@ -31,9 +30,9 @@ class ChatAdapter(
 ) : RecyclerView.Adapter<ChatAdapter.ViewHolder>() {
 
 
-    private var values: MutableList<MessageEntity> = mutableListOf()
+    private var values: MutableList<MessageViewData> = mutableListOf()
 
-    fun setItems(newValues: List<MessageEntity>) {
+    fun setItems(newValues: List<MessageViewData>) {
         values.clear()
         values.addAll(newValues)
 
@@ -53,7 +52,7 @@ class ChatAdapter(
 
     inner class ViewHolder(val binding: LayoutChatMessageItemBinding) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(message: MessageEntity) {
+        fun bind(message: MessageViewData) {
             TextFormatter.setClickableText(binding.chatMessageContent, message.content, message.mentions)
 
             binding.message = message
@@ -64,6 +63,6 @@ class ChatAdapter(
     }
 
     interface ChatAdapterListener {
-        fun onMessageClick(message: MessageEntity)
+        fun onMessageClick(message: MessageViewData)
     }
 }

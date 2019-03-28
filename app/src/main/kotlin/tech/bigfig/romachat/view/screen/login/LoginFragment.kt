@@ -30,7 +30,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import tech.bigfig.romachat.R
 import tech.bigfig.romachat.databinding.FragmentLoginBinding
-import tech.bigfig.romachat.utils.LinkHelper
+import tech.bigfig.romachat.utils.OpenLinkHelper
 import tech.bigfig.romachat.view.screen.main.MainActivity
 
 
@@ -82,7 +82,7 @@ class LoginFragment : Fragment() {
 
     private fun openOauthUrl(uri: Uri) {
         try {
-            LinkHelper.openLinkInCustomTab(uri, activity!!)
+            OpenLinkHelper.openLinkInCustomTab(uri, activity!!)
         } catch (e: ActivityNotFoundException) {
             viewModel.showError(getString(R.string.error_no_web_browser_found))
         }

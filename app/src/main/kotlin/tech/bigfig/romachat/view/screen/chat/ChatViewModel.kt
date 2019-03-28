@@ -28,7 +28,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
 
-class ChatViewModel @Inject constructor(repository: ChatRepository, context: Context) : ViewModel() {
+class ChatViewModel @Inject constructor(repository: ChatRepository, val context: Context) : ViewModel() {
 
     var accountId: String? = null
     var accountDisplayName: String? = null
@@ -49,7 +49,6 @@ class ChatViewModel @Inject constructor(repository: ChatRepository, context: Con
             @Suppress("DEPRECATION")
             var lastDate = Date(1970, 1, 1)
             var lastFromMe: Boolean? = null
-            val sdf = SimpleDateFormat("dd.MM.yy")
 
             val res: MutableList<MessageViewData> = mutableListOf()
 
@@ -61,7 +60,7 @@ class ChatViewModel @Inject constructor(repository: ChatRepository, context: Con
                         message.content,
                         message.mentions,
                         !theSameDay,
-                        sdf.format(message.createdAt),
+                        formatDate(message.createdAt),
                         message.fromMe != lastFromMe || !theSameDay,
                         if (message.fromMe) context.getString(R.string.chat_message_user_me) else accountDisplayName,
                         message.fromMe
@@ -77,6 +76,13 @@ class ChatViewModel @Inject constructor(repository: ChatRepository, context: Con
 
     @Suppress("DEPRECATION")
     private fun Date.theSameDay(date: Date): Boolean {
-        return year == date.year && month == date.month && day == date.day
+        return year == date.year && month == date.month && this.date == date.date
+    }
+
+    private val sdf = SimpleDateFormat("MMMM dd", Locale.getDefault())
+    private fun formatDate(date: Date): String {
+        val today = Date()
+        if (date.theSameDay(today)) return context.getString(R.string.chat_message_date_today).toUpperCase() else
+            return sdf.format(date).toUpperCase()
     }
 }

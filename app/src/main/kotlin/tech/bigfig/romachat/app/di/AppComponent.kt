@@ -19,6 +19,7 @@ package tech.bigfig.romachat.app.di
 
 import dagger.Component
 import tech.bigfig.romachat.view.screen.camera.CameraFragment
+import tech.bigfig.romachat.view.screen.chat.ChatFragment
 import tech.bigfig.romachat.view.screen.chat.ChatMessagesService
 import tech.bigfig.romachat.view.screen.chatlist.ChatListFragment
 import tech.bigfig.romachat.view.screen.login.LoginActivity
@@ -31,6 +32,8 @@ interface AppComponent {
     fun inject(activity: LoginActivity)
 
     fun inject(fragment: ChatListFragment)
+
+    fun inject(fragment: ChatFragment)
 
     fun inject(fragment: CameraFragment)
 

@@ -15,7 +15,7 @@
  * see <http://www.gnu.org/licenses>.
  */
 
-package tech.bigfig.romachat.view.screen.chatlist
+package tech.bigfig.romachat.view.screen.chat
 
 
 import android.os.Bundle
@@ -28,23 +28,31 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
-import tech.bigfig.romachat.R
 import tech.bigfig.romachat.app.App
-import tech.bigfig.romachat.data.entity.ChatInfo
-import tech.bigfig.romachat.databinding.FragmentChatListBinding
-import tech.bigfig.romachat.view.screen.chat.ChatFragment
+import tech.bigfig.romachat.data.db.entity.MessageEntity
+import tech.bigfig.romachat.databinding.FragmentChatBinding
 import tech.bigfig.romachat.view.utils.RetryListener
 import javax.inject.Inject
 
 
-class ChatListFragment : Fragment() {
+class ChatFragment : Fragment() {
 
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
 
-    private lateinit var binding: FragmentChatListBinding
-    private lateinit var viewModel: ChatListViewModel
-    private lateinit var adapter: ChatListAdapter
+    private lateinit var accountId: String
+
+    private lateinit var binding: FragmentChatBinding
+    private lateinit var viewModel: ChatViewModel
+    private lateinit var adapter: ChatAdapter
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        arguments?.let {
+            accountId = it.getString(ARG_ACCOUNT_ID) ?: throw IllegalArgumentException("Empty account id")
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -53,18 +61,20 @@ class ChatListFragment : Fragment() {
         App.getApplication(activity!!).appComponent.inject(this)
 
         viewModel = ViewModelProviders.of(this, viewModelFactory)
-            .get(ChatListViewModel::class.java)
+            .get(ChatViewModel::class.java)
 
-        viewModel.chatList.observe(this, Observer { chats ->
-            if (chats != null) {
-                Log.d(LOG_TAG, "showing ${chats.size} chats")
-                adapter.setItems(chats)
+        viewModel.accountId = accountId
+
+        viewModel.messageList.observe(this, Observer { messages ->
+            if (messages != null) {
+                Log.d(LOG_TAG, "showing ${messages.size} messages")
+                adapter.setItems(messages)
             }
         })
 
         viewModel.loadData()
 
-        binding = FragmentChatListBinding.inflate(layoutInflater, container, false)
+        binding = FragmentChatBinding.inflate(layoutInflater, container, false)
         binding.viewModel = viewModel
         binding.lifecycleOwner = this
 
@@ -74,30 +84,32 @@ class ChatListFragment : Fragment() {
             }
         }
 
-        adapter = ChatListAdapter(adapterListener)
+        adapter = ChatAdapter(adapterListener)
 
-        binding.chatListView.layoutManager = LinearLayoutManager(context)
-        binding.chatListView.adapter = adapter
-        binding.chatListView.isNestedScrollingEnabled = false
+        binding.chatMessageList.layoutManager = LinearLayoutManager(context)
+        binding.chatMessageList.adapter = adapter
+        binding.chatMessageList.isNestedScrollingEnabled = false
 
         return binding.root
     }
 
-    private var adapterListener = object : ChatListAdapter.ChatListAdapterListener {
-        override fun onChatClick(chatInfo: ChatInfo) {
-            //TODO replace with Navigation component
-            activity!!.supportFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, ChatFragment.newInstance(chatInfo.account.id))
-                .addToBackStack("ChatFragment")
-                .commit()
+    private var adapterListener = object : ChatAdapter.ChatAdapterListener {
+        override fun onMessageClick(message: MessageEntity) {
         }
     }
 
     companion object {
 
-        @JvmStatic
-        fun newInstance() = ChatListFragment()
+        const val ARG_ACCOUNT_ID = "ARG_ACCOUNT_ID"
 
-        private const val LOG_TAG = "ChatListFragment"
+        @JvmStatic
+        fun newInstance(accountId: String) =
+            ChatFragment().apply {
+                arguments = Bundle().apply {
+                    putString(ARG_ACCOUNT_ID, accountId)
+                }
+            }
+
+        private const val LOG_TAG = "ChatFragment"
     }
 }

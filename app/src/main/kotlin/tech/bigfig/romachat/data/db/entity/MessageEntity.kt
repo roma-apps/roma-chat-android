@@ -17,10 +17,15 @@
 
 package tech.bigfig.romachat.data.db.entity
 
+import android.text.Spanned
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.ForeignKey.CASCADE
 import androidx.room.PrimaryKey
+import androidx.room.TypeConverters
+import tech.bigfig.romachat.data.db.Converters
+import tech.bigfig.romachat.data.entity.Status
+import java.util.*
 
 @Entity(
     foreignKeys = [ForeignKey(
@@ -30,16 +35,19 @@ import androidx.room.PrimaryKey
         onDelete = CASCADE
     )]
 )
+@TypeConverters(Converters::class)
 data class MessageEntity(
 
     @PrimaryKey
     val id: String,
-    var content: String,
+    var content: Spanned,
 
     var accountId: String,
     var accountName: String,
 
     var fromMe: Boolean,
 
-    var createdAt: Long
+    var createdAt: Date,
+
+    var mentions: Array<Status.Mention>
 )

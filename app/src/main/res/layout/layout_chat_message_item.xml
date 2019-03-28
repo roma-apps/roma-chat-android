@@ -9,6 +9,8 @@
 
         <import type="android.view.View" />
 
+        <import type="tech.bigfig.romachat.view.utils.TextFormatter" />
+
         <variable
             name="message"
             type="tech.bigfig.romachat.data.db.entity.MessageEntity" />
@@ -25,17 +27,15 @@
             android:padding="16dp">
 
             <TextView
-                android:id="@+id/chat_item_user_name"
+                android:id="@+id/chat_message_content"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:ellipsize="end"
-                android:singleLine="true"
-                android:text="@{message.content}"
-                android:textSize="14sp"
+                android:textColor="@color/text_color"
+                android:textSize="16sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:text="Account title" />
+                tools:text="Message" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -44,6 +44,7 @@
                 android:fontFamily="sans-serif-medium"
                 android:singleLine="true"
                 android:text="@{chat.account.displayName}"
+                android:textColor="@color/text_color"
                 android:textSize="18sp"
                 app:layout_constraintBottom_toTopOf="@+id/chat_item_user_status"
                 app:layout_constraintEnd_toEndOf="parent"

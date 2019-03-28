@@ -4,6 +4,7 @@
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#ca8f04</color>
 
+    <color name="text_color">#333</color>
 
     <color name="validation_error">#F44336</color>
 

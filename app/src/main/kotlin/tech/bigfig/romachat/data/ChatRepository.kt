@@ -162,11 +162,12 @@ class ChatRepository @Inject constructor(
         messages.add(
             MessageEntity(
                 message.id,
-                message.content.toString(),
+                message.content,
                 userId,
                 username,
                 currentUserIsAuthor,
-                message.createdAt.time
+                message.createdAt,
+                mentions.toTypedArray()
             )
         )
     }

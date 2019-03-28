@@ -23,6 +23,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import tech.bigfig.romachat.data.db.entity.MessageEntity
 import tech.bigfig.romachat.databinding.LayoutChatMessageItemBinding
+import tech.bigfig.romachat.view.utils.TextFormatter
 
 
 class ChatAdapter(
@@ -53,6 +54,8 @@ class ChatAdapter(
     inner class ViewHolder(val binding: LayoutChatMessageItemBinding) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(message: MessageEntity) {
+            TextFormatter.setClickableText(binding.chatMessageContent, message.content, message.mentions)
+
             binding.message = message
             binding.executePendingBindings()
 

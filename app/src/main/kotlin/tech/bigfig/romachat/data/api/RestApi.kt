@@ -74,4 +74,18 @@ interface RestApi {
 
     @GET("api/v1/accounts/{id}")
     fun account(@Path("id") accountId: String): Call<Account>
+
+    @FormUrlEncoded
+    @POST("api/v1/statuses")
+     fun createStatus(
+        @Header("Authorization") auth: String,
+        @Header(DOMAIN_HEADER) domain: String,
+        @Field("status") text: String,
+        @Field("in_reply_to_id") inReplyToId: String?,
+        @Field("spoiler_text") warningText: String?,
+        @Field("visibility") visibility: String,
+        @Field("sensitive") sensitive: Boolean?,
+        @Field("media_ids[]") mediaIds: List<String>?,
+        @Header("Idempotency-Key") idempotencyKey: String
+    ): Call<Status>
 }

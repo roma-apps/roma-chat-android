@@ -23,6 +23,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -64,6 +65,10 @@ class ChatFragment : Fragment() {
             }
         })
 
+        viewModel.postMessage.observe(this, Observer { result ->
+            Log.d(LOG_TAG, "result $result")
+        })
+
         viewModel.loadData()
 
         binding = FragmentChatBinding.inflate(layoutInflater, container, false)
@@ -81,6 +86,13 @@ class ChatFragment : Fragment() {
         binding.chatMessageList.layoutManager = LinearLayoutManager(context)
         binding.chatMessageList.adapter = adapter
         binding.chatMessageList.isNestedScrollingEnabled = false
+
+        binding.chatMessage.setOnEditorActionListener { v, actionId, event ->
+            if (actionId == EditorInfo.IME_ACTION_SEND) {
+                viewModel.onSubmitClick(binding.chatMessage.text.toString())
+            }
+            false
+        }
 
         return binding.root
     }

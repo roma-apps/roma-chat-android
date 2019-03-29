@@ -24,6 +24,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import tech.bigfig.romachat.data.api.RestApi
+import tech.bigfig.romachat.data.api.apiCallToLiveData
 import tech.bigfig.romachat.data.db.AccountManager
 import tech.bigfig.romachat.data.db.AppDatabase
 import tech.bigfig.romachat.data.db.entity.ChatAccountEntity
@@ -31,6 +32,7 @@ import tech.bigfig.romachat.data.db.entity.MessageEntity
 import tech.bigfig.romachat.data.entity.Account
 import tech.bigfig.romachat.data.entity.ChatInfo
 import tech.bigfig.romachat.data.entity.Status
+import tech.bigfig.romachat.utils.StringUtils
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 
@@ -48,6 +50,22 @@ class ChatRepository @Inject constructor(
 
     fun getChatMessages(accountId: String): LiveData<List<MessageEntity>> {
         return db.messageDao().loadAll(accountId)
+    }
+
+    fun postMessage(message: String): LiveData<Result<Status>> {
+        return apiCallToLiveData(
+            restApi.createStatus(
+                "Bearer " + accountManager.activeAccount?.accessToken,
+                accountManager.activeAccount?.domain!!,
+                message,
+                null,
+                null,
+                Status.Visibility.DIRECT.serverString(),
+                false,
+                null,
+                StringUtils.randomAlphanumericString(16)
+            )
+        ) { it }
     }
 
     /**

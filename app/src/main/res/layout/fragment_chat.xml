@@ -1,5 +1,6 @@
-<layout xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
 
@@ -15,7 +16,7 @@
 
         <variable
             name="retryListener"
-            type="tech.bigfig.romachat.view.utils.RetryListener"/>
+            type="tech.bigfig.romachat.view.utils.RetryListener" />
 
     </data>
 
@@ -27,16 +28,40 @@
             android:id="@+id/chat_message_list"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_marginBottom="8dp"
-            app:layout_constraintBottom_toTopOf="@+id/chat_message"
+            android:clipToPadding="false"
+            android:paddingBottom="16dp"
+            app:layout_constraintBottom_toTopOf="@+id/divider"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <View
+            android:id="@+id/divider"
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:layout_gravity="bottom"
+            android:background="#ccc"
+            app:layout_constraintBottom_toTopOf="@+id/chat_error" />
+
         <TextView
+            android:id="@+id/chat_error"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{viewModel.errorMessage}"
+            android:textColor="@color/validation_error"
+            android:visibility="@{safeUnbox(viewModel.isError) ? View.VISIBLE : View.GONE}"
+            app:layout_constraintBottom_toTopOf="@+id/chat_message"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:text="Error" />
+
+        <EditText
             android:id="@+id/chat_message"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
+            android:layout_margin="8dp"
             android:hint="@string/chat_send_message_hint"
+            android:imeOptions="actionSend"
+            android:inputType="textShortMessage"
+            android:text="@={viewModel.messageText}"
             app:layout_constraintBottom_toBottomOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

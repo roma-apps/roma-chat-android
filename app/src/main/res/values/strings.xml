@@ -24,4 +24,8 @@
     <string name="chat_message_date_today">Today</string>
     <string name="chat_send_message_hint">Send a message</string>
 
+    <string name="chat_send_error_no_text">The message cannot be empty</string>
+    <string name="chat_send_error_too_long_text">The message is too long</string>
+    <string name="chat_send_error_post">Failed sending a message</string>
+
 </resources>

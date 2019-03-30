@@ -29,6 +29,7 @@ import com.squareup.picasso.Picasso
 import tech.bigfig.romachat.R
 import tech.bigfig.romachat.data.entity.Attachment
 import tech.bigfig.romachat.databinding.LayoutChatMessageItemBinding
+import tech.bigfig.romachat.view.utils.CustomEmojiHelper
 import tech.bigfig.romachat.view.utils.TextFormatter
 
 
@@ -92,6 +93,7 @@ fun loadImage(view: ImageView, attachment: Attachment?) {
 @BindingAdapter("app:message")
 fun formatText(view: TextView, message: MessageViewData) {
     if (!message.isMedia && message.content != null) {
-        TextFormatter.setClickableText(view, message.content, message.mentions)
+        val emojifiedText = CustomEmojiHelper.emojifyText(message.content, message.emojis, view)
+        TextFormatter.setClickableText(view, emojifiedText, message.mentions)
     }
 }

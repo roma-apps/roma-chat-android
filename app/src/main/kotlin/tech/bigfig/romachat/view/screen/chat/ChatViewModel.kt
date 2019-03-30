@@ -76,6 +76,7 @@ class ChatViewModel @Inject constructor(repository: ChatRepository, val context:
                         false,
                         message.content,
                         message.mentions,
+                        message.emojis,
                         null
                     )
                 )
@@ -90,6 +91,7 @@ class ChatViewModel @Inject constructor(repository: ChatRepository, val context:
                             null,
                             message.fromMe,
                             true,
+                            null,
                             null,
                             null,
                             attachment

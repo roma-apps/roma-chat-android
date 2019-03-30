@@ -19,9 +19,10 @@ package tech.bigfig.romachat.view.screen.chat
 
 import android.text.Spanned
 import tech.bigfig.romachat.data.entity.Attachment
+import tech.bigfig.romachat.data.entity.Emoji
 import tech.bigfig.romachat.data.entity.Status
 
-data class MessageViewData (
+data class MessageViewData(
     val showDate: Boolean,
     val date: String?,
 
@@ -29,10 +30,11 @@ data class MessageViewData (
     val account: String?,
     val fromMe: Boolean,
 
-    val isMedia:Boolean,
+    val isMedia: Boolean,
 
     val content: Spanned?,
     val mentions: Array<Status.Mention>?,
+    val emojis: List<Emoji>?,
 
     val attachment: Attachment?
 )

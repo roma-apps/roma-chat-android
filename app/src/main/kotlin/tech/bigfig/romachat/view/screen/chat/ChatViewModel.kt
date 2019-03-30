@@ -68,15 +68,35 @@ class ChatViewModel @Inject constructor(repository: ChatRepository, val context:
 
                 res.add(
                     MessageViewData(
-                        message.content,
-                        message.mentions,
                         !theSameDay,
                         formatDate(message.createdAt),
                         message.fromMe != lastFromMe || !theSameDay,
                         if (message.fromMe) context.getString(R.string.chat_message_user_me) else accountDisplayName,
-                        message.fromMe
+                        message.fromMe,
+                        false,
+                        message.content,
+                        message.mentions,
+                        null
                     )
                 )
+
+                //show each attachment as a separate message
+                message.attachments.forEach { attachment ->
+                    res.add(
+                        MessageViewData(
+                            false,
+                            null,
+                            false,
+                            null,
+                            message.fromMe,
+                            true,
+                            null,
+                            null,
+                            attachment
+                        )
+                    )
+                }
+
                 lastDate = message.createdAt
                 lastFromMe = message.fromMe
             }

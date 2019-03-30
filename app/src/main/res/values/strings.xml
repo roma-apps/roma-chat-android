@@ -16,6 +16,7 @@
     <string name="error_try_again">Try again</string>
 
     <string name="a11y_user_avatar">user avatar</string>
+    <string name="a11y_message_media">media</string>
 
     <string name="camera_permission_rationale">To use the app, please allow access to your camera.</string>
     <string name="camera_permission_rationale_action">Turn on</string>

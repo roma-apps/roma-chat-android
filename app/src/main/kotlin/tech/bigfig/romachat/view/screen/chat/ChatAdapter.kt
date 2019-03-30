@@ -18,9 +18,16 @@
 package tech.bigfig.romachat.view.screen.chat
 
 
+import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.squareup.picasso.Picasso
+import tech.bigfig.romachat.R
+import tech.bigfig.romachat.data.entity.Attachment
 import tech.bigfig.romachat.databinding.LayoutChatMessageItemBinding
 import tech.bigfig.romachat.view.utils.TextFormatter
 
@@ -53,8 +60,6 @@ class ChatAdapter(
     inner class ViewHolder(val binding: LayoutChatMessageItemBinding) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(message: MessageViewData) {
-            TextFormatter.setClickableText(binding.chatMessageContent, message.content, message.mentions)
-
             binding.message = message
             binding.executePendingBindings()
 
@@ -64,5 +69,29 @@ class ChatAdapter(
 
     interface ChatAdapterListener {
         fun onMessageClick(message: MessageViewData)
+    }
+}
+
+@BindingAdapter("app:attachment")
+fun loadImage(view: ImageView, attachment: Attachment?) {
+    if (attachment == null) return
+
+    view.contentDescription = if (TextUtils.isEmpty(attachment.description))
+        view.context.getString(R.string.a11y_message_media) else attachment.description
+
+    val maxSize = view.context.resources.getDimensionPixelSize(R.dimen.chat_message_media_max_width)
+
+    val request = if (attachment.type == Attachment.Type.IMAGE) Picasso.get().load(attachment.previewUrl)
+    else Picasso.get().load(R.drawable.video_preview_background)
+
+    request.error(R.drawable.video_preview_background)
+        .resize(maxSize, 0).onlyScaleDown()
+        .into(view)
+}
+
+@BindingAdapter("app:message")
+fun formatText(view: TextView, message: MessageViewData) {
+    if (!message.isMedia && message.content != null) {
+        TextFormatter.setClickableText(view, message.content, message.mentions)
     }
 }

@@ -24,6 +24,7 @@ import androidx.room.ForeignKey.CASCADE
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import tech.bigfig.romachat.data.db.Converters
+import tech.bigfig.romachat.data.entity.Attachment
 import tech.bigfig.romachat.data.entity.Status
 import java.util.*
 
@@ -49,5 +50,6 @@ data class MessageEntity(
 
     var createdAt: Date,
 
-    var mentions: Array<Status.Mention>
+    var mentions: Array<Status.Mention>,
+    var attachments: List<Attachment>
 )

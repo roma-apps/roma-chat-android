@@ -18,16 +18,21 @@
 package tech.bigfig.romachat.view.screen.chat
 
 import android.text.Spanned
+import tech.bigfig.romachat.data.entity.Attachment
 import tech.bigfig.romachat.data.entity.Status
 
-data class MessageViewData(
-    val content: Spanned,
-    val mentions: Array<Status.Mention>,
-
+data class MessageViewData (
     val showDate: Boolean,
     val date: String?,
 
     val showAccount: Boolean,
     val account: String?,
-    val fromMe: Boolean
+    val fromMe: Boolean,
+
+    val isMedia:Boolean,
+
+    val content: Spanned?,
+    val mentions: Array<Status.Mention>?,
+
+    val attachment: Attachment?
 )

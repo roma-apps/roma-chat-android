@@ -64,15 +64,38 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:background="@{message.fromMe ?@drawable/chat_message_me : @drawable/chat_message_other}"
-                android:paddingStart="12dp"
+                android:paddingStart="@dimen/chat_message_content_left_offset"
                 android:paddingTop="4dp"
                 android:paddingBottom="4dp"
                 android:textColor="@color/text_color"
                 android:textSize="16sp"
+                android:visibility="@{safeUnbox(message.isMedia) ? View.GONE : View.VISIBLE}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/chat_message_user"
+                app:message="@{message}"
                 tools:text="Message" />
+
+            <FrameLayout
+                android:id="@+id/chat_message_media_preview_container"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@{message.fromMe ?@drawable/chat_message_me : @drawable/chat_message_other}"
+                android:visibility="@{safeUnbox(message.isMedia) ? View.VISIBLE : View.GONE}"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/chat_message_content">
+
+                <ImageView
+                    android:id="@+id/chat_message_media_preview"
+                    android:layout_width="@dimen/chat_message_media_max_width"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/chat_message_content_left_offset"
+                    android:adjustViewBounds="true"
+                    android:contentDescription="@string/a11y_message_media"
+                    android:maxWidth="@dimen/chat_message_media_max_width"
+                    app:attachment="@{message.attachment}" />
+
+            </FrameLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

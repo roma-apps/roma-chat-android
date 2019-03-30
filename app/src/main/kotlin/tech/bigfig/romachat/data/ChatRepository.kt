@@ -185,7 +185,8 @@ class ChatRepository @Inject constructor(
                 username,
                 currentUserIsAuthor,
                 message.createdAt,
-                mentions.toTypedArray()
+                mentions.toTypedArray(),
+                message.attachments
             )
         )
     }

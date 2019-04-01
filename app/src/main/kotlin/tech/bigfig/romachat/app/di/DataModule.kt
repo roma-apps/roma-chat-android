@@ -75,7 +75,7 @@ class DataModule {
 
     private fun buildOkHttpClient(accountManager: AccountManager): OkHttpClient {
         val loggingInterceptor = HttpLoggingInterceptor()
-        loggingInterceptor.level = if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY
+        loggingInterceptor.level = if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BASIC
         else HttpLoggingInterceptor.Level.NONE
 
         return OkHttpClient.Builder()

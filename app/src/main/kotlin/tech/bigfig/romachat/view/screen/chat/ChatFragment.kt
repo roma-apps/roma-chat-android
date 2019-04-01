@@ -18,6 +18,9 @@
 package tech.bigfig.romachat.view.screen.chat
 
 
+import android.Manifest
+import android.app.Activity.RESULT_OK
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -29,7 +32,10 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
+import pub.devrel.easypermissions.EasyPermissions
+import tech.bigfig.romachat.R
 import tech.bigfig.romachat.app.App
+import tech.bigfig.romachat.data.db.entity.ChatAccountEntity
 import tech.bigfig.romachat.databinding.FragmentChatBinding
 import tech.bigfig.romachat.view.utils.RetryListener
 import javax.inject.Inject
@@ -53,10 +59,7 @@ class ChatFragment : Fragment() {
         viewModel = ViewModelProviders.of(this, viewModelFactory)
             .get(ChatViewModel::class.java)
 
-        viewModel.accountId = arguments?.getString(ARG_ACCOUNT_ID) ?: throw IllegalArgumentException("Empty account id")
-        viewModel.accountDisplayName = arguments?.getString(ARG_ACCOUNT_DISPLAY_NAME) ?: throw IllegalArgumentException(
-            "Empty account display name"
-        )
+        viewModel.account = arguments?.getParcelable(ARG_ACCOUNT) ?: throw IllegalArgumentException("Empty account id")
 
         viewModel.messageList.observe(this, Observer { messages ->
             if (messages != null) {
@@ -67,6 +70,10 @@ class ChatFragment : Fragment() {
 
         viewModel.postMessage.observe(this, Observer { result ->
             Log.d(LOG_TAG, "result $result")
+        })
+
+        viewModel.uploadMedia.observe(this, Observer { result ->
+            Log.d(LOG_TAG, "uploadMedia $result")
         })
 
         viewModel.loadData()
@@ -94,7 +101,42 @@ class ChatFragment : Fragment() {
             false
         }
 
+        binding.chatAttach.setOnClickListener { v -> openMediaPicker() }
+
         return binding.root
+    }
+
+    private fun openMediaPicker() {
+        if (EasyPermissions.hasPermissions(activity!!, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+            startActivityForResult(
+                Intent(Intent.ACTION_GET_CONTENT)
+                    .addCategory(Intent.CATEGORY_OPENABLE)
+                    .setType("*/*")
+                    .putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("image/*", "video/*")), REQUEST_CODE_MEDIA_PICK
+            )
+        } else {
+            EasyPermissions.requestPermissions(
+                this, getString(R.string.storage_permission_rationale),
+                REQUEST_CODE_PERMISSION, Manifest.permission.READ_EXTERNAL_STORAGE
+            )
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        when (requestCode) {
+            REQUEST_CODE_MEDIA_PICK -> {
+                if (resultCode == RESULT_OK && data != null) {
+                    viewModel.processMedia(data.data)
+                }
+            }
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
     }
 
     private var adapterListener = object : ChatAdapter.ChatAdapterListener {
@@ -104,18 +146,19 @@ class ChatFragment : Fragment() {
 
     companion object {
 
-        const val ARG_ACCOUNT_ID = "ARG_ACCOUNT_ID"
-        const val ARG_ACCOUNT_DISPLAY_NAME = "ARG_ACCOUNT_DISPLAY_NAME"
+        const val ARG_ACCOUNT = "ARG_ACCOUNT"
 
         @JvmStatic
-        fun newInstance(accountId: String, accountDisplayName: String) =
+        fun newInstance(account: ChatAccountEntity) =
             ChatFragment().apply {
                 arguments = Bundle().apply {
-                    putString(ARG_ACCOUNT_ID, accountId)
-                    putString(ARG_ACCOUNT_DISPLAY_NAME, accountDisplayName)
+                    putParcelable(ARG_ACCOUNT, account)
                 }
             }
 
         private const val LOG_TAG = "ChatFragment"
+
+        private const val REQUEST_CODE_PERMISSION = 2322
+        private const val REQUEST_CODE_MEDIA_PICK = 1991
     }
 }

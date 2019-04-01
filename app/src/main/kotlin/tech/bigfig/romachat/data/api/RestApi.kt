@@ -17,12 +17,11 @@
 
 package tech.bigfig.romachat.data.api
 
+import okhttp3.MultipartBody
 import retrofit2.Call
 import retrofit2.http.*
-import tech.bigfig.romachat.data.entity.AccessToken
-import tech.bigfig.romachat.data.entity.Account
-import tech.bigfig.romachat.data.entity.AppCredentials
-import tech.bigfig.romachat.data.entity.Status
+import retrofit2.http.Field
+import tech.bigfig.romachat.data.entity.*
 
 const val PLACEHOLDER_DOMAIN = "dummy.placeholder"
 const val DOMAIN_HEADER = "domain"
@@ -77,10 +76,10 @@ interface RestApi {
 
     @FormUrlEncoded
     @POST("api/v1/statuses")
-     fun createStatus(
+    fun createStatus(
         @Header("Authorization") auth: String,
         @Header(DOMAIN_HEADER) domain: String,
-        @Field("status") text: String,
+        @Field("status") text: String?,
         @Field("in_reply_to_id") inReplyToId: String?,
         @Field("spoiler_text") warningText: String?,
         @Field("visibility") visibility: String,
@@ -88,4 +87,8 @@ interface RestApi {
         @Field("media_ids[]") mediaIds: List<String>?,
         @Header("Idempotency-Key") idempotencyKey: String
     ): Call<Status>
+
+    @Multipart
+    @POST("api/v1/media")
+    fun uploadMedia(@Part file: MultipartBody.Part): Call<Attachment>
 }

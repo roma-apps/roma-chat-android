@@ -17,9 +17,12 @@
 
 package tech.bigfig.romachat.data.db.entity
 
+import android.os.Parcelable
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import kotlinx.android.parcel.Parcelize
 
+@Parcelize
 @Entity
 data class ChatAccountEntity(
     @PrimaryKey
@@ -27,5 +30,5 @@ data class ChatAccountEntity(
     val username: String,
     var displayName: String,
     var avatarUrl: String
-)
+) : Parcelable
 

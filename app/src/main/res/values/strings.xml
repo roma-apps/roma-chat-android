@@ -17,6 +17,7 @@
 
     <string name="a11y_user_avatar">user avatar</string>
     <string name="a11y_message_media">media</string>
+    <string name="a11y_attach_media">attach</string>
 
     <string name="camera_permission_rationale">To use the app, please allow access to your camera.</string>
     <string name="camera_permission_rationale_action">Turn on</string>
@@ -28,5 +29,10 @@
     <string name="chat_send_error_no_text">The message cannot be empty</string>
     <string name="chat_send_error_too_long_text">The message is too long</string>
     <string name="chat_send_error_post">Failed sending a message</string>
+    <string name="chat_send_error_image_upload_size">The file must be less than 8MB.</string>
+    <string name="chat_send_error_video_upload_size">Video files must be less than 40MB.</string>
+    <string name="chat_send_error_media_upload_type">That type of file cannot be uploaded.</string>
+    <string name="chat_send_error_media_upload_opening">That file could not be opened.</string>
+    <string name="storage_permission_rationale">Please allow access to your storage.</string>
 
 </resources>

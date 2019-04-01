@@ -17,12 +17,22 @@
 
 package tech.bigfig.romachat.data
 
+import android.content.Context
+import android.net.Uri
 import android.util.Log
+import android.webkit.MimeTypeMap
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.Transformations
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import okhttp3.MediaType
+import okhttp3.MultipartBody
+import retrofit2.Call
+import retrofit2.Callback
+import tech.bigfig.romachat.R
+import tech.bigfig.romachat.data.api.ProgressRequestBody
 import tech.bigfig.romachat.data.api.RestApi
 import tech.bigfig.romachat.data.api.apiCallToLiveData
 import tech.bigfig.romachat.data.db.AccountManager
@@ -30,9 +40,14 @@ import tech.bigfig.romachat.data.db.AppDatabase
 import tech.bigfig.romachat.data.db.entity.ChatAccountEntity
 import tech.bigfig.romachat.data.db.entity.MessageEntity
 import tech.bigfig.romachat.data.entity.Account
+import tech.bigfig.romachat.data.entity.Attachment
 import tech.bigfig.romachat.data.entity.ChatInfo
 import tech.bigfig.romachat.data.entity.Status
 import tech.bigfig.romachat.utils.StringUtils
+import tech.bigfig.romachat.utils.getMediaSize
+import java.io.FileNotFoundException
+import java.io.InputStream
+import java.util.*
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 
@@ -41,7 +56,8 @@ private const val MESSAGES_LOADING_AMOUNT = 10 // max repeats of fetching messag
 private const val LOG_TAG = "ChatRepository"
 
 class ChatRepository @Inject constructor(
-    private val restApi: RestApi, private val accountManager: AccountManager, private val db: AppDatabase
+    private val restApi: RestApi, private val accountManager: AccountManager, private val db: AppDatabase,
+    private val context: Context
 ) {
 
     fun getAllChats(): LiveData<List<ChatInfo>> {
@@ -66,6 +82,100 @@ class ChatRepository @Inject constructor(
                 StringUtils.randomAlphanumericString(16)
             )
         ) { it }
+    }
+
+    fun postMedia(sendTo:String, uri: Uri): LiveData<Result<Status>> {
+        return Transformations.switchMap(uploadMedia(uri)) { attachment ->
+            if (attachment.data != null) {
+                apiCallToLiveData(
+                    restApi.createStatus(
+                        "Bearer " + accountManager.activeAccount?.accessToken,
+                        accountManager.activeAccount?.domain!!,
+                        sendTo,
+                        null,
+                        null,
+                        Status.Visibility.DIRECT.serverString(),
+                        false,
+                        listOf(attachment.data.id),
+                        StringUtils.randomAlphanumericString(16)
+                    )
+                ) { it }
+            } else null
+        }
+    }
+
+    private fun uploadMedia(uri: Uri): LiveData<Result<Attachment>> {
+        return object : LiveData<Result<Attachment>>() {
+            private var started = AtomicBoolean(false)
+            override fun onActive() {
+                super.onActive()
+                if (started.compareAndSet(false, true)) {
+                    postValue(Result.loading())
+
+                    var mimeType = context.contentResolver.getType(uri)
+                    val map = MimeTypeMap.getSingleton()
+                    val fileExtension = map.getExtensionFromMimeType(mimeType)
+                    val filename = String.format(
+                        "%s_%s_%s.%s",
+                        context.getString(R.string.app_name),
+                        Date().time.toString(),
+                        StringUtils.randomAlphanumericString(10),
+                        fileExtension
+                    )
+
+                    val stream: InputStream?
+
+                    try {
+                        stream = context.contentResolver.openInputStream(uri)
+                    } catch (e: FileNotFoundException) {
+                        Log.w(LOG_TAG, e)
+                        return
+                    }
+
+
+                    if (mimeType == null) mimeType = "multipart/form-data"
+
+//                    item.preview.setProgress(0)
+
+                    val fileBody =
+                        ProgressRequestBody(stream,
+                            getMediaSize(context.contentResolver, uri),
+                            MediaType.parse(mimeType),
+                            object :
+                                ProgressRequestBody.UploadCallback { // may reference activity longer than I would like to
+                                var lastProgress = -1
+
+                                override fun onProgressUpdate(percentage: Int) {
+//                                    if (percentage != lastProgress) {
+//                                        runOnUiThread { item.preview.setProgress(percentage) }
+//                                    }
+                                    lastProgress = percentage
+                                    Log.d(LOG_TAG, "progress $percentage")
+                                }
+                            })
+
+                    val body = MultipartBody.Part.createFormData("file", filename, fileBody)
+
+                    val uploadRequest = restApi.uploadMedia(body)
+
+                    uploadRequest.enqueue(object : Callback<Attachment> {
+                        override fun onResponse(call: Call<Attachment>, response: retrofit2.Response<Attachment>) {
+                            if (response.isSuccessful) {
+                                postValue(Result.success(response.body()))
+                            } else {
+                                Log.d(LOG_TAG, "Upload request failed. " + response.message())
+                                postValue(Result.error(response.message()))
+                            }
+                        }
+
+                        override fun onFailure(call: Call<Attachment>, t: Throwable) {
+                            Log.d(LOG_TAG, "Upload request failed. " + t.message)
+                            postValue(Result.error(t.message ?: "Upload media call onFailure()"))
+                        }
+                    })
+                }
+            }
+        }
     }
 
     /**

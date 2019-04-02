@@ -11,15 +11,16 @@ import java.io.IOException
  * Saves a JPEG [Image] into the specified [File].
  */
 internal class ImageSaver(
-        /**
-         * The JPEG image
-         */
-        private val image: Image,
+    /**
+     * The JPEG image
+     */
+    private val image: Image,
 
-        /**
-         * The file we save the image into.
-         */
-        private val file: File
+    /**
+     * The file we save the image into.
+     */
+    private val file: File,
+    private val listener: ImageSaverListener?
 ) : Runnable {
 
     override fun run() {
@@ -42,10 +43,15 @@ internal class ImageSaver(
                     Log.e(LOG_TAG, e.toString())
                 }
             }
+            listener?.onSaved()
         }
     }
 
     companion object {
         private const val LOG_TAG = "ImageSaver"
+    }
+
+    interface ImageSaverListener {
+        fun onSaved()
     }
 }

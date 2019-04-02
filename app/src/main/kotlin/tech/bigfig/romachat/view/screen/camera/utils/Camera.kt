@@ -383,7 +383,7 @@ class Camera constructor(private val cameraManager: CameraManager) {
         imageReader?.setOnImageAvailableListener({ reader ->
             Log.d(LOG_TAG, "onImageAvailable")
             val image = reader.acquireNextImage()
-            backgroundHelper.backgroundHandler?.post(handler.handleImage(image = image))
+            backgroundHelper.backgroundHandler?.post(handler.handleImage(image))
         }, backgroundHelper.backgroundHandler)
 
         lockFocus()

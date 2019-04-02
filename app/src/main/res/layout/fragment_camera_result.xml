@@ -1,0 +1,39 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="tech.bigfig.romachat.view.screen.cameraresult.CameraResultViewModel" />
+
+        <variable
+            name="listener"
+            type="tech.bigfig.romachat.view.screen.cameraresult.ChatResultFragmentListener" />
+
+    </data>
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/camera_result_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="@string/a11y_camera_result"
+            app:imageUri="@{viewModel.fileUri}" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/camera_result_next"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="@dimen/fab_margin"
+            android:onClick="@{()-> listener.onNext()}"
+            android:tint="#fff"
+            app:srcCompat="@drawable/ic_send" />
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+</layout>

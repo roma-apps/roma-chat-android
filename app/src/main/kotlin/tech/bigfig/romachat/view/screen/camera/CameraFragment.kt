@@ -44,6 +44,7 @@ import tech.bigfig.romachat.R
 import tech.bigfig.romachat.app.App
 import tech.bigfig.romachat.databinding.FragmentCameraBinding
 import tech.bigfig.romachat.view.screen.camera.utils.*
+import tech.bigfig.romachat.view.screen.cameraresult.CameraResultFragment
 import java.io.File
 import javax.inject.Inject
 
@@ -122,16 +123,31 @@ class CameraFragment : Fragment(), EasyPermissions.PermissionCallbacks, CameraHo
             override fun handleImage(image: Image): Runnable {
                 Log.d(LOG_TAG, "handleImage")
 
-                return ImageSaver(image, outputFile)
+                return ImageSaver(image, outputFile, object : ImageSaver.ImageSaverListener {
+                    override fun onSaved() {
+                        Log.d(LOG_TAG, "onSaved")
+
+                        //TODO replace with Navigation component
+                        activity!!.supportFragmentManager.beginTransaction()
+                            .replace(
+                                R.id.fragment_container,
+                                CameraResultFragment.newInstance(Uri.fromFile(outputFile))
+                            )
+                            .addToBackStack("CameraResultFragment")
+                            .commit()
+                    }
+                })
             }
         })
     }
 
     override fun onTurnOnPermissionClick() {
         if (activity != null) {
-            activity?.startActivity(Intent()
-                .setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                .setData(Uri.fromParts("package", activity!!.getPackageName(), null)))
+            activity?.startActivity(
+                Intent()
+                    .setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                    .setData(Uri.fromParts("package", activity!!.packageName, null))
+            )
         }
     }
 

@@ -18,6 +18,7 @@
     <string name="a11y_user_avatar">user avatar</string>
     <string name="a11y_message_media">media</string>
     <string name="a11y_attach_media">attach</string>
+    <string name="a11y_camera_result">result</string>
 
     <string name="camera_permission_rationale">To use the app, please allow access to your camera.</string>
     <string name="camera_permission_rationale_action">Turn on</string>

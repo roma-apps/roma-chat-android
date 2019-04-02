@@ -23,6 +23,7 @@ import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap
 import tech.bigfig.romachat.view.screen.camera.CameraViewModel
+import tech.bigfig.romachat.view.screen.cameraresult.CameraResultViewModel
 import tech.bigfig.romachat.view.screen.chat.ChatViewModel
 import tech.bigfig.romachat.view.screen.chatlist.ChatListViewModel
 import tech.bigfig.romachat.view.screen.login.LoginViewModel
@@ -53,4 +54,9 @@ abstract class ViewModelModule {
     @IntoMap
     @ViewModelKey(CameraViewModel::class)
     abstract fun bindCameraViewModel(viewModel: CameraViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(CameraResultViewModel::class)
+    abstract fun bindCameraResultViewModel(viewModel: CameraResultViewModel): ViewModel
 }

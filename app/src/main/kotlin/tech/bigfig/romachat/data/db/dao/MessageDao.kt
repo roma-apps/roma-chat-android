@@ -30,8 +30,7 @@ interface MessageDao {
     @Query("SELECT * FROM MessageEntity WHERE accountId = :accountId ORDER BY createdAt DESC")
     fun loadAll(accountId:String): LiveData<List<MessageEntity>>
 
-//    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
-    @Query("SELECT COUNT(m.id) as messageCount, m.id, * FROM MessageEntity m LEFT JOIN ChatAccountEntity a ON m.accountId = a.id GROUP BY accountId ORDER BY createdAt DESC")
+    @Query("SELECT COUNT(m.id) as messageCount, * FROM MessageEntity m LEFT JOIN ChatAccountEntity a ON m.accountId = a.id GROUP BY accountId ORDER BY MAX(createdAt) DESC")
     fun loadAllChats(): LiveData<List<ChatInfo>>
 
 }

@@ -29,6 +29,6 @@ interface ChatAccountDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(message: ChatAccountEntity)
 
-    @Query("SELECT * FROM ChatAccountEntity ORDER BY displayName DESC")
+    @Query("SELECT * FROM ChatAccountEntity ORDER BY displayName ASC")
     fun loadAll(): LiveData<List<ChatAccountEntity>>
 }

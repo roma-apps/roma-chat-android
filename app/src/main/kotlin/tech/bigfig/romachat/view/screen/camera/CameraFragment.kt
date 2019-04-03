@@ -84,6 +84,9 @@ class CameraFragment : Fragment(), EasyPermissions.PermissionCallbacks, CameraHo
 
         textureView = binding.cameraTexture
 
+        //don't show permissions UI by default
+        viewModel.hasPermissions.postValue(true)
+
         return binding.root
     }
 

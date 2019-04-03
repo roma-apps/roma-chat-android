@@ -7,6 +7,8 @@
     <color name="text_color">#333</color>
 
     <color name="validation_error">#F44336</color>
+    <color name="validation_error_back">#FACAC6</color>
+    <color name="message_back">#FFC107</color>
 
     <color name="custom_tab_toolbar">#313543</color>
 

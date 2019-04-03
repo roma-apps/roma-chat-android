@@ -22,6 +22,7 @@ import android.net.Uri
 import android.util.Log
 import android.webkit.MimeTypeMap
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -64,6 +65,10 @@ class ChatRepository @Inject constructor(
         return db.messageDao().loadAllChats()
     }
 
+    fun getRecipients(): LiveData<List<ChatAccountEntity>> {
+        return db.chatAccountDao().loadAll()
+    }
+
     fun getChatMessages(accountId: String): LiveData<List<MessageEntity>> {
         return db.messageDao().loadAll(accountId)
     }
@@ -84,9 +89,9 @@ class ChatRepository @Inject constructor(
         ) { it }
     }
 
-    fun postMedia(sendTo:String, uri: Uri): LiveData<Result<Status>> {
-        return Transformations.switchMap(uploadMedia(uri)) { attachment ->
-            if (attachment.data != null) {
+    fun postMedia(sendTo: String, uri: Uri): LiveData<Result<Status>> {
+        return Transformations.switchMap(uploadMedia(uri)) { attachmentResult ->
+            if (attachmentResult.data != null) {
                 apiCallToLiveData(
                     restApi.createStatus(
                         "Bearer " + accountManager.activeAccount?.accessToken,
@@ -96,10 +101,14 @@ class ChatRepository @Inject constructor(
                         null,
                         Status.Visibility.DIRECT.serverString(),
                         false,
-                        listOf(attachment.data.id),
+                        listOf(attachmentResult.data.id),
                         StringUtils.randomAlphanumericString(16)
                     )
                 ) { it }
+            } else if (attachmentResult.error != null) {
+                val l = MutableLiveData<Result<Status>>()
+                l.postValue(Result.error(attachmentResult.error))
+                return@switchMap l
             } else null
         }
     }

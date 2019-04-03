@@ -15,34 +15,40 @@
  * see <http://www.gnu.org/licenses>.
  */
 
-package tech.bigfig.romachat.view.screen.cameraresult
+package tech.bigfig.romachat.view.screen.recipient
 
 
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.databinding.BindingAdapter
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.squareup.picasso.Picasso
 import tech.bigfig.romachat.R
 import tech.bigfig.romachat.app.App
-import tech.bigfig.romachat.databinding.FragmentCameraResultBinding
-import tech.bigfig.romachat.view.screen.recipient.CameraResultRecipientFragment
+import tech.bigfig.romachat.data.db.entity.ChatAccountEntity
+import tech.bigfig.romachat.databinding.FragmentCameraResultRecipientBinding
 import javax.inject.Inject
 
 
-class CameraResultFragment : Fragment() {
+class CameraResultRecipientFragment : Fragment() {
 
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
 
-    private lateinit var binding: FragmentCameraResultBinding
-    private lateinit var viewModel: CameraResultViewModel
+    private lateinit var binding: FragmentCameraResultRecipientBinding
+    private lateinit var viewModel: CameraResultRecipientViewModel
+    private lateinit var adapter: CameraResultRecipientAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -51,32 +57,48 @@ class CameraResultFragment : Fragment() {
         App.getApplication(activity!!).appComponent.inject(this)
 
         viewModel = ViewModelProviders.of(this, viewModelFactory)
-            .get(CameraResultViewModel::class.java)
+            .get(CameraResultRecipientViewModel::class.java)
 
         viewModel.fileUri = arguments?.getParcelable(ARG_FILE_URI) ?: throw IllegalArgumentException("Empty uri")
 
-        binding = FragmentCameraResultBinding.inflate(layoutInflater, container, false)
+        viewModel.recipients.observe(this, Observer { recipients ->
+            if (recipients != null) {
+                Log.d(LOG_TAG, "showing ${recipients.size} recipients")
+                adapter.setItems(recipients)
+            }
+        })
+
+        viewModel.uploadMedia.observe(this, Observer { result ->
+            Log.d(LOG_TAG, "uploadMedia $result")
+
+            if (result != null) {
+
+                Toast.makeText(activity!!, R.string.chat_send_success, Toast.LENGTH_LONG).show()
+
+                //redirect to camera
+                fragmentManager?.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+            }
+        })
+
+        viewModel.loadData()
+
+        binding = FragmentCameraResultRecipientBinding.inflate(layoutInflater, container, false)
         binding.viewModel = viewModel
         binding.lifecycleOwner = this
 
-        binding.listener = object : ChatResultFragmentListener {
-            override fun onNext() {
-                redirectToSelectContact()
-            }
-        }
+        adapter = CameraResultRecipientAdapter(adapterListener)
+
+        binding.recipientListView.layoutManager = LinearLayoutManager(context)
+        binding.recipientListView.adapter = adapter
+        binding.recipientListView.isNestedScrollingEnabled = false
 
         return binding.root
     }
 
-    private fun redirectToSelectContact() {
-        //TODO replace with Navigation component
-        activity!!.supportFragmentManager.beginTransaction()
-            .replace(
-                R.id.fragment_container,
-                CameraResultRecipientFragment.newInstance(viewModel.fileUri!!)
-            )
-            .addToBackStack("CameraResultRecipientFragment")
-            .commit()
+    private val adapterListener = object : CameraResultRecipientAdapter.CameraResultRecipientAdapterListener {
+        override fun onAccountClick(account: ChatAccountEntity) {
+            viewModel.selectRecipient(account)
+        }
     }
 
     companion object {
@@ -85,7 +107,7 @@ class CameraResultFragment : Fragment() {
 
         @JvmStatic
         fun newInstance(uri: Uri) =
-            CameraResultFragment().apply {
+            CameraResultRecipientFragment().apply {
                 arguments = Bundle().apply {
                     putParcelable(ARG_FILE_URI, uri)
                 }
@@ -93,10 +115,6 @@ class CameraResultFragment : Fragment() {
 
         private const val LOG_TAG = "CameraResultFragment"
     }
-}
-
-interface ChatResultFragmentListener {
-    fun onNext()
 }
 
 @BindingAdapter("app:imageUri")

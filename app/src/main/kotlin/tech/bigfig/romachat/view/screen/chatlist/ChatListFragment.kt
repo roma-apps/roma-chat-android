@@ -83,7 +83,7 @@ class ChatListFragment : Fragment() {
         return binding.root
     }
 
-    private var adapterListener = object : ChatListAdapter.ChatListAdapterListener {
+    private val adapterListener = object : ChatListAdapter.ChatListAdapterListener {
         override fun onChatClick(chatInfo: ChatInfo) {
             //TODO replace with Navigation component
             activity!!.supportFragmentManager.beginTransaction()

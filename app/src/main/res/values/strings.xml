@@ -35,5 +35,7 @@
     <string name="chat_send_error_media_upload_type">That type of file cannot be uploaded.</string>
     <string name="chat_send_error_media_upload_opening">That file could not be opened.</string>
     <string name="storage_permission_rationale">Please allow access to your storage.</string>
+    <string name="chat_send_progress">Uploading…</string>
+    <string name="chat_send_success">The image has been sent</string>
 
 </resources>

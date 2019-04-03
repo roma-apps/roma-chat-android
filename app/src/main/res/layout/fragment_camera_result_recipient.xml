@@ -1,0 +1,42 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="viewModel"
+            type="tech.bigfig.romachat.view.screen.recipient.CameraResultRecipientViewModel" />
+
+    </data>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recipient_list_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <TextView
+            android:id="@+id/recipient_error"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal|bottom"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginBottom="16dp"
+            android:background="@{safeUnbox(viewModel.isError) ?@color/validation_error_back : @color/message_back}"
+            android:padding="8dp"
+            android:text="@{safeUnbox(viewModel.isError) ? viewModel.errorMessage : @string/chat_send_progress}"
+            android:textColor="@color/text_color"
+            android:visibility="@{safeUnbox(viewModel.isError || viewModel.isLoading) ? View.VISIBLE : View.INVISIBLE}"
+            tools:text="Error" />
+
+    </FrameLayout>
+
+</layout>

@@ -17,13 +17,18 @@
 
 package tech.bigfig.romachat.data.db.dao
 
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
+import androidx.room.Query
 import tech.bigfig.romachat.data.db.entity.ChatAccountEntity
 
 @Dao
 interface ChatAccountDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(message: ChatAccountEntity)
+
+    @Query("SELECT * FROM ChatAccountEntity ORDER BY displayName DESC")
+    fun loadAll(): LiveData<List<ChatAccountEntity>>
 }

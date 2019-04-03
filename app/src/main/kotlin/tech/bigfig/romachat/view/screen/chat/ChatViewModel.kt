@@ -144,6 +144,8 @@ class ChatViewModel @Inject constructor(val repository: ChatRepository, val cont
                 if (result.data != null) {
                     messageText.postValue("")
 
+                    ChatMessagesService.startFetchingLastMessages(context)
+
                     result.data
 
                 } else {
@@ -206,6 +208,8 @@ class ChatViewModel @Inject constructor(val repository: ChatRepository, val cont
             } else {//success
                 if (result.data != null) {
                     messageText.postValue("")
+
+                    ChatMessagesService.startFetchingLastMessages(context)
 
                     result.data
 

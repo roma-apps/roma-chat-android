@@ -29,6 +29,7 @@ import tech.bigfig.romachat.data.ChatRepository
 import tech.bigfig.romachat.data.ResultStatus
 import tech.bigfig.romachat.data.db.entity.ChatAccountEntity
 import tech.bigfig.romachat.data.entity.Status
+import tech.bigfig.romachat.view.screen.chat.ChatMessagesService
 import javax.inject.Inject
 
 class CameraResultRecipientViewModel @Inject constructor(context: Context, repository: ChatRepository) : ViewModel() {
@@ -71,6 +72,8 @@ class CameraResultRecipientViewModel @Inject constructor(context: Context, repos
             when (result.status) {
                 ResultStatus.SUCCESS ->
                     if (result.data != null) {
+                        ChatMessagesService.startFetchingLastMessages(context)
+
                         return@map result.data
 
                     } else {

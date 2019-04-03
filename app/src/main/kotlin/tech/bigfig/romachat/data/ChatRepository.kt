@@ -53,7 +53,6 @@ import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 
 private const val MESSAGES_AMOUNT = 40 // max available amount to fetch at a time
-private const val MESSAGES_LOADING_AMOUNT = 10 // max repeats of fetching messages
 private const val LOG_TAG = "ChatRepository"
 
 class ChatRepository @Inject constructor(
@@ -193,7 +192,7 @@ class ChatRepository @Inject constructor(
      * Current api restrictions don't allow to get the concrete chat messages directly. So we agreed to group the messages
      * by chats on the client-side
      */
-    fun storeMessages(): LiveData<Result<Boolean>> {
+    fun storeMessages(pages: Int): LiveData<Result<Boolean>> {
 
         return object : LiveData<Result<Boolean>>() {
             private var started = AtomicBoolean(false)
@@ -221,14 +220,16 @@ class ChatRepository @Inject constructor(
                                         loadedCount = body?.size ?: 0
                                         Log.d(LOG_TAG, "Loaded messages: $loadedCount ($repeatCount iteration)")
 
-                                        if (loadedCount > 0 && repeatCount < MESSAGES_LOADING_AMOUNT) {
+                                        if (loadedCount > 0) {
                                             lastId = body?.last()?.id
                                             Log.d(LOG_TAG, "Last message id: $lastId")
 
                                             body?.forEach { message -> processMessage(message, messages, accounts) }
 
                                             postValue(Result.success(true))
-                                        } else { // no more messages
+                                        }
+                                        if (loadedCount == 0 || repeatCount == pages) {// no more messages OR last iteration
+                                            Log.d(LOG_TAG, "Saving to db ($repeatCount iteration)")
                                             fillAccounts(accounts)
 
                                             saveToDb(messages, accounts)
@@ -245,7 +246,8 @@ class ChatRepository @Inject constructor(
                                     Log.d(LOG_TAG, Log.getStackTraceString(e))
                                     postValue(Result.error(e.message ?: "unknown error"))
                                 }
-                            } while (loadedCount > 0 && repeatCount < MESSAGES_LOADING_AMOUNT)
+
+                            } while (loadedCount > 0 && repeatCount < pages)
                         }.await()
 
                     }

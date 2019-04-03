@@ -43,12 +43,14 @@ class ChatMessagesService : LifecycleService() {
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-        fetchMessages()
+        val mode = intent.getSerializableExtra(EXTRA_MODE) as FetchMode
+        Log.d(LOG_TAG, "onStartCommand fetchMessages $mode")
+        fetchMessages(mode)
         return super.onStartCommand(intent, flags, startId)
     }
 
-    private fun fetchMessages() {
-        repository.storeMessages().observe(this, Observer { result ->
+    private fun fetchMessages(mode: FetchMode) {
+        repository.storeMessages(mode.pages).observe(this, Observer { result ->
             Log.d(LOG_TAG, "fetchMessages ${result.status} ${result.data}")
         })
     }
@@ -56,11 +58,26 @@ class ChatMessagesService : LifecycleService() {
     companion object {
 
         @JvmStatic
-        fun startFetchingMessages(context: Context) {
+        fun startFetchingAllMessages(context: Context) {
             val intent = Intent(context, ChatMessagesService::class.java)
+                .putExtra(EXTRA_MODE, FetchMode.ALL)
+            context.startService(intent)
+        }
+
+        @JvmStatic
+        fun startFetchingLastMessages(context: Context) {
+            val intent = Intent(context, ChatMessagesService::class.java)
+                .putExtra(EXTRA_MODE, FetchMode.LAST)
             context.startService(intent)
         }
 
         private const val LOG_TAG = "ChatMessagesService"
+
+        private const val EXTRA_MODE = "EXTRA_MODE"
+    }
+
+    private enum class FetchMode(val pages: Int) {
+        ALL(10),//max 10 repeats of fetching n messages
+        LAST(1);
     }
 }

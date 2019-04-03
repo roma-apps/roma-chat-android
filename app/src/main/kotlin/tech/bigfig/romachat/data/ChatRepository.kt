@@ -337,12 +337,14 @@ class ChatRepository @Inject constructor(
 
     private fun saveToDb(messages: MutableList<MessageEntity>, accounts: MutableMap<String, ChatAccountEntity?>) {
         Log.d(LOG_TAG, "Saving ${accounts.size} accounts and ${messages.size} messages")
-        accounts.forEach {
-            if (it.value != null) {
-                db.chatAccountDao().insert(it.value!!)
+        db.runInTransaction {
+            accounts.forEach {
+                if (it.value != null) {
+                    db.chatAccountDao().insert(it.value!!)
+                }
             }
+            messages.forEach { db.messageDao().insert(it) }
         }
-        messages.forEach { db.messageDao().insert(it) }
     }
 
     private fun accountToChatAccount(account: Account): ChatAccountEntity {

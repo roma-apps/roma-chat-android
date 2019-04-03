@@ -93,7 +93,6 @@ class CameraFragment : Fragment(), EasyPermissions.PermissionCallbacks, CameraHo
         outputFile = File(activity?.getExternalFilesDir(null), "pic.jpg")
 
         camera = Camera.initInstance(activity!!.getSystemService(Context.CAMERA_SERVICE) as CameraManager)
-        camera?.cameraHost = this
     }
 
     override fun onResume() {
@@ -123,20 +122,7 @@ class CameraFragment : Fragment(), EasyPermissions.PermissionCallbacks, CameraHo
             override fun handleImage(image: Image): Runnable {
                 Log.d(LOG_TAG, "handleImage")
 
-                return ImageSaver(image, outputFile, object : ImageSaver.ImageSaverListener {
-                    override fun onSaved() {
-                        Log.d(LOG_TAG, "onSaved")
-
-                        //TODO replace with Navigation component
-                        activity!!.supportFragmentManager.beginTransaction()
-                            .replace(
-                                R.id.fragment_container,
-                                CameraResultFragment.newInstance(Uri.fromFile(outputFile))
-                            )
-                            .addToBackStack("CameraResultFragment")
-                            .commit()
-                    }
-                })
+                return ImageSaver(image, outputFile)
             }
         })
     }
@@ -153,6 +139,19 @@ class CameraFragment : Fragment(), EasyPermissions.PermissionCallbacks, CameraHo
 
     override fun getRotation(): Int {
         return activity?.windowManager?.defaultDisplay?.rotation ?: 0
+    }
+
+    override fun onCaptured() {
+        Log.d(LOG_TAG, "onCaptured callback")
+
+        //TODO replace with Navigation component
+        activity!!.supportFragmentManager.beginTransaction()
+            .replace(
+                R.id.fragment_container,
+                CameraResultFragment.newInstance(Uri.fromFile(outputFile))
+            )
+            .addToBackStack("CameraResultFragment")
+            .commit()
     }
 
     /**
@@ -244,6 +243,7 @@ class CameraFragment : Fragment(), EasyPermissions.PermissionCallbacks, CameraHo
 
     private fun openCamera(width: Int, height: Int) {
         try {
+            camera?.cameraHost = this
             camera?.let {
                 setUpCameraOutputs(width, height, it)
                 configureTransform(width, height)

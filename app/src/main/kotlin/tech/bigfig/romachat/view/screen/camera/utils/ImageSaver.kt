@@ -19,8 +19,7 @@ internal class ImageSaver(
     /**
      * The file we save the image into.
      */
-    private val file: File,
-    private val listener: ImageSaverListener?
+    private val file: File
 ) : Runnable {
 
     override fun run() {
@@ -43,15 +42,11 @@ internal class ImageSaver(
                     Log.e(LOG_TAG, e.toString())
                 }
             }
-            listener?.onSaved()
+            Log.d(LOG_TAG, "Writing to file completed")
         }
     }
 
     companion object {
         private const val LOG_TAG = "ImageSaver"
-    }
-
-    interface ImageSaverListener {
-        fun onSaved()
     }
 }

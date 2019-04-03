@@ -490,6 +490,7 @@ class Camera constructor(private val cameraManager: CameraManager) {
                 ) {
                     Log.d(LOG_TAG, "onCaptureCompleted")
                     unlockFocus()
+                    cameraHost?.onCaptured()
                 }
             }
 
@@ -542,6 +543,8 @@ class BackgroundHelper {
 
 interface CameraHost {
     fun getRotation(): Int
+
+    fun onCaptured()
 }
 
 interface ImageHandler {

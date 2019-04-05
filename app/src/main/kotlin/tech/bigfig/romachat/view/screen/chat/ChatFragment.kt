@@ -27,6 +27,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
+import androidx.core.app.ActivityOptionsCompat
+import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -36,7 +38,11 @@ import pub.devrel.easypermissions.EasyPermissions
 import tech.bigfig.romachat.R
 import tech.bigfig.romachat.app.App
 import tech.bigfig.romachat.data.db.entity.ChatAccountEntity
+import tech.bigfig.romachat.data.entity.Attachment
+import tech.bigfig.romachat.data.entity.Media
+import tech.bigfig.romachat.data.entity.MediaType
 import tech.bigfig.romachat.databinding.FragmentChatBinding
+import tech.bigfig.romachat.view.screen.media.ViewMediaActivity
 import tech.bigfig.romachat.view.utils.RetryListener
 import javax.inject.Inject
 
@@ -140,7 +146,31 @@ class ChatFragment : Fragment() {
     }
 
     private var adapterListener = object : ChatAdapter.ChatAdapterListener {
-        override fun onMessageClick(message: MessageViewData) {
+        override fun onMessageClick(message: MessageViewData, view: View) {
+            if (message.isMedia && message.attachment != null) {
+                val media = Media(
+                    message.attachment.url,
+                    when (message.attachment.type) {
+                        Attachment.Type.IMAGE -> MediaType.IMAGE
+                        Attachment.Type.VIDEO,
+                        Attachment.Type.GIFV -> MediaType.VIDEO
+                        else -> {
+                            Log.d(LOG_TAG, "Unknown media type: " + message.attachment.type)
+                            return
+                        }
+                    }
+                )
+
+                //TODO replace with Navigation component
+                val intent = ViewMediaActivity.newIntent(context, media)
+                val url = message.attachment.url
+                ViewCompat.setTransitionName(view, url)
+                val options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                    activity!!,
+                    view, url
+                )
+                startActivity(intent, options.toBundle())
+            }
         }
     }
 

@@ -20,6 +20,7 @@ package tech.bigfig.romachat.view.screen.chat
 
 import android.text.TextUtils
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
@@ -64,12 +65,12 @@ class ChatAdapter(
             binding.message = message
             binding.executePendingBindings()
 
-            binding.root.setOnClickListener { listener?.onMessageClick(message) }
+            binding.root.setOnClickListener { listener?.onMessageClick(message, binding.chatMessageMediaPreview) }
         }
     }
 
     interface ChatAdapterListener {
-        fun onMessageClick(message: MessageViewData)
+        fun onMessageClick(message: MessageViewData, view: View)
     }
 }
 

@@ -90,6 +90,7 @@
                     android:layout_width="@dimen/chat_message_media_max_width"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/chat_message_content_left_offset"
+                    android:layout_marginBottom="8dp"
                     android:adjustViewBounds="true"
                     android:contentDescription="@string/a11y_message_media"
                     android:maxWidth="@dimen/chat_message_media_max_width"

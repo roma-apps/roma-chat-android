@@ -19,6 +19,7 @@ package tech.bigfig.romachat.view.screen.camera
 
 
 import android.Manifest
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
@@ -35,16 +36,18 @@ import android.provider.Settings
 import android.util.Log
 import android.util.Size
 import android.view.*
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
+import com.theartofdev.edmodo.cropper.CropImage
 import pub.devrel.easypermissions.AfterPermissionGranted
 import pub.devrel.easypermissions.EasyPermissions
 import tech.bigfig.romachat.R
 import tech.bigfig.romachat.app.App
 import tech.bigfig.romachat.databinding.FragmentCameraBinding
 import tech.bigfig.romachat.view.screen.camera.utils.*
-import tech.bigfig.romachat.view.screen.cameraresult.CameraResultFragment
+import tech.bigfig.romachat.view.screen.recipient.CameraResultRecipientFragment
 import java.io.File
 import javax.inject.Inject
 
@@ -147,14 +150,57 @@ class CameraFragment : Fragment(), EasyPermissions.PermissionCallbacks, CameraHo
     override fun onCaptured() {
         Log.d(LOG_TAG, "onCaptured callback")
 
-        //TODO replace with Navigation component
-        activity!!.supportFragmentManager.beginTransaction()
-            .replace(
-                R.id.fragment_container,
-                CameraResultFragment.newInstance(Uri.fromFile(outputFile))
-            )
-            .addToBackStack("CameraResultFragment")
-            .commit()
+        startCropActivity(Uri.fromFile(outputFile))
+    }
+
+    private var imageForCrop: Uri? = null
+    private fun startCropActivity(uri: Uri) {
+        if (activity != null) {
+            imageForCrop = uri
+            CropImage.activity(uri)
+                .setInitialCropWindowPaddingRatio(0f)
+                .start(activity!!, this)
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        when (requestCode) {
+            CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE -> {
+
+                when (resultCode) {
+                    Activity.RESULT_CANCELED -> redirectToNextStep(imageForCrop)
+
+                    Activity.RESULT_OK -> {
+                        val result = CropImage.getActivityResult(data)
+                        if (result != null) {
+                            redirectToNextStep(result.uri)
+                        }
+                    }
+
+                    CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE -> {
+                        Log.e(LOG_TAG, "Error while cropping")
+                        Toast.makeText(activity!!, R.string.error_media_crop, Toast.LENGTH_LONG).show()
+                        redirectToNextStep(imageForCrop)
+                    }
+                }
+                imageForCrop = null
+            }
+        }
+    }
+
+    private fun redirectToNextStep(uri: Uri?) {
+        if (uri != null) {
+            //TODO replace with Navigation component
+            activity!!.supportFragmentManager.beginTransaction()
+                .replace(
+                    R.id.fragment_container,
+                    CameraResultRecipientFragment.newInstance(uri)
+                )
+                .addToBackStack("CameraResultRecipientFragment")
+                .commit()
+        }
     }
 
     /**

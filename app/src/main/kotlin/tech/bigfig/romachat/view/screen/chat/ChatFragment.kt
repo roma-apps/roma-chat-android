@@ -19,14 +19,17 @@ package tech.bigfig.romachat.view.screen.chat
 
 
 import android.Manifest
+import android.app.Activity.RESULT_CANCELED
 import android.app.Activity.RESULT_OK
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
+import android.widget.Toast
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
@@ -34,6 +37,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.theartofdev.edmodo.cropper.CropImage
 import pub.devrel.easypermissions.EasyPermissions
 import tech.bigfig.romachat.R
 import tech.bigfig.romachat.app.App
@@ -42,6 +46,7 @@ import tech.bigfig.romachat.data.entity.Attachment
 import tech.bigfig.romachat.data.entity.Media
 import tech.bigfig.romachat.data.entity.MediaType
 import tech.bigfig.romachat.databinding.FragmentChatBinding
+import tech.bigfig.romachat.utils.isImageMedia
 import tech.bigfig.romachat.view.screen.media.ViewMediaActivity
 import tech.bigfig.romachat.view.utils.RetryListener
 import javax.inject.Inject
@@ -134,9 +139,45 @@ class ChatFragment : Fragment() {
         when (requestCode) {
             REQUEST_CODE_MEDIA_PICK -> {
                 if (resultCode == RESULT_OK && data != null) {
-                    viewModel.processMedia(data.data)
+                    val uri = data.data
+                    if (uri != null && isImageMedia(activity!!.contentResolver, uri))
+                        startCropActivity(uri)
+                    else {
+                        viewModel.processMedia(data.data)
+                    }
                 }
             }
+
+            CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE -> {
+
+                when (resultCode) {
+                    RESULT_CANCELED -> viewModel.processMedia(imageForCrop)
+
+                    RESULT_OK -> {
+                        val result = CropImage.getActivityResult(data)
+                        if (result != null) {
+                            viewModel.processMedia(result.uri)
+                        }
+                    }
+
+                    CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE -> {
+                        Log.e(LOG_TAG, "Error while cropping")
+                        Toast.makeText(activity!!, R.string.error_media_crop, Toast.LENGTH_LONG).show()
+                        viewModel.processMedia(imageForCrop)
+                    }
+                }
+                imageForCrop = null
+            }
+        }
+    }
+
+    private var imageForCrop: Uri? = null
+    private fun startCropActivity(uri: Uri) {
+        if (activity != null) {
+            imageForCrop = uri
+            CropImage.activity(uri)
+                .setInitialCropWindowPaddingRatio(0f)
+                .start(activity!!, this)
         }
     }
 

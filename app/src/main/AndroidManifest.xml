@@ -50,6 +50,10 @@
             android:name=".view.screen.media.ViewMediaActivity"
             android:configChanges="orientation|screenSize|keyboardHidden" />
 
+        <activity
+            android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
+            android:theme="@style/Theme.AppCompat" />
+
     </application>
 
 </manifest>

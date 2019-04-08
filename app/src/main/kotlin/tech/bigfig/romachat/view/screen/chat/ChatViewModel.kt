@@ -19,6 +19,7 @@ package tech.bigfig.romachat.view.screen.chat
 
 import android.content.Context
 import android.net.Uri
+import android.text.Spanned
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -28,6 +29,7 @@ import tech.bigfig.romachat.R
 import tech.bigfig.romachat.data.ChatRepository
 import tech.bigfig.romachat.data.db.entity.ChatAccountEntity
 import tech.bigfig.romachat.data.entity.Status
+import tech.bigfig.romachat.utils.HtmlUtils
 import tech.bigfig.romachat.utils.MEDIA_SIZE_UNKNOWN
 import tech.bigfig.romachat.utils.getMediaSize
 import tech.bigfig.romachat.utils.getMimeType
@@ -38,6 +40,7 @@ import javax.inject.Inject
 class ChatViewModel @Inject constructor(val repository: ChatRepository, val context: Context) : ViewModel() {
 
     var account: ChatAccountEntity? = null
+    private var currentAccount = repository.getCurrentAccount()
 
     private val loadData = MutableLiveData<Boolean>()
     private val submitMessage: MutableLiveData<String> = MutableLiveData()
@@ -71,20 +74,24 @@ class ChatViewModel @Inject constructor(val repository: ChatRepository, val cont
             messages.forEach { message ->
                 val theSameDay = message.createdAt.theSameDay(lastDate)
 
-                res.add(
-                    MessageViewData(
-                        !theSameDay,
-                        formatDate(message.createdAt),
-                        message.fromMe != lastFromMe || !theSameDay,
-                        if (message.fromMe) context.getString(R.string.chat_message_user_me) else account!!.displayName,
-                        message.fromMe,
-                        false,
-                        message.content,
-                        message.mentions,
-                        message.emojis,
-                        null
+                val content = formatContent(message.content)
+
+                if (content.isNotEmpty()) {//might be empty if message contained only @user mention
+                    res.add(
+                        MessageViewData(
+                            !theSameDay,
+                            formatDate(message.createdAt),
+                            message.fromMe != lastFromMe || !theSameDay,
+                            if (message.fromMe) context.getString(R.string.chat_message_user_me) else account!!.displayName,
+                            message.fromMe,
+                            false,
+                            content,
+                            message.mentions,
+                            message.emojis,
+                            null
+                        )
                     )
-                )
+                }
 
                 //show each attachment as a separate message
                 message.attachments.forEach { attachment ->
@@ -218,6 +225,22 @@ class ChatViewModel @Inject constructor(val repository: ChatRepository, val cont
                 }
             }
         }
+    }
+
+    private fun formatContent(content: Spanned): Spanned {
+
+        val res = HtmlUtils.toHtml(content)
+            .removeUsername(account?.username)
+            .removeUsername(currentAccount?.username)
+            .replace("  ", "")
+            .trim()
+
+        return HtmlUtils.fromHtml(res)
+    }
+
+    private fun String.removeUsername(username: String?): String {
+        return this.replace("<a href=\"https://pleroma.site/users/$username\">@$username</a><br>\n", "")
+            .replace("<a href=\"https://pleroma.site/users/$username\">@$username</a>", "")
     }
 
     private fun showError(error: String, logError: String = "") {

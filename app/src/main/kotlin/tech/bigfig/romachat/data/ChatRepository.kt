@@ -38,6 +38,7 @@ import tech.bigfig.romachat.data.api.RestApi
 import tech.bigfig.romachat.data.api.apiCallToLiveData
 import tech.bigfig.romachat.data.db.AccountManager
 import tech.bigfig.romachat.data.db.AppDatabase
+import tech.bigfig.romachat.data.db.entity.AccountEntity
 import tech.bigfig.romachat.data.db.entity.ChatAccountEntity
 import tech.bigfig.romachat.data.db.entity.MessageEntity
 import tech.bigfig.romachat.data.entity.Account
@@ -59,6 +60,10 @@ class ChatRepository @Inject constructor(
     private val restApi: RestApi, private val accountManager: AccountManager, private val db: AppDatabase,
     private val context: Context
 ) {
+
+    fun getCurrentAccount(): AccountEntity? {
+        return accountManager.activeAccount
+    }
 
     fun getAllChats(): LiveData<List<ChatInfo>> {
         return db.messageDao().loadAllChats()

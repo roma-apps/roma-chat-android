@@ -132,10 +132,16 @@ class ChatViewModel @Inject constructor(val repository: ChatRepository, val cont
             return
         }
 
+        //@username mention is required
+        var message = text
+        if (!text.contains("@${account?.username}")) {
+            message = text.plus(" @${account?.username}")
+        }
+
         isError.value = false
 
         //initiate post
-        submitMessage.value = text
+        submitMessage.value = message
     }
 
     // Subscribe to message, make an API call to post it
@@ -232,7 +238,7 @@ class ChatViewModel @Inject constructor(val repository: ChatRepository, val cont
         val res = HtmlUtils.toHtml(content)
             .removeUsername(account?.username)
             .removeUsername(currentAccount?.username)
-            .replace("  ", "")
+            .replace("  ", " ")
             .trim()
 
         return HtmlUtils.fromHtml(res)

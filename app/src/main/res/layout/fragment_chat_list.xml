@@ -14,13 +14,22 @@
 
         <variable
             name="retryListener"
-            type="tech.bigfig.romachat.view.utils.RetryListener"/>
+            type="tech.bigfig.romachat.view.utils.RetryListener" />
 
     </data>
 
-    <FrameLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/colorPrimary"
+            android:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/chat_list_view"
@@ -28,19 +37,19 @@
             android:layout_height="match_parent" />
 
         <!--<androidx.core.widget.ContentLoadingProgressBar-->
-            <!--android:id="@+id/chat_list_progress"-->
-            <!--style="?android:attr/progressBarStyle"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_gravity="center"-->
-            <!--android:layout_marginTop="8dp"-->
-            <!--android:visibility="@{viewModel.chatList.status == ResultStatus.LOADING ? View.VISIBLE : View.INVISIBLE}" />-->
+        <!--android:id="@+id/chat_list_progress"-->
+        <!--style="?android:attr/progressBarStyle"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_gravity="center"-->
+        <!--android:layout_marginTop="8dp"-->
+        <!--android:visibility="@{viewModel.chatList.status == ResultStatus.LOADING ? View.VISIBLE : View.INVISIBLE}" />-->
 
         <!--<include-->
-            <!--layout="@layout/layout_error_try_again"-->
-            <!--app:result="@{(Result) viewModel.chatList}"-->
-            <!--app:retryListener="@{() -> retryListener.onRetry()}"/>-->
+        <!--layout="@layout/layout_error_try_again"-->
+        <!--app:result="@{(Result) viewModel.chatList}"-->
+        <!--app:retryListener="@{() -> retryListener.onRetry()}"/>-->
 
-    </FrameLayout>
+    </LinearLayout>
 
 </layout>

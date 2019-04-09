@@ -23,6 +23,7 @@
     <string name="camera_permission_rationale">To use the app, please allow access to your camera.</string>
     <string name="camera_permission_rationale_action">Turn on</string>
 
+    <string name="chat_list_title">Friends</string>
     <string name="chat_message_user_me">ME</string>
     <string name="chat_message_date_today">Today</string>
     <string name="chat_send_message_hint">Send a message</string>
@@ -38,5 +39,7 @@
     <string name="chat_send_progress">Uploading…</string>
     <string name="chat_send_success">The image has been sent</string>
     <string name="error_media_crop">Failed to crop the image</string>
+
+    <string name="camera_recipient_title">Send to…</string>
 
 </resources>

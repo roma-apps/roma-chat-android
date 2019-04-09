@@ -26,6 +26,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.BindingAdapter
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -85,6 +86,13 @@ class CameraResultRecipientFragment : Fragment() {
         binding = FragmentCameraResultRecipientBinding.inflate(layoutInflater, container, false)
         binding.viewModel = viewModel
         binding.lifecycleOwner = this
+
+        (activity as AppCompatActivity).let {
+            it.setSupportActionBar(binding.toolbar)
+            it.supportActionBar?.setDisplayHomeAsUpEnabled(true)
+            it.setTitle(R.string.camera_recipient_title)
+        }
+        binding.toolbar.setNavigationOnClickListener { activity?.onBackPressed() }
 
         adapter = CameraResultRecipientAdapter(adapterListener)
 

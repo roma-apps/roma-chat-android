@@ -30,6 +30,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
@@ -98,6 +99,13 @@ class ChatFragment : Fragment() {
                 viewModel.loadData()
             }
         }
+
+        (activity as AppCompatActivity).let {
+            it.setSupportActionBar(binding.toolbar)
+            it.supportActionBar?.setDisplayHomeAsUpEnabled(true)
+            it.title = viewModel.account?.displayName
+        }
+        binding.toolbar.setNavigationOnClickListener { activity?.onBackPressed() }
 
         adapter = ChatAdapter(adapterListener)
 

@@ -23,7 +23,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.TextView
 import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Picasso
@@ -31,6 +30,7 @@ import tech.bigfig.romachat.R
 import tech.bigfig.romachat.data.entity.Attachment
 import tech.bigfig.romachat.databinding.LayoutChatMessageItemBinding
 import tech.bigfig.romachat.view.utils.CustomEmojiHelper
+import tech.bigfig.romachat.view.utils.MessageClickListener
 import tech.bigfig.romachat.view.utils.TextFormatter
 
 
@@ -65,12 +65,42 @@ class ChatAdapter(
             binding.message = message
             binding.executePendingBindings()
 
-            binding.root.setOnClickListener { listener?.onMessageClick(message, binding.chatMessageMediaPreview) }
+            if (!message.isMedia && message.content != null) {
+                val emojifiedText =
+                    CustomEmojiHelper.emojifyText(message.content, message.emojis, binding.chatMessageContent)
+                TextFormatter.setClickableText(binding.chatMessageContent, emojifiedText, message.mentions,
+                    object : MessageClickListener {
+                        override fun onTagClick(tag: String) {
+                        }
+
+                        override fun onAccountClick(id: String) {
+                        }
+
+                        override fun onUrlClick(url: String) {
+                        }
+
+                        override fun onClick() {
+                            listener?.onMessageClick(message, binding.chatMessageMediaPreview)
+                        }
+
+                        override fun onLongClick() {
+                            listener?.onMessageLongClick(message)
+                        }
+                    })
+            }
+
+            //we need to set click listeners for the media view as well as for spanned text
+            binding.chatMessageMediaPreviewContainer.setOnClickListener { listener?.onMessageClick(message, binding.chatMessageMediaPreview) }
+            binding.chatMessageMediaPreviewContainer.setOnLongClickListener {
+                listener?.onMessageLongClick(message)
+                true
+            }
         }
     }
 
     interface ChatAdapterListener {
         fun onMessageClick(message: MessageViewData, view: View)
+        fun onMessageLongClick(message: MessageViewData)
     }
 }
 
@@ -89,12 +119,4 @@ fun loadImage(view: ImageView, attachment: Attachment?) {
     request.error(R.drawable.video_preview_background)
         .resize(maxSize, 0).onlyScaleDown()
         .into(view)
-}
-
-@BindingAdapter("app:message")
-fun formatText(view: TextView, message: MessageViewData) {
-    if (!message.isMedia && message.content != null) {
-        val emojifiedText = CustomEmojiHelper.emojifyText(message.content, message.emojis, view)
-        TextFormatter.setClickableText(view, emojifiedText, message.mentions)
-    }
 }

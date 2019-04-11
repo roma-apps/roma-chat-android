@@ -33,4 +33,7 @@ interface MessageDao {
     @Query("SELECT COUNT(m.id) as messageCount, * FROM MessageEntity m LEFT JOIN ChatAccountEntity a ON m.accountId = a.id GROUP BY accountId ORDER BY MAX(createdAt) DESC")
     fun loadAllChats(): LiveData<List<ChatInfo>>
 
+    @Query("DELETE FROM MessageEntity WHERE id = :messageId")
+    fun delete(messageId: String)
+
 }

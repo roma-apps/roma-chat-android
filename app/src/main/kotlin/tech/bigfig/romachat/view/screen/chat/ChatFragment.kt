@@ -53,7 +53,7 @@ import tech.bigfig.romachat.view.utils.RetryListener
 import javax.inject.Inject
 
 
-class ChatFragment : Fragment() {
+class ChatFragment : Fragment(), MessageItemDialogFragment.Listener {
 
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
@@ -86,6 +86,16 @@ class ChatFragment : Fragment() {
 
         viewModel.uploadMedia.observe(this, Observer { result ->
             Log.d(LOG_TAG, "uploadMedia $result")
+        })
+
+        viewModel.deleteMessage.observe(this, Observer { result ->
+            Log.d(LOG_TAG, "deleteMessage $result")
+        })
+
+        viewModel.shortError.observe(this, Observer { message ->
+            if (activity != null) {
+                Toast.makeText(activity, message, Toast.LENGTH_LONG).show()
+            }
         })
 
         viewModel.loadData()
@@ -221,6 +231,14 @@ class ChatFragment : Fragment() {
                 startActivity(intent, options.toBundle())
             }
         }
+
+        override fun onMessageLongClick(message: MessageViewData) {
+            MessageItemDialogFragment.newInstance(message.id).show(childFragmentManager, "dialog")
+        }
+    }
+
+    override fun onDeleteClick(messageId: String) {
+        viewModel.deleteMessage(messageId)
     }
 
     companion object {

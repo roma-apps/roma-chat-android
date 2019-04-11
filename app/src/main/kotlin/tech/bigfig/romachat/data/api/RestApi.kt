@@ -18,6 +18,7 @@
 package tech.bigfig.romachat.data.api
 
 import okhttp3.MultipartBody
+import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.http.*
 import retrofit2.http.Field
@@ -91,4 +92,7 @@ interface RestApi {
     @Multipart
     @POST("api/v1/media")
     fun uploadMedia(@Part file: MultipartBody.Part): Call<Attachment>
+
+    @DELETE("api/v1/statuses/{id}")
+    fun deleteStatus(@Path("id") statusId: String): Call<ResponseBody>
 }

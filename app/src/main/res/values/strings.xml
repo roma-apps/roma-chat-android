@@ -19,6 +19,7 @@
     <string name="a11y_message_media">media</string>
     <string name="a11y_attach_media">attach</string>
     <string name="a11y_camera_result">result</string>
+    <string name="a11y_delete">delete</string>
 
     <string name="camera_permission_rationale">To use the app, please allow access to your camera.</string>
     <string name="camera_permission_rationale_action">Turn on</string>
@@ -38,8 +39,11 @@
     <string name="storage_permission_rationale">Please allow access to your storage.</string>
     <string name="chat_send_progress">Uploading…</string>
     <string name="chat_send_success">The image has been sent</string>
+    <string name="chat_error_delete">Failed deleting a message</string>
     <string name="error_media_crop">Failed to crop the image</string>
 
     <string name="camera_recipient_title">Send to…</string>
+
+    <string name="chat_message_delete">Delete</string>
 
 </resources>

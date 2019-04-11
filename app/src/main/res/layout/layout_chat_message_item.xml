@@ -73,12 +73,11 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/chat_message_user"
-                app:message="@{message}"
                 tools:text="Message" />
 
             <FrameLayout
                 android:id="@+id/chat_message_media_preview_container"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@{message.fromMe ?@drawable/chat_message_me : @drawable/chat_message_other}"
                 android:visibility="@{safeUnbox(message.isMedia) ? View.VISIBLE : View.GONE}"

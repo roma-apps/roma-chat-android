@@ -27,6 +27,7 @@ import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import tech.bigfig.romachat.R
 import tech.bigfig.romachat.data.ChatRepository
+import tech.bigfig.romachat.data.ResultStatus
 import tech.bigfig.romachat.data.db.entity.ChatAccountEntity
 import tech.bigfig.romachat.data.entity.Status
 import tech.bigfig.romachat.utils.HtmlUtils
@@ -45,6 +46,7 @@ class ChatViewModel @Inject constructor(val repository: ChatRepository, val cont
     private val loadData = MutableLiveData<Boolean>()
     private val submitMessage: MutableLiveData<String> = MutableLiveData()
     private val fileToUpload: MutableLiveData<Uri> = MutableLiveData()
+    private val messageToDelete: MutableLiveData<String> = MutableLiveData()
 
     val messageText: MutableLiveData<String> = MutableLiveData()
 
@@ -53,6 +55,8 @@ class ChatViewModel @Inject constructor(val repository: ChatRepository, val cont
 
     val isError: MutableLiveData<Boolean> = MutableLiveData()
     val errorMessage: MutableLiveData<String> = MutableLiveData()
+
+    val shortError: MutableLiveData<String> = MutableLiveData()
 
     fun loadData() {
         loadData.value = true
@@ -79,6 +83,7 @@ class ChatViewModel @Inject constructor(val repository: ChatRepository, val cont
                 if (content.isNotEmpty()) {//might be empty if message contained only @user mention
                     res.add(
                         MessageViewData(
+                            message.id,
                             !theSameDay,
                             formatDate(message.createdAt),
                             message.fromMe != lastFromMe || !theSameDay,
@@ -97,6 +102,7 @@ class ChatViewModel @Inject constructor(val repository: ChatRepository, val cont
                 message.attachments.forEach { attachment ->
                     res.add(
                         MessageViewData(
+                            message.id,
                             false,
                             null,
                             false,
@@ -229,6 +235,30 @@ class ChatViewModel @Inject constructor(val repository: ChatRepository, val cont
                 } else {
                     null
                 }
+            }
+        }
+    }
+
+    fun deleteMessage(messageId: String) {
+        messageToDelete.postValue(messageId)
+    }
+
+    val deleteMessage: LiveData<Boolean?> = Transformations.switchMap(messageToDelete) {
+        Transformations.map(repository.deleteMessage(it)) { result ->
+            when (result.status) {
+                ResultStatus.SUCCESS ->{
+                    if (result.data != null) {
+                        result.data
+                    } else {
+                        shortError.postValue(context.getString(R.string.chat_error_delete))
+                        null
+                    }
+                }
+                ResultStatus.ERROR ->{
+                    shortError.postValue(context.getString(R.string.chat_error_delete))
+                    null
+                }
+                ResultStatus.LOADING -> null
             }
         }
     }

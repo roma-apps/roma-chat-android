@@ -30,6 +30,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import okhttp3.MediaType
 import okhttp3.MultipartBody
+import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
 import tech.bigfig.romachat.R
@@ -183,6 +184,38 @@ class ChatRepository @Inject constructor(
 
                         override fun onFailure(call: Call<Attachment>, t: Throwable) {
                             Log.d(LOG_TAG, "Upload request failed. " + t.message)
+                            postValue(Result.error(t.message ?: "Upload media call onFailure()"))
+                        }
+                    })
+                }
+            }
+        }
+    }
+
+    fun deleteMessage(messageId: String): LiveData<Result<Boolean>> {
+        return object : LiveData<Result<Boolean>>() {
+            private var started = AtomicBoolean(false)
+            override fun onActive() {
+                super.onActive()
+                if (started.compareAndSet(false, true)) {
+                    postValue(Result.loading())
+
+                    restApi.deleteStatus(messageId).enqueue(object : Callback<ResponseBody> {
+                        override fun onResponse(call: Call<ResponseBody>, response: retrofit2.Response<ResponseBody>) {
+                            if (response.isSuccessful) {
+
+                                //remove stored message from db
+                                db.messageDao().delete(messageId)
+
+                                postValue(Result.success(true))
+                            } else {
+                                Log.d(LOG_TAG, "deleteMessage request failed. " + response.message())
+                                postValue(Result.error(response.message()))
+                            }
+                        }
+
+                        override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                            Log.d(LOG_TAG, "deleteMessage request failed. " + t.message)
                             postValue(Result.error(t.message ?: "Upload media call onFailure()"))
                         }
                     })

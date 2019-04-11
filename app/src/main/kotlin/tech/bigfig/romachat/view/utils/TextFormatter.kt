@@ -42,7 +42,7 @@ object TextFormatter {
      */
     fun setClickableText(
         view: TextView, content: Spanned,
-        mentions: Array<Status.Mention>?/*, listener: LinkListener*///TODO add listener
+        mentions: Array<Status.Mention>?, listener: MessageClickListener?
     ) {
         val builder = SpannableStringBuilder(content)
         val urlSpans = content.getSpans(0, content.length, URLSpan::class.java)
@@ -57,7 +57,7 @@ object TextFormatter {
                 val tag = text.subSequence(1, text.length).toString()
                 customSpan = object : ClickableSpanNoUnderline() {
                     override fun onClick(widget: View) {
-//                        listener.onViewTag(tag)
+                        listener?.onTagClick(tag)
                     }
                 }
             } else if (text[0] == '@' && mentions != null && mentions.isNotEmpty()) {
@@ -78,7 +78,7 @@ object TextFormatter {
                     val accountId = id
                     customSpan = object : ClickableSpanNoUnderline() {
                         override fun onClick(widget: View) {
-//                            listener.onViewAccount(accountId)
+                            listener?.onAccountClick(accountId)
                         }
                     }
                 }
@@ -86,8 +86,8 @@ object TextFormatter {
 
             if (customSpan == null) {
                 customSpan = object : CustomUrlSpan(span.url) {
-                   override fun onClick(view: View) {
-//                        listener.onViewUrl(getURL())
+                    override fun onClick(view: View) {
+                        listener?.onUrlClick(url)
                     }
                 }
             }
@@ -105,6 +105,12 @@ object TextFormatter {
         view.text = builder
         view.linksClickable = true
         view.movementMethod = LinkMovementMethod.getInstance()
+
+        view.setOnClickListener { listener?.onClick() }
+        view.setOnLongClickListener {
+            listener?.onLongClick()
+            true
+        }
     }
 
     private fun getDomain(urlString: String): String {

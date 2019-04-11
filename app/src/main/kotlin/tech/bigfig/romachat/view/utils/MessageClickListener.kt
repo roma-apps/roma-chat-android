@@ -15,28 +15,13 @@
  * see <http://www.gnu.org/licenses>.
  */
 
-package tech.bigfig.romachat.view.screen.chat
+package tech.bigfig.romachat.view.utils
 
-import android.text.Spanned
-import tech.bigfig.romachat.data.entity.Attachment
-import tech.bigfig.romachat.data.entity.Emoji
-import tech.bigfig.romachat.data.entity.Status
+interface MessageClickListener {
+    fun onTagClick(tag: String)
+    fun onAccountClick(id: String)
+    fun onUrlClick(url: String)
 
-data class MessageViewData(
-    val id: String,
-
-    val showDate: Boolean,
-    val date: String?,
-
-    val showAccount: Boolean,
-    val account: String?,
-    val fromMe: Boolean,
-
-    val isMedia: Boolean,
-
-    val content: Spanned?,
-    val mentions: Array<Status.Mention>?,
-    val emojis: List<Emoji>?,
-
-    val attachment: Attachment?
-)
+    fun onClick()
+    fun onLongClick()
+}

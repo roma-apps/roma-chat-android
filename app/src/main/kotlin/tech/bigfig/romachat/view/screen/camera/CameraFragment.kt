@@ -33,7 +33,6 @@ import android.media.Image
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
-import android.util.Log
 import android.util.Size
 import android.view.*
 import android.widget.Toast
@@ -48,6 +47,7 @@ import tech.bigfig.romachat.app.App
 import tech.bigfig.romachat.databinding.FragmentCameraBinding
 import tech.bigfig.romachat.view.screen.camera.utils.*
 import tech.bigfig.romachat.view.screen.recipient.CameraResultRecipientFragment
+import timber.log.Timber
 import java.io.File
 import javax.inject.Inject
 
@@ -123,10 +123,10 @@ class CameraFragment : Fragment(), EasyPermissions.PermissionCallbacks, CameraHo
     }
 
     override fun onTakePictureClick() {
-        Log.d(LOG_TAG, "onTakePictureClick")
+        Timber.d("onTakePictureClick")
         camera?.takePicture(object : ImageHandler {
             override fun handleImage(image: Image): Runnable {
-                Log.d(LOG_TAG, "handleImage")
+                Timber.d("handleImage")
 
                 return ImageSaver(image, outputFile)
             }
@@ -148,7 +148,7 @@ class CameraFragment : Fragment(), EasyPermissions.PermissionCallbacks, CameraHo
     }
 
     override fun onCaptured() {
-        Log.d(LOG_TAG, "onCaptured callback")
+        Timber.d("onCaptured callback")
 
         startCropActivity(Uri.fromFile(outputFile))
     }
@@ -180,7 +180,7 @@ class CameraFragment : Fragment(), EasyPermissions.PermissionCallbacks, CameraHo
                     }
 
                     CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE -> {
-                        Log.e(LOG_TAG, "Error while cropping")
+                        Timber.e("Error while cropping")
                         Toast.makeText(activity!!, R.string.error_media_crop, Toast.LENGTH_LONG).show()
                         redirectToNextStep(imageForCrop)
                     }
@@ -253,7 +253,7 @@ class CameraFragment : Fragment(), EasyPermissions.PermissionCallbacks, CameraHo
             isFlashSupported = camera.isFlashSupported()
 
         } catch (e: CameraAccessException) {
-            Log.e(LOG_TAG, e.toString())
+            Timber.e(e.toString())
         } catch (e: NullPointerException) {
             // Currently an NPE is thrown when the Camera2API is used but not supported on the
             // device this code runs.
@@ -284,7 +284,7 @@ class CameraFragment : Fragment(), EasyPermissions.PermissionCallbacks, CameraHo
                 }
             }
             else -> {
-                Log.e(LOG_TAG, "Display rotation is invalid: $displayRotation")
+                Timber.e("Display rotation is invalid: $displayRotation")
             }
         }
         return swappedDimensions
@@ -302,7 +302,7 @@ class CameraFragment : Fragment(), EasyPermissions.PermissionCallbacks, CameraHo
                 it.open(Surface(texture))
             }
         } catch (e: CameraAccessException) {
-            Log.e(LOG_TAG, e.toString())
+            Timber.e(e.toString())
         } catch (e: InterruptedException) {
             throw RuntimeException("Interrupted while trying to lock camera opening.", e)
         }
@@ -348,12 +348,12 @@ class CameraFragment : Fragment(), EasyPermissions.PermissionCallbacks, CameraHo
 
     private fun resizePreview(view: View, previewWidth: Int, previewHeight: Int) {
 
-        Log.d(LOG_TAG, "previewWidth = $previewWidth previewHeight = $previewHeight")
+        Timber.d("previewWidth = $previewWidth previewHeight = $previewHeight")
 
         val display = activity!!.windowManager.defaultDisplay
         val widthIsMax = display.width > display.height
 
-        Log.d(LOG_TAG, "display = " + display.width + " " + display.height)
+        Timber.d("display = ${display.width} ${display.height}")
 
         val rectDisplay = RectF()
         val rectPreview = RectF()
@@ -430,12 +430,12 @@ class CameraFragment : Fragment(), EasyPermissions.PermissionCallbacks, CameraHo
     private fun hasCameraPermission() = EasyPermissions.hasPermissions(activity!!, Manifest.permission.CAMERA)
 
     override fun onPermissionsDenied(requestCode: Int, perms: MutableList<String>) {
-        Log.d(LOG_TAG, "onPermissionsDenied: $requestCode")
+        Timber.d("onPermissionsDenied: $requestCode")
         viewModel.hasPermissions.postValue(false)
     }
 
     override fun onPermissionsGranted(requestCode: Int, perms: MutableList<String>) {
-        Log.d(LOG_TAG, "onPermissionsGranted: $requestCode")
+        Timber.d("onPermissionsGranted: $requestCode")
         viewModel.hasPermissions.postValue(false)
     }
 
@@ -443,8 +443,6 @@ class CameraFragment : Fragment(), EasyPermissions.PermissionCallbacks, CameraHo
 
         @JvmStatic
         fun newInstance() = CameraFragment()
-
-        private const val LOG_TAG = "CameraFragment"
 
         private const val REQUEST_CODE_PERMISSION = 2334
     }

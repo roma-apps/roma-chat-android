@@ -20,7 +20,6 @@ package tech.bigfig.romachat.view.screen.login
 import android.content.Context
 import android.content.SharedPreferences
 import android.net.Uri
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
@@ -34,6 +33,7 @@ import tech.bigfig.romachat.data.entity.AppCredentials
 import tech.bigfig.romachat.utils.buildQueryString
 import tech.bigfig.romachat.utils.canonicalizeDomain
 import tech.bigfig.romachat.utils.validateDomain
+import timber.log.Timber
 import javax.inject.Inject
 
 /**
@@ -127,7 +127,7 @@ class LoginViewModel @Inject constructor(private val application: Context, repos
 
     override fun onCleared() {
         super.onCleared()
-        Log.d(LOG_TAG, "onCleared, storing params")
+        Timber.d("onCleared, storing params")
         //store already fetched params because activity might be killed while oauth
         loginTemporaryStorage.save(LoginStoredParams(domain, appCredentials))
     }
@@ -190,7 +190,7 @@ class LoginViewModel @Inject constructor(private val application: Context, repos
                 null
             } else {//success
                 if (result.data != null && !result.data.accessToken.isEmpty()) {
-                    Log.d(LOG_TAG, "oauth token = $result.data.accessToken")
+                    Timber.d("oauth token = $result.data.accessToken")
 
                     repository.addNewAccount(result.data.accessToken, domain)
 
@@ -242,7 +242,7 @@ class LoginViewModel @Inject constructor(private val application: Context, repos
         val sb = StringBuilder(error)
         if (!logError.isEmpty()) sb.append(" ").append(logError)
 
-        Log.e(LOG_TAG, sb.toString())
+        Timber.e(sb.toString())
 
         isLoading.value = false
     }
@@ -263,8 +263,6 @@ class LoginViewModel @Inject constructor(private val application: Context, repos
     )
 
     companion object {
-        private const val LOG_TAG = "LoginViewModel"
-
         private const val OAUTH_SCOPES = "read write follow push"
         private const val WEBSITE = "https://romaapp.github.io/"
 

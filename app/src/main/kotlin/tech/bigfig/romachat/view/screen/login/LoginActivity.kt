@@ -19,12 +19,12 @@ package tech.bigfig.romachat.view.screen.login
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import tech.bigfig.romachat.R
 import tech.bigfig.romachat.app.App
+import timber.log.Timber
 import javax.inject.Inject
 
 
@@ -57,7 +57,7 @@ class LoginActivity : AppCompatActivity() {
             * redirect that was given to the server. If so, its response is here! */
             val uri = intent.data!!
 
-            Log.d(LOG_TAG, "onNewIntent uri = $uri")
+            Timber.d("onNewIntent uri = $uri")
 
             viewModel.onOauthRedirect(uri)
         }
@@ -69,9 +69,5 @@ class LoginActivity : AppCompatActivity() {
 
         return ViewModelProviders.of(this, viewModelFactory)
             .get(LoginViewModel::class.java)
-    }
-
-    companion object {
-        private const val LOG_TAG = "LoginActivity"
     }
 }

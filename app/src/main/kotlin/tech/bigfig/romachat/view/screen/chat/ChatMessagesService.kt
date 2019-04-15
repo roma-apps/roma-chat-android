@@ -19,11 +19,11 @@ package tech.bigfig.romachat.view.screen.chat
 
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.Observer
 import tech.bigfig.romachat.app.App
 import tech.bigfig.romachat.data.ChatRepository
+import timber.log.Timber
 import javax.inject.Inject
 
 /**
@@ -44,14 +44,14 @@ class ChatMessagesService : LifecycleService() {
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         val mode = intent.getSerializableExtra(EXTRA_MODE) as FetchMode
-        Log.d(LOG_TAG, "onStartCommand fetchMessages $mode")
+        Timber.d("onStartCommand fetchMessages $mode")
         fetchMessages(mode)
         return super.onStartCommand(intent, flags, startId)
     }
 
     private fun fetchMessages(mode: FetchMode) {
         repository.storeMessages(mode.pages).observe(this, Observer { result ->
-            Log.d(LOG_TAG, "fetchMessages ${result.status} ${result.data}")
+            Timber.d("fetchMessages ${result.status} ${result.data}")
         })
     }
 
@@ -70,8 +70,6 @@ class ChatMessagesService : LifecycleService() {
                 .putExtra(EXTRA_MODE, FetchMode.LAST)
             context.startService(intent)
         }
-
-        private const val LOG_TAG = "ChatMessagesService"
 
         private const val EXTRA_MODE = "EXTRA_MODE"
     }

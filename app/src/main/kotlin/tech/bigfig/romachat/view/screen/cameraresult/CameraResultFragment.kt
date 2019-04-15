@@ -90,8 +90,6 @@ class CameraResultFragment : Fragment() {
                     putParcelable(ARG_FILE_URI, uri)
                 }
             }
-
-        private const val LOG_TAG = "CameraResultFragment"
     }
 }
 

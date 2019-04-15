@@ -24,7 +24,6 @@ import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -50,6 +49,7 @@ import tech.bigfig.romachat.databinding.FragmentChatBinding
 import tech.bigfig.romachat.utils.isImageMedia
 import tech.bigfig.romachat.view.screen.media.ViewMediaActivity
 import tech.bigfig.romachat.view.utils.RetryListener
+import timber.log.Timber
 import javax.inject.Inject
 
 
@@ -75,21 +75,21 @@ class ChatFragment : Fragment(), MessageItemDialogFragment.Listener {
 
         viewModel.messageList.observe(this, Observer { messages ->
             if (messages != null) {
-                Log.d(LOG_TAG, "showing ${messages.size} messages")
+                Timber.d("showing ${messages.size} messages")
                 adapter.setItems(messages)
             }
         })
 
         viewModel.postMessage.observe(this, Observer { result ->
-            Log.d(LOG_TAG, "result $result")
+            Timber.d("result $result")
         })
 
         viewModel.uploadMedia.observe(this, Observer { result ->
-            Log.d(LOG_TAG, "uploadMedia $result")
+            Timber.d("uploadMedia $result")
         })
 
         viewModel.deleteMessage.observe(this, Observer { result ->
-            Log.d(LOG_TAG, "deleteMessage $result")
+            Timber.d("deleteMessage $result")
         })
 
         viewModel.shortError.observe(this, Observer { message ->
@@ -179,7 +179,7 @@ class ChatFragment : Fragment(), MessageItemDialogFragment.Listener {
                     }
 
                     CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE -> {
-                        Log.e(LOG_TAG, "Error while cropping")
+                        Timber.e("Error while cropping")
                         Toast.makeText(activity!!, R.string.error_media_crop, Toast.LENGTH_LONG).show()
                         viewModel.processMedia(imageForCrop)
                     }
@@ -214,7 +214,7 @@ class ChatFragment : Fragment(), MessageItemDialogFragment.Listener {
                         Attachment.Type.VIDEO,
                         Attachment.Type.GIFV -> MediaType.VIDEO
                         else -> {
-                            Log.d(LOG_TAG, "Unknown media type: " + message.attachment.type)
+                            Timber.d("Unknown media type: ${message.attachment.type}")
                             return
                         }
                     }
@@ -252,8 +252,6 @@ class ChatFragment : Fragment(), MessageItemDialogFragment.Listener {
                     putParcelable(ARG_ACCOUNT, account)
                 }
             }
-
-        private const val LOG_TAG = "ChatFragment"
 
         private const val REQUEST_CODE_PERMISSION = 2322
         private const val REQUEST_CODE_MEDIA_PICK = 1991

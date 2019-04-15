@@ -48,6 +48,7 @@ import tech.bigfig.romachat.data.entity.ChatInfo
 import tech.bigfig.romachat.data.entity.Status
 import tech.bigfig.romachat.utils.StringUtils
 import tech.bigfig.romachat.utils.getMediaSize
+import timber.log.Timber
 import java.io.FileNotFoundException
 import java.io.InputStream
 import java.util.*
@@ -55,7 +56,6 @@ import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 
 private const val MESSAGES_AMOUNT = 40 // max available amount to fetch at a time
-private const val LOG_TAG = "ChatRepository"
 
 class ChatRepository @Inject constructor(
     private val restApi: RestApi, private val accountManager: AccountManager, private val db: AppDatabase,
@@ -142,7 +142,7 @@ class ChatRepository @Inject constructor(
                     try {
                         stream = context.contentResolver.openInputStream(uri)
                     } catch (e: FileNotFoundException) {
-                        Log.w(LOG_TAG, e)
+                        Timber.w(e)
                         return
                     }
 
@@ -164,7 +164,7 @@ class ChatRepository @Inject constructor(
 //                                        runOnUiThread { item.preview.setProgress(percentage) }
 //                                    }
                                     lastProgress = percentage
-                                    Log.d(LOG_TAG, "progress $percentage")
+                                    Timber.d("progress $percentage")
                                 }
                             })
 
@@ -177,13 +177,13 @@ class ChatRepository @Inject constructor(
                             if (response.isSuccessful) {
                                 postValue(Result.success(response.body()))
                             } else {
-                                Log.d(LOG_TAG, "Upload request failed. " + response.message())
+                                Timber.d("Upload request failed. ${response.message()}")
                                 postValue(Result.error(response.message()))
                             }
                         }
 
                         override fun onFailure(call: Call<Attachment>, t: Throwable) {
-                            Log.d(LOG_TAG, "Upload request failed. " + t.message)
+                            Timber.d("Upload request failed. ${t.message}")
                             postValue(Result.error(t.message ?: "Upload media call onFailure()"))
                         }
                     })
@@ -209,13 +209,13 @@ class ChatRepository @Inject constructor(
 
                                 postValue(Result.success(true))
                             } else {
-                                Log.d(LOG_TAG, "deleteMessage request failed. " + response.message())
+                                Timber.d("deleteMessage request failed. ${response.message()}")
                                 postValue(Result.error(response.message()))
                             }
                         }
 
                         override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-                            Log.d(LOG_TAG, "deleteMessage request failed. " + t.message)
+                            Timber.d("deleteMessage request failed. ${t.message}")
                             postValue(Result.error(t.message ?: "Upload media call onFailure()"))
                         }
                     })
@@ -256,18 +256,18 @@ class ChatRepository @Inject constructor(
                                         val body = response.body()
 
                                         loadedCount = body?.size ?: 0
-                                        Log.d(LOG_TAG, "Loaded messages: $loadedCount ($repeatCount iteration)")
+                                        Timber.d("Loaded messages: $loadedCount ($repeatCount iteration)")
 
                                         if (loadedCount > 0) {
                                             lastId = body?.last()?.id
-                                            Log.d(LOG_TAG, "Last message id: $lastId")
+                                            Timber.d("Last message id: $lastId")
 
                                             body?.forEach { message -> processMessage(message, messages, accounts) }
 
                                             postValue(Result.success(true))
                                         }
                                         if (loadedCount == 0 || repeatCount == pages) {// no more messages OR last iteration
-                                            Log.d(LOG_TAG, "Saving to db ($repeatCount iteration)")
+                                            Timber.d("Saving to db ($repeatCount iteration)")
                                             fillAccounts(accounts)
 
                                             saveToDb(messages, accounts)
@@ -281,7 +281,7 @@ class ChatRepository @Inject constructor(
                                         postValue(Result.error(errorMsg ?: "unknown error"))
                                     }
                                 } catch (e: Exception) {
-                                    Log.d(LOG_TAG, Log.getStackTraceString(e))
+                                    Timber.d(Log.getStackTraceString(e))
                                     postValue(Result.error(e.message ?: "unknown error"))
                                 }
 
@@ -305,7 +305,7 @@ class ChatRepository @Inject constructor(
 
         if (mentions.isEmpty()) {
             //for example message is marked as direct but there is no correct @user mentions
-            Log.d(LOG_TAG, "Skipping insert to db, no mentions for message ${message.id}")
+            Timber.d("Skipping insert to db, no mentions for message ${message.id}")
             return
         }
 
@@ -327,14 +327,11 @@ class ChatRepository @Inject constructor(
         }
 
         if (userId.isNullOrEmpty() || username.isNullOrEmpty()) {
-            Log.d(
-                LOG_TAG,
+            Timber.d(
                 "Skipping insert to db because of empty data: userId = $userId username = $username isAuthor = $currentUserIsAuthor"
             )
             return
         }
-
-        Log.d(LOG_TAG, "$currentUserIsAuthor $userId $username")
 
         messages.add(
             MessageEntity(
@@ -367,16 +364,16 @@ class ChatRepository @Inject constructor(
                 } else {
                     val msg = response.errorBody()?.string()
                     val errorMsg = if (msg.isNullOrEmpty()) response.message() else msg
-                    Log.d(LOG_TAG, "Error during fetching account $errorMsg")
+                    Timber.d("Error during fetching account $errorMsg")
                 }
             } catch (e: Exception) {
-                Log.d(LOG_TAG, Log.getStackTraceString(e))
+                Timber.d(Log.getStackTraceString(e))
             }
         }
     }
 
     private fun saveToDb(messages: MutableList<MessageEntity>, accounts: MutableMap<String, ChatAccountEntity?>) {
-        Log.d(LOG_TAG, "Saving ${accounts.size} accounts and ${messages.size} messages")
+        Timber.d("Saving ${accounts.size} accounts and ${messages.size} messages")
         db.runInTransaction {
             accounts.forEach {
                 if (it.value != null) {

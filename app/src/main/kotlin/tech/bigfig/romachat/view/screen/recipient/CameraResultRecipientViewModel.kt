@@ -19,7 +19,6 @@ package tech.bigfig.romachat.view.screen.recipient
 
 import android.content.Context
 import android.net.Uri
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
@@ -30,6 +29,7 @@ import tech.bigfig.romachat.data.ResultStatus
 import tech.bigfig.romachat.data.db.entity.ChatAccountEntity
 import tech.bigfig.romachat.data.entity.Status
 import tech.bigfig.romachat.view.screen.chat.ChatMessagesService
+import timber.log.Timber
 import javax.inject.Inject
 
 class CameraResultRecipientViewModel @Inject constructor(context: Context, repository: ChatRepository) : ViewModel() {
@@ -68,7 +68,7 @@ class CameraResultRecipientViewModel @Inject constructor(context: Context, repos
 
         //since we group messages by chats using mentions, we add @user as a message text
         Transformations.map(repository.postMedia("@${account.username}", fileUri!!)) { result ->
-            Log.d(LOG_TAG, "result $result")
+            Timber.d("result $result")
             when (result.status) {
                 ResultStatus.SUCCESS ->
                     if (result.data != null) {
@@ -96,12 +96,8 @@ class CameraResultRecipientViewModel @Inject constructor(context: Context, repos
         val sb = StringBuilder(error)
         if (!logError.isEmpty()) sb.append(" ").append(logError)
 
-        Log.e(LOG_TAG, sb.toString())
+        Timber.e(sb.toString())
 
         isLoading.value = false
-    }
-
-    companion object {
-        private const val LOG_TAG = "CameraResultRecipientVM"
     }
 }

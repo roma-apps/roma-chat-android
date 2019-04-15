@@ -1,8 +1,7 @@
 package tech.bigfig.romachat.view.screen.camera.utils
 
 import android.media.Image
-import android.util.Log
-
+import timber.log.Timber
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -32,21 +31,17 @@ internal class ImageSaver(
                 write(bytes)
             }
         } catch (e: IOException) {
-            Log.e(LOG_TAG, e.toString())
+            Timber.e(e.toString())
         } finally {
             image.close()
             output?.let {
                 try {
                     it.close()
                 } catch (e: IOException) {
-                    Log.e(LOG_TAG, e.toString())
+                    Timber.e(e.toString())
                 }
             }
-            Log.d(LOG_TAG, "Writing to file completed")
+            Timber.d("Writing to file completed")
         }
-    }
-
-    companion object {
-        private const val LOG_TAG = "ImageSaver"
     }
 }

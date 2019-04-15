@@ -24,9 +24,8 @@ import retrofit2.Callback
 import retrofit2.Response
 import tech.bigfig.romachat.data.Pagination
 import tech.bigfig.romachat.data.Result
+import timber.log.Timber
 import java.util.concurrent.atomic.AtomicBoolean
-
-private const val LOG_TAG = "RestApiUtil"
 
 fun <T, R> apiCallToLiveData(call: Call<T>, transform: (T) -> R): LiveData<Result<R>> {
 
@@ -63,7 +62,7 @@ fun <T, R> apiCallToLiveData(call: Call<T>, transform: (T) -> R): LiveData<Resul
                     }
 
                     override fun onFailure(call: Call<T>, throwable: Throwable) {
-                        Log.d(LOG_TAG, Log.getStackTraceString(throwable))
+                        Timber.d( Log.getStackTraceString(throwable))
                         postValue(Result.error(throwable.message ?: "api call onFailure()"))
                     }
                 })

@@ -19,9 +19,12 @@ package tech.bigfig.romachat.app
 
 import android.app.Application
 import android.content.Context
+import tech.bigfig.romachat.BuildConfig
 import tech.bigfig.romachat.app.di.AppComponent
 import tech.bigfig.romachat.app.di.AppModule
 import tech.bigfig.romachat.app.di.DaggerAppComponent
+import timber.log.Timber
+
 
 class App : Application() {
     val appComponent: AppComponent by lazy(mode = LazyThreadSafetyMode.NONE) {
@@ -29,6 +32,18 @@ class App : Application() {
             .builder()
             .appModule(AppModule(this))
             .build()
+    }
+
+    override fun onCreate() {
+        super.onCreate()
+
+        initLog()
+    }
+
+    private fun initLog() {
+        if (BuildConfig.DEBUG) {
+            Timber.plant(Timber.DebugTree())
+        }
     }
 
     companion object {

@@ -21,7 +21,6 @@ package tech.bigfig.romachat.view.screen.login
 import android.content.ActivityNotFoundException
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -32,6 +31,7 @@ import tech.bigfig.romachat.R
 import tech.bigfig.romachat.databinding.FragmentLoginBinding
 import tech.bigfig.romachat.utils.OpenLinkHelper
 import tech.bigfig.romachat.view.screen.main.MainActivity
+import timber.log.Timber
 
 
 class LoginFragment : Fragment() {
@@ -46,7 +46,7 @@ class LoginFragment : Fragment() {
         viewModel = (activity as LoginActivity).obtainViewModel()
 
         viewModel.isUserLoggedIn.observe(this, Observer { isLoggedIn ->
-            Log.d(LOG_TAG, "user logged in = $isLoggedIn")
+            Timber.d("user logged in = $isLoggedIn")
             if (isLoggedIn) {
                 redirectToMain()
             }
@@ -54,14 +54,14 @@ class LoginFragment : Fragment() {
 
         viewModel.checkDomain.observe(this, Observer { uri ->
             if (uri != null) {
-                Log.d(LOG_TAG, "login result uri = $uri")
+                Timber.d("login result uri = $uri")
                 openOauthUrl(uri)
             }
         })
 
         viewModel.getAccount.observe(this, Observer { account ->
             if (account != null) {
-                Log.d(LOG_TAG, "successful login, account = ${account.displayName}")
+                Timber.d("successful login, account = ${account.displayName}")
                 redirectToMain()
             }
         })
@@ -99,7 +99,5 @@ class LoginFragment : Fragment() {
 
         @JvmStatic
         fun newInstance() = LoginFragment()
-
-        private const val LOG_TAG = "LoginFragment"
     }
 }

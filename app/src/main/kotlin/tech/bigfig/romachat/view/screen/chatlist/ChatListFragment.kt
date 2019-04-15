@@ -19,7 +19,6 @@ package tech.bigfig.romachat.view.screen.chatlist
 
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -35,6 +34,7 @@ import tech.bigfig.romachat.data.entity.ChatInfo
 import tech.bigfig.romachat.databinding.FragmentChatListBinding
 import tech.bigfig.romachat.view.screen.chat.ChatFragment
 import tech.bigfig.romachat.view.utils.RetryListener
+import timber.log.Timber
 import javax.inject.Inject
 
 
@@ -58,7 +58,7 @@ class ChatListFragment : Fragment() {
 
         viewModel.chatList.observe(this, Observer { chats ->
             if (chats != null) {
-                Log.d(LOG_TAG, "showing ${chats.size} chats")
+                Timber.d("showing ${chats.size} chats")
                 adapter.setItems(chats)
             }
         })
@@ -101,7 +101,5 @@ class ChatListFragment : Fragment() {
 
         @JvmStatic
         fun newInstance() = ChatListFragment()
-
-        private const val LOG_TAG = "ChatListFragment"
     }
 }

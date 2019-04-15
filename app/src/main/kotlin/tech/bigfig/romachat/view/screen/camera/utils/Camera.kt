@@ -23,16 +23,14 @@ import android.media.Image
 import android.media.ImageReader
 import android.os.Handler
 import android.os.HandlerThread
-import android.util.Log
 import android.util.Size
 import android.util.SparseIntArray
 import android.view.Surface
+import timber.log.Timber
 import java.lang.Long
 import java.util.*
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
-
-private const val LOG_TAG = "CAMERA"
 
 class Camera constructor(private val cameraManager: CameraManager) {
 
@@ -159,7 +157,7 @@ class Camera constructor(private val cameraManager: CameraManager) {
             backgroundHelper.stopBackgroundThread()
 
         } catch (e: InterruptedException) {
-            Log.e(LOG_TAG, "Error closing camera $e")
+            Timber.e("Error closing camera $e")
         } finally {
             openLock.release()
 
@@ -241,7 +239,7 @@ class Camera constructor(private val cameraManager: CameraManager) {
 
     private val captureStateCallback = object : CameraCaptureSession.StateCallback() {
         override fun onConfigureFailed(session: CameraCaptureSession) {
-            Log.e(LOG_TAG, "CameraCaptureSession.StateCallback.onConfigureFailed")
+            Timber.e("CameraCaptureSession.StateCallback.onConfigureFailed")
         }
 
         override fun onConfigured(session: CameraCaptureSession) {
@@ -270,13 +268,13 @@ class Camera constructor(private val cameraManager: CameraManager) {
                 captureCallback, backgroundHelper.backgroundHandler
             )
         } catch (e: CameraAccessException) {
-            Log.e(LOG_TAG, e.toString())
+            Timber.e(e.toString())
         }
     }
 
     private val captureCallback = object : CameraCaptureSession.CaptureCallback() {
         private fun process(result: CaptureResult) {
-//            Log.d(LOG_TAG, "captureCallback $state")
+//            Timber.d( "captureCallback $state")
             when (state) {
                 State.PREVIEW -> {
 //                    val afState = result.get(CaptureResult.CONTROL_AF_STATE) ?: return
@@ -370,7 +368,7 @@ class Camera constructor(private val cameraManager: CameraManager) {
                 backgroundHelper.backgroundHandler
             )
         } catch (e: CameraAccessException) {
-            Log.e(LOG_TAG, e.toString())
+            Timber.e(e.toString())
         }
 
     }
@@ -381,7 +379,7 @@ class Camera constructor(private val cameraManager: CameraManager) {
         }
         if (isClosed) return
         imageReader?.setOnImageAvailableListener({ reader ->
-            Log.d(LOG_TAG, "onImageAvailable")
+            Timber.d("onImageAvailable")
             val image = reader.acquireNextImage()
             backgroundHelper.backgroundHandler?.post(handler.handleImage(image))
         }, backgroundHelper.backgroundHandler)
@@ -406,7 +404,7 @@ class Camera constructor(private val cameraManager: CameraManager) {
                 backgroundHelper.backgroundHandler
             )
         } catch (e: CameraAccessException) {
-            Log.e(LOG_TAG, e.toString())
+            Timber.e(e.toString())
         }
     }
 
@@ -433,7 +431,7 @@ class Camera constructor(private val cameraManager: CameraManager) {
                 backgroundHelper.backgroundHandler
             )
         } catch (e: CameraAccessException) {
-            Log.e(LOG_TAG, e.toString())
+            Timber.e(e.toString())
         }
 
     }
@@ -453,7 +451,7 @@ class Camera constructor(private val cameraManager: CameraManager) {
      */
     private fun captureStillPicture() {
 
-        Log.d(LOG_TAG, "captureStillPicture")
+        Timber.d("captureStillPicture")
 
         try {
             cameraDevice ?: return
@@ -488,7 +486,7 @@ class Camera constructor(private val cameraManager: CameraManager) {
                     request: CaptureRequest,
                     result: TotalCaptureResult
                 ) {
-                    Log.d(LOG_TAG, "onCaptureCompleted")
+                    Timber.d("onCaptureCompleted")
                     unlockFocus()
                     cameraHost?.onCaptured()
                 }
@@ -500,7 +498,7 @@ class Camera constructor(private val cameraManager: CameraManager) {
                 capture(captureBuilder?.build(), captureCallback, null)
             }
         } catch (e: CameraAccessException) {
-            Log.e(LOG_TAG, e.toString())
+            Timber.e(e.toString())
         }
     }
 
@@ -536,7 +534,7 @@ class BackgroundHelper {
             backgroundThread = null
             backgroundHandler = null
         } catch (e: InterruptedException) {
-            Log.e(LOG_TAG, e.toString())
+            Timber.e(e.toString())
         }
     }
 }

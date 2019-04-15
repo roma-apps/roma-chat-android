@@ -20,7 +20,6 @@ package tech.bigfig.romachat.view.screen.recipient
 
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -39,6 +38,7 @@ import tech.bigfig.romachat.R
 import tech.bigfig.romachat.app.App
 import tech.bigfig.romachat.data.db.entity.ChatAccountEntity
 import tech.bigfig.romachat.databinding.FragmentCameraResultRecipientBinding
+import timber.log.Timber
 import javax.inject.Inject
 
 
@@ -64,13 +64,13 @@ class CameraResultRecipientFragment : Fragment() {
 
         viewModel.recipients.observe(this, Observer { recipients ->
             if (recipients != null) {
-                Log.d(LOG_TAG, "showing ${recipients.size} recipients")
+                Timber.d("showing ${recipients.size} recipients")
                 adapter.setItems(recipients)
             }
         })
 
         viewModel.uploadMedia.observe(this, Observer { result ->
-            Log.d(LOG_TAG, "uploadMedia $result")
+            Timber.d("uploadMedia $result")
 
             if (result != null) {
 
@@ -120,8 +120,6 @@ class CameraResultRecipientFragment : Fragment() {
                     putParcelable(ARG_FILE_URI, uri)
                 }
             }
-
-        private const val LOG_TAG = "CameraResultFragment"
     }
 }
 

@@ -20,7 +20,6 @@ package tech.bigfig.romachat.view.screen.chat
 import android.content.Context
 import android.net.Uri
 import android.text.Spanned
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
@@ -34,6 +33,7 @@ import tech.bigfig.romachat.utils.HtmlUtils
 import tech.bigfig.romachat.utils.MEDIA_SIZE_UNKNOWN
 import tech.bigfig.romachat.utils.getMediaSize
 import tech.bigfig.romachat.utils.getMimeType
+import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
@@ -127,7 +127,7 @@ class ChatViewModel @Inject constructor(val repository: ChatRepository, val cont
 
     // User entered a messageText and clicked submit
     fun onSubmitClick(text: String) {
-        Log.d(LOG_TAG, "onSubmitClick $text")
+        Timber.d("onSubmitClick $text")
 
         if (text.isEmpty()) {
             showError(context.getString(R.string.chat_send_error_no_text))
@@ -246,7 +246,7 @@ class ChatViewModel @Inject constructor(val repository: ChatRepository, val cont
     val deleteMessage: LiveData<Boolean?> = Transformations.switchMap(messageToDelete) {
         Transformations.map(repository.deleteMessage(it)) { result ->
             when (result.status) {
-                ResultStatus.SUCCESS ->{
+                ResultStatus.SUCCESS -> {
                     if (result.data != null) {
                         result.data
                     } else {
@@ -254,7 +254,7 @@ class ChatViewModel @Inject constructor(val repository: ChatRepository, val cont
                         null
                     }
                 }
-                ResultStatus.ERROR ->{
+                ResultStatus.ERROR -> {
                     shortError.postValue(context.getString(R.string.chat_error_delete))
                     null
                 }
@@ -286,7 +286,7 @@ class ChatViewModel @Inject constructor(val repository: ChatRepository, val cont
         val sb = StringBuilder(error)
         if (!logError.isEmpty()) sb.append(" ").append(logError)
 
-        Log.e(LOG_TAG, sb.toString())
+        Timber.e(sb.toString())
 
         isLoading.value = false
     }
@@ -304,8 +304,6 @@ class ChatViewModel @Inject constructor(val repository: ChatRepository, val cont
     }
 
     companion object {
-        private const val LOG_TAG = "ChatViewModel"
-
         private const val CHARACTER_LIMIT = 500
 
         private const val IMAGE_SIZE_LIMIT = 8388608 // 8MB

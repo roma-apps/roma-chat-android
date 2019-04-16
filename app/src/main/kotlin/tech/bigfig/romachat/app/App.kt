@@ -25,6 +25,7 @@ import tech.bigfig.romachat.BuildConfig
 import tech.bigfig.romachat.app.di.AppComponent
 import tech.bigfig.romachat.app.di.AppModule
 import tech.bigfig.romachat.app.di.DaggerAppComponent
+import tech.bigfig.romachat.view.utils.CrashReportingTree
 import timber.log.Timber
 
 
@@ -45,13 +46,15 @@ class App : Application() {
 
     private fun initCrashlytics() {
         if (!BuildConfig.DEBUG) {
-            Fabric.with(this, Crashlytics());
+            Fabric.with(this, Crashlytics())
         }
     }
 
     private fun initLog() {
         if (BuildConfig.DEBUG) {
             Timber.plant(Timber.DebugTree())
+        } else {
+            Timber.plant(CrashReportingTree())
         }
     }
 

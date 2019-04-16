@@ -101,6 +101,8 @@ class LoginViewModel @Inject constructor(private val application: Context, repos
                 null
             } else {//success
                 if (result.data != null) {
+                    isLoading.postValue(false)
+
                     appCredentials = result.data
                     buildUri(result.data)
                 } else {

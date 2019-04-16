@@ -19,6 +19,8 @@ package tech.bigfig.romachat.app
 
 import android.app.Application
 import android.content.Context
+import com.crashlytics.android.Crashlytics
+import io.fabric.sdk.android.Fabric
 import tech.bigfig.romachat.BuildConfig
 import tech.bigfig.romachat.app.di.AppComponent
 import tech.bigfig.romachat.app.di.AppModule
@@ -37,7 +39,14 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
 
+        initCrashlytics()
         initLog()
+    }
+
+    private fun initCrashlytics() {
+        if (!BuildConfig.DEBUG) {
+            Fabric.with(this, Crashlytics());
+        }
     }
 
     private fun initLog() {

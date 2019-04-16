@@ -54,6 +54,10 @@
             android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
             android:theme="@style/Theme.AppCompat" />
 
+        <meta-data
+            android:name="firebase_crashlytics_collection_enabled"
+            android:value="${enableCrashlytics}" />
+
     </application>
 
 </manifest>

@@ -36,18 +36,19 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
+import androidx.navigation.ActivityNavigator
+import androidx.navigation.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.theartofdev.edmodo.cropper.CropImage
 import pub.devrel.easypermissions.EasyPermissions
 import tech.bigfig.romachat.R
 import tech.bigfig.romachat.app.App
-import tech.bigfig.romachat.data.db.entity.ChatAccountEntity
 import tech.bigfig.romachat.data.entity.Attachment
 import tech.bigfig.romachat.data.entity.Media
 import tech.bigfig.romachat.data.entity.MediaType
 import tech.bigfig.romachat.databinding.FragmentChatBinding
 import tech.bigfig.romachat.utils.isImageMedia
-import tech.bigfig.romachat.view.screen.media.ViewMediaActivity
 import tech.bigfig.romachat.view.utils.RetryListener
 import timber.log.Timber
 import javax.inject.Inject
@@ -62,6 +63,8 @@ class ChatFragment : Fragment(), MessageItemDialogFragment.Listener {
     private lateinit var viewModel: ChatViewModel
     private lateinit var adapter: ChatAdapter
 
+    private val navArgs: ChatFragmentArgs by navArgs()
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
@@ -71,7 +74,7 @@ class ChatFragment : Fragment(), MessageItemDialogFragment.Listener {
         viewModel = ViewModelProviders.of(this, viewModelFactory)
             .get(ChatViewModel::class.java)
 
-        viewModel.account = arguments?.getParcelable(ARG_ACCOUNT) ?: throw IllegalArgumentException("Empty account id")
+        viewModel.account = navArgs.account
 
         viewModel.messageList.observe(this, Observer { messages ->
             if (messages != null) {
@@ -207,8 +210,10 @@ class ChatFragment : Fragment(), MessageItemDialogFragment.Listener {
     private var adapterListener = object : ChatAdapter.ChatAdapterListener {
         override fun onMessageClick(message: MessageViewData, view: View) {
             if (message.isMedia && message.attachment != null) {
+                val url = message.attachment.url
+
                 val media = Media(
-                    message.attachment.url,
+                    url,
                     when (message.attachment.type) {
                         Attachment.Type.IMAGE -> MediaType.IMAGE
                         Attachment.Type.VIDEO,
@@ -220,15 +225,11 @@ class ChatFragment : Fragment(), MessageItemDialogFragment.Listener {
                     }
                 )
 
-                //TODO replace with Navigation component
-                val intent = ViewMediaActivity.newIntent(context, media)
-                val url = message.attachment.url
                 ViewCompat.setTransitionName(view, url)
-                val options = ActivityOptionsCompat.makeSceneTransitionAnimation(
-                    activity!!,
-                    view, url
-                )
-                startActivity(intent, options.toBundle())
+
+                val options = ActivityOptionsCompat.makeSceneTransitionAnimation(activity!!, view, url)
+                val extras = ActivityNavigator.Extras.Builder().setActivityOptions(options).build()
+                view.findNavController().navigate(ChatFragmentDirections.actionToViewMediaActivity(media), extras)
             }
         }
 
@@ -242,17 +243,6 @@ class ChatFragment : Fragment(), MessageItemDialogFragment.Listener {
     }
 
     companion object {
-
-        const val ARG_ACCOUNT = "ARG_ACCOUNT"
-
-        @JvmStatic
-        fun newInstance(account: ChatAccountEntity) =
-            ChatFragment().apply {
-                arguments = Bundle().apply {
-                    putParcelable(ARG_ACCOUNT, account)
-                }
-            }
-
         private const val REQUEST_CODE_PERMISSION = 2322
         private const val REQUEST_CODE_MEDIA_PICK = 1991
     }

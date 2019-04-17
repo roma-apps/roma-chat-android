@@ -27,12 +27,13 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import tech.bigfig.romachat.R
 import tech.bigfig.romachat.app.App
 import tech.bigfig.romachat.data.entity.ChatInfo
 import tech.bigfig.romachat.databinding.FragmentChatListBinding
-import tech.bigfig.romachat.view.screen.chat.ChatFragment
+import tech.bigfig.romachat.view.screen.main.MainFragmentDirections
 import tech.bigfig.romachat.view.utils.RetryListener
 import timber.log.Timber
 import javax.inject.Inject
@@ -89,11 +90,7 @@ class ChatListFragment : Fragment() {
 
     private val adapterListener = object : ChatListAdapter.ChatListAdapterListener {
         override fun onChatClick(chatInfo: ChatInfo) {
-            //TODO replace with Navigation component
-            activity!!.supportFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, ChatFragment.newInstance(chatInfo.account))
-                .addToBackStack("ChatFragment")
-                .commit()
+            findNavController().navigate(MainFragmentDirections.actionToChatFragment(chatInfo.account))
         }
     }
 

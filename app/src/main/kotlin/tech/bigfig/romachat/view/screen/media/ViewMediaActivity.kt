@@ -19,28 +19,18 @@ package tech.bigfig.romachat.view.screen.media
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
-import android.content.Context
-import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.navigation.navArgs
 import kotlinx.android.synthetic.main.activity_view_media.*
 import tech.bigfig.romachat.R
-import tech.bigfig.romachat.data.entity.Media
 import java.util.*
 
 class ViewMediaActivity : AppCompatActivity(), ViewImageFragment.PhotoActionsListener {
-    companion object {
-        private const val EXTRA_MEDIA = "EXTRA_MEDIA"
 
-        @JvmStatic
-        fun newIntent(context: Context?, media: Media): Intent {
-            val intent = Intent(context, ViewMediaActivity::class.java)
-            intent.putExtra(EXTRA_MEDIA, media)
-            return intent
-        }
-    }
+    private val navArgs: ViewMediaActivityArgs by navArgs()
 
     private var toolbarVisible = true
     private val toolbarVisibilityListeners = ArrayList<ToolbarVisibilityListener>()
@@ -65,7 +55,7 @@ class ViewMediaActivity : AppCompatActivity(), ViewImageFragment.PhotoActionsLis
 
         supportPostponeEnterTransition()
 
-        val media = intent.getParcelableExtra<Media>(EXTRA_MEDIA)
+        val media = navArgs.media
 
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()

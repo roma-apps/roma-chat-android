@@ -32,6 +32,7 @@ import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.squareup.picasso.Picasso
 import tech.bigfig.romachat.R
@@ -51,6 +52,8 @@ class CameraResultRecipientFragment : Fragment() {
     private lateinit var viewModel: CameraResultRecipientViewModel
     private lateinit var adapter: CameraResultRecipientAdapter
 
+    private val navArgs: CameraResultRecipientFragmentArgs by navArgs()
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
@@ -60,7 +63,7 @@ class CameraResultRecipientFragment : Fragment() {
         viewModel = ViewModelProviders.of(this, viewModelFactory)
             .get(CameraResultRecipientViewModel::class.java)
 
-        viewModel.fileUri = arguments?.getParcelable(ARG_FILE_URI) ?: throw IllegalArgumentException("Empty uri")
+        viewModel.fileUri = navArgs.mediaUri
 
         viewModel.recipients.observe(this, Observer { recipients ->
             if (recipients != null) {
@@ -107,19 +110,6 @@ class CameraResultRecipientFragment : Fragment() {
         override fun onAccountClick(account: ChatAccountEntity) {
             viewModel.selectRecipient(account)
         }
-    }
-
-    companion object {
-
-        const val ARG_FILE_URI = "ARG_FILE_URI"
-
-        @JvmStatic
-        fun newInstance(uri: Uri) =
-            CameraResultRecipientFragment().apply {
-                arguments = Bundle().apply {
-                    putParcelable(ARG_FILE_URI, uri)
-                }
-            }
     }
 }
 

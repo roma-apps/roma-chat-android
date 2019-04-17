@@ -29,10 +29,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import com.squareup.picasso.Picasso
-import tech.bigfig.romachat.R
 import tech.bigfig.romachat.app.App
 import tech.bigfig.romachat.databinding.FragmentCameraResultBinding
-import tech.bigfig.romachat.view.screen.recipient.CameraResultRecipientFragment
 import javax.inject.Inject
 
 
@@ -69,14 +67,13 @@ class CameraResultFragment : Fragment() {
     }
 
     private fun redirectToSelectContact() {
-        //TODO replace with Navigation component
-        activity!!.supportFragmentManager.beginTransaction()
-            .replace(
-                R.id.fragment_container,
-                CameraResultRecipientFragment.newInstance(viewModel.fileUri!!)
-            )
-            .addToBackStack("CameraResultRecipientFragment")
-            .commit()
+//        activity!!.supportFragmentManager.beginTransaction()
+//            .replace(
+//                R.id.fragment_container,
+//                CameraResultRecipientFragment.newInstance(viewModel.fileUri!!)
+//            )
+//            .addToBackStack("CameraResultRecipientFragment")
+//            .commit()
     }
 
     companion object {

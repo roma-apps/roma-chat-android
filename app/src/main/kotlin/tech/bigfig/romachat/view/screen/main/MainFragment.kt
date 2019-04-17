@@ -56,16 +56,10 @@ class MainFragment : Fragment() {
         }
 
         override fun getItem(position: Int): Fragment {
-            when (position) {
-                0 -> return ChatListFragment.newInstance()
-                else -> return CameraFragment.newInstance()
+            return when (position) {
+                0 -> ChatListFragment.newInstance()
+                else -> CameraFragment.newInstance()
             }
         }
-    }
-
-    companion object {
-
-        @JvmStatic
-        fun newInstance() = MainFragment()
     }
 }

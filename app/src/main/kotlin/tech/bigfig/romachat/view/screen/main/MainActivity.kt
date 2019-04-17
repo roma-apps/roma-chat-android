@@ -29,11 +29,9 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_single_fragment)
+        setContentView(R.layout.activity_main)
 
         if (savedInstanceState == null) {
-            supportFragmentManager.beginTransaction().add(R.id.fragment_container, MainFragment.newInstance()).commit()
-
             ChatMessagesService.startFetchingAllMessages(this)
         }
     }

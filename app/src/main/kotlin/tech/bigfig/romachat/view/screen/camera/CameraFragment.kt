@@ -39,6 +39,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
+import androidx.navigation.fragment.findNavController
 import com.theartofdev.edmodo.cropper.CropImage
 import pub.devrel.easypermissions.AfterPermissionGranted
 import pub.devrel.easypermissions.EasyPermissions
@@ -46,7 +47,7 @@ import tech.bigfig.romachat.R
 import tech.bigfig.romachat.app.App
 import tech.bigfig.romachat.databinding.FragmentCameraBinding
 import tech.bigfig.romachat.view.screen.camera.utils.*
-import tech.bigfig.romachat.view.screen.recipient.CameraResultRecipientFragment
+import tech.bigfig.romachat.view.screen.main.MainFragmentDirections
 import timber.log.Timber
 import java.io.File
 import javax.inject.Inject
@@ -192,14 +193,7 @@ class CameraFragment : Fragment(), EasyPermissions.PermissionCallbacks, CameraHo
 
     private fun redirectToNextStep(uri: Uri?) {
         if (uri != null) {
-            //TODO replace with Navigation component
-            activity!!.supportFragmentManager.beginTransaction()
-                .replace(
-                    R.id.fragment_container,
-                    CameraResultRecipientFragment.newInstance(uri)
-                )
-                .addToBackStack("CameraResultRecipientFragment")
-                .commit()
+            findNavController().navigate(MainFragmentDirections.actionToCameraResultRecipientFragment(uri))
         }
     }
 

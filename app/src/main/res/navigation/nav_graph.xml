@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@+id/nav_graph"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
     app:startDestination="@id/mainFragment">
 
     <fragment
         android:id="@+id/mainFragment"
         android:name="tech.bigfig.romachat.view.screen.main.MainFragment"
-        android:label="MainFragment" >
+        android:label="MainFragment">
         <action
             android:id="@+id/action_to_chatFragment"
             app:destination="@id/chatFragment" />
@@ -17,7 +18,7 @@
     <fragment
         android:id="@+id/chatFragment"
         android:name="tech.bigfig.romachat.view.screen.chat.ChatFragment"
-        android:label="ChatFragment" >
+        android:label="ChatFragment">
         <argument
             android:name="account"
             app:argType="tech.bigfig.romachat.data.db.entity.ChatAccountEntity" />
@@ -28,7 +29,7 @@
     <activity
         android:id="@+id/viewMediaActivity"
         android:name="tech.bigfig.romachat.view.screen.media.ViewMediaActivity"
-        android:label="ViewMediaActivity" >
+        android:label="ViewMediaActivity">
         <argument
             android:name="media"
             app:argType="tech.bigfig.romachat.data.entity.Media" />
@@ -36,7 +37,7 @@
     <fragment
         android:id="@+id/cameraResultRecipientFragment"
         android:name="tech.bigfig.romachat.view.screen.recipient.CameraResultRecipientFragment"
-        android:label="CameraResultRecipientFragment" >
+        android:label="CameraResultRecipientFragment">
         <argument
             android:name="mediaUri"
             app:argType="android.net.Uri" />

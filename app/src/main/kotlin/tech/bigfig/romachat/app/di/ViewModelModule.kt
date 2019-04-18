@@ -27,6 +27,7 @@ import tech.bigfig.romachat.view.screen.cameraresult.CameraResultViewModel
 import tech.bigfig.romachat.view.screen.chat.ChatViewModel
 import tech.bigfig.romachat.view.screen.chatlist.ChatListViewModel
 import tech.bigfig.romachat.view.screen.login.LoginViewModel
+import tech.bigfig.romachat.view.screen.splash.SplashViewModel
 import tech.bigfig.romachat.view.screen.recipient.CameraResultRecipientViewModel
 import tech.bigfig.romachat.view.utils.ViewModelFactory
 
@@ -35,6 +36,11 @@ abstract class ViewModelModule {
 
     @Binds
     abstract fun bindViewModelFactory(factory: ViewModelFactory): ViewModelProvider.Factory
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(SplashViewModel::class)
+    abstract fun bindSplashViewModel(viewModel: SplashViewModel): ViewModel
 
     @Binds
     @IntoMap

@@ -25,11 +25,14 @@ import tech.bigfig.romachat.view.screen.chat.ChatMessagesService
 import tech.bigfig.romachat.view.screen.chatlist.ChatListFragment
 import tech.bigfig.romachat.view.screen.login.LoginActivity
 import tech.bigfig.romachat.view.screen.recipient.CameraResultRecipientFragment
+import tech.bigfig.romachat.view.screen.splash.SplashActivity
 import javax.inject.Singleton
 
 @Singleton
 @Component(modules = [AppModule::class, DataModule::class, ViewModelModule::class])
 interface AppComponent {
+
+    fun inject(fragment: SplashActivity)
 
     fun inject(activity: LoginActivity)
 

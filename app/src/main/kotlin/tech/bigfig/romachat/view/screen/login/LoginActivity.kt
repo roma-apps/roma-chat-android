@@ -17,6 +17,7 @@
 
 package tech.bigfig.romachat.view.screen.login
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
@@ -69,5 +70,13 @@ class LoginActivity : AppCompatActivity() {
 
         return ViewModelProviders.of(this, viewModelFactory)
             .get(LoginViewModel::class.java)
+    }
+
+    companion object {
+        fun start(activity: Activity) {
+            val intent = Intent(activity, LoginActivity::class.java)
+                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            activity.startActivity(intent)
+        }
     }
 }

@@ -21,10 +21,10 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.preference.PreferenceManager
-import android.util.Log
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
 import tech.bigfig.romachat.R
+import timber.log.Timber
 
 object OpenLinkHelper {
 
@@ -57,7 +57,7 @@ object OpenLinkHelper {
         try {
             context.startActivity(intent)
         } catch (e: ActivityNotFoundException) {
-            Log.w("URLSpan", "Actvity was not found for intent, $intent")
+            Timber.w("Actvity was not found for intent, $intent")
         }
 
     }
@@ -72,9 +72,9 @@ object OpenLinkHelper {
     fun openLinkInCustomTab(uri: Uri, context: Context) {
         val toolbarColor = ContextCompat.getColor(context, R.color.custom_tab_toolbar)
 
-        val builder = CustomTabsIntent.Builder()
-        builder.setToolbarColor(toolbarColor)
-        val customTabsIntent = builder.build()
+        val customTabsIntent = CustomTabsIntent.Builder()
+            .setToolbarColor(toolbarColor)
+            .build()
         try {
             val packageName = CustomTabsHelper.getPackageNameToUse(context)
 
@@ -87,7 +87,7 @@ object OpenLinkHelper {
                 customTabsIntent.launchUrl(context, uri)
             }
         } catch (e: ActivityNotFoundException) {
-            Log.w("URLSpan", "Activity was not found for intent, $customTabsIntent")
+            Timber.w("Activity was not found for intent, $customTabsIntent")
         }
 
     }

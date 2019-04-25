@@ -25,4 +25,6 @@ import javax.inject.Inject
 class CameraViewModel @Inject constructor(repository: ChatRepository) : ViewModel() {
 
     val hasPermissions: MutableLiveData<Boolean> = MutableLiveData()
+
+    val switchCameraSupported: MutableLiveData<Boolean> = MutableLiveData()
 }

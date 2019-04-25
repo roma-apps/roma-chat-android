@@ -1,4 +1,5 @@
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
 
@@ -18,26 +19,66 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <FrameLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:visibility="@{safeUnbox(viewModel.hasPermissions) ? View.VISIBLE : View.GONE}">
 
             <tech.bigfig.romachat.view.screen.camera.utils.AutoFitTextureView
                 android:id="@+id/camera_texture"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center" />
+                android:layout_gravity="center"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <ImageView
                 android:id="@+id/camera_take_photo"
                 android:layout_width="72dp"
                 android:layout_height="72dp"
                 android:layout_gravity="bottom|center_horizontal"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
                 android:layout_marginBottom="24dp"
+                android:contentDescription="@string/a11y_take_photo"
+                android:onClick="@{()-> handler.onTakePictureClick()}"
                 android:src="@drawable/camera_shutter"
-                android:onClick="@{()-> handler.onTakePictureClick()}" />
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
 
-        </FrameLayout>
+            <ImageView
+                android:id="@+id/camera_switch"
+                android:layout_width="@dimen/camera_icon_size"
+                android:layout_height="@dimen/camera_icon_size"
+                android:layout_gravity="bottom|center_horizontal"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
+                android:contentDescription="@string/a11y_switch_camera"
+                android:onClick="@{()-> handler.onCameraSwitchClick()}"
+                android:src="@drawable/ic_switch_camera"
+                android:visibility="@{safeUnbox(viewModel.switchCameraSupported) ? View.VISIBLE : View.GONE}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageView
+                android:id="@+id/camera_flash"
+                android:layout_width="@dimen/camera_icon_size"
+                android:layout_height="@dimen/camera_icon_size"
+                android:layout_gravity="bottom|center_horizontal"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
+                android:contentDescription="@string/a11y_flash"
+                android:onClick="@{()-> handler.onFlashClick()}"
+                android:src="@drawable/ic_flash_auto"
+                android:tint="@color/camera_icon"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/camera_switch" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <LinearLayout
             android:id="@+id/camera_no_permission"

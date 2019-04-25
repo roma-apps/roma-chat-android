@@ -32,23 +32,27 @@ import java.util.*
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
 
-class Camera constructor(private val cameraManager: CameraManager) {
 
-    private val cameraId: String
-    private val characteristics: CameraCharacteristics
+class Camera constructor(
+    private val cameraManager: CameraManager,
+    private val cameraSettingsStorage: CameraSettingsStorage
+) {
+
+    private var cameraId: String
+    private var characteristics: CameraCharacteristics
 
     companion object {
         @Volatile
         var instance: Camera? = null
             private set
 
-        fun initInstance(cameraManager: CameraManager): Camera {
+        fun initInstance(cameraManager: CameraManager, cameraSettingsStorage: CameraSettingsStorage): Camera {
             val i = instance
             if (i != null) {
                 return i
             }
             return synchronized(this) {
-                val created = Camera(cameraManager)
+                val created = Camera(cameraManager, cameraSettingsStorage)
                 instance = created
                 created
             }
@@ -67,8 +71,12 @@ class Camera constructor(private val cameraManager: CameraManager) {
         }
     }
 
+    private var backCameraId: String? = null
+    private var frontCameraId: String? = null
+    private val cameraSettings = cameraSettingsStorage.read()
+
     init {
-        cameraId = chooseCameraId(cameraManager)
+        cameraId = setupCameraId(cameraManager)
         characteristics = cameraManager.getCameraCharacteristics(cameraId)
     }
 
@@ -90,6 +98,15 @@ class Camera constructor(private val cameraManager: CameraManager) {
 
     private var previewRequestBuilder: CaptureRequest.Builder? = null
     private var previewRequest: CaptureRequest? = null
+
+    fun switchCamera() {
+        if (!isSwitchCameraSupported()) return
+
+        cameraId = if (cameraId == backCameraId) frontCameraId!! else backCameraId!!
+        cameraSettingsStorage.save(CameraSettings(cameraId))
+
+        characteristics = cameraManager.getCameraCharacteristics(cameraId)
+    }
 
     /**
      * Open camera and setup background handler
@@ -168,20 +185,22 @@ class Camera constructor(private val cameraManager: CameraManager) {
     /**
      * Set up camera Id from id list
      */
-    private fun chooseCameraId(manager: CameraManager): String {
+    private fun setupCameraId(manager: CameraManager): String {
         for (cameraId in manager.cameraIdList) {
             val characteristics = manager.getCameraCharacteristics(cameraId)
 
-            //TODO add support for front camera too
             val cameraDirection = characteristics.get(CameraCharacteristics.LENS_FACING)
-            if (cameraDirection != null &&
-                cameraDirection == CameraCharacteristics.LENS_FACING_FRONT
-            ) {
-                continue
+            if (cameraDirection != null) {
+                when (cameraDirection) {
+                    CameraCharacteristics.LENS_FACING_BACK -> backCameraId = cameraId
+                    CameraCharacteristics.LENS_FACING_FRONT -> frontCameraId = cameraId
+                }
             }
-            return cameraId
         }
-        throw IllegalStateException("Could not set Camera Id")
+
+        return if (cameraSettings.cameraId == frontCameraId && frontCameraId != null) frontCameraId!!
+        else if (cameraSettings.cameraId == backCameraId && backCameraId != null) backCameraId!!
+        else throw IllegalStateException("Can't find any camera id")
     }
 
     fun getCaptureSize() = characteristics.getCaptureSize(CompareSizesByArea())
@@ -193,6 +212,17 @@ class Camera constructor(private val cameraManager: CameraManager) {
     fun getSensorOrientation() = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) ?: 0
 
     fun isFlashSupported() = characteristics.get(CameraCharacteristics.FLASH_INFO_AVAILABLE) == true
+
+    fun isSwitchCameraSupported() = frontCameraId != null && backCameraId != null
+
+    fun isAutoFocusSupported(): Boolean {
+        val afAvailableModes = characteristics.get(CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES)
+
+        val unsupported = afAvailableModes == null || afAvailableModes.isEmpty()
+                || (afAvailableModes.size == 1 && afAvailableModes[0] == CameraMetadata.CONTROL_AF_MODE_OFF)
+
+        return !unsupported
+    }
 
     fun chooseOptimalSize(
         textureViewWidth: Int,
@@ -334,6 +364,7 @@ class Camera constructor(private val cameraManager: CameraManager) {
 
     private fun capturePicture(result: CaptureResult) {
         val afState = result.get(CaptureResult.CONTROL_AF_STATE)
+        //Timber.d("capturePicture $afState")
         if (afState == null) {
             captureStillPicture()
         } else if (afState == CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED
@@ -378,19 +409,25 @@ class Camera constructor(private val cameraManager: CameraManager) {
             throw IllegalStateException("Camera device not ready")
         }
         if (isClosed) return
+
         imageReader?.setOnImageAvailableListener({ reader ->
             Timber.d("onImageAvailable")
             val image = reader.acquireNextImage()
             backgroundHelper.backgroundHandler?.post(handler.handleImage(image))
         }, backgroundHelper.backgroundHandler)
 
-        lockFocus()
+        if (isAutoFocusSupported()) {
+            lockFocus()
+        } else {
+            captureStillPicture()
+        }
     }
 
     /**
      * Lock the focus as the first step for a still image capture.
      */
     private fun lockFocus() {
+        //Timber.d("lockFocus() ${captureSession == null}")
         try {
             // This is how to tell the camera to lock focus.
             previewRequestBuilder?.set(
@@ -488,7 +525,7 @@ class Camera constructor(private val cameraManager: CameraManager) {
                 ) {
                     Timber.d("onCaptureCompleted")
                     unlockFocus()
-                    cameraHost?.onCaptured()
+                    cameraHost?.onCaptured(cameraId == frontCameraId)
                 }
             }
 
@@ -542,7 +579,7 @@ class BackgroundHelper {
 interface CameraHost {
     fun getRotation(): Int
 
-    fun onCaptured()
+    fun onCaptured(fromFrontCamera: Boolean)
 }
 
 interface ImageHandler {

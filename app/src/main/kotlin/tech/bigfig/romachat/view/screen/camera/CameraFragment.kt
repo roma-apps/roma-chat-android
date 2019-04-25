@@ -99,7 +99,12 @@ class CameraFragment : Fragment(), EasyPermissions.PermissionCallbacks, CameraHo
 
         outputFile = File(activity?.getExternalFilesDir(null), "pic.jpg")
 
-        camera = Camera.initInstance(activity!!.getSystemService(Context.CAMERA_SERVICE) as CameraManager)
+        camera = Camera.initInstance(
+            activity!!.getSystemService(Context.CAMERA_SERVICE) as CameraManager,
+            CameraSettingsStorage(activity!!)
+        )
+
+        viewModel.switchCameraSupported.postValue(camera?.isSwitchCameraSupported())
     }
 
     override fun onResume() {
@@ -107,6 +112,15 @@ class CameraFragment : Fragment(), EasyPermissions.PermissionCallbacks, CameraHo
 
         if (!checkPermission()) return
 
+        startCamera()
+    }
+
+    override fun onPause() {
+        camera?.close()
+        super.onPause()
+    }
+
+    private fun startCamera() {
         // When the screen is turned off and turned back on, the SurfaceTexture is already
         // available, and "onSurfaceTextureAvailable" will not be called. In that case, we can open
         // a camera and startCamera preview from here (otherwise, we wait until the surface is ready in
@@ -118,11 +132,6 @@ class CameraFragment : Fragment(), EasyPermissions.PermissionCallbacks, CameraHo
         }
     }
 
-    override fun onPause() {
-        camera?.close()
-        super.onPause()
-    }
-
     override fun onTakePictureClick() {
         Timber.d("onTakePictureClick")
         camera?.takePicture(object : ImageHandler {
@@ -132,6 +141,18 @@ class CameraFragment : Fragment(), EasyPermissions.PermissionCallbacks, CameraHo
                 return ImageSaver(image, outputFile)
             }
         })
+    }
+
+    override fun onCameraSwitchClick() {
+        camera?.apply {
+            switchCamera()
+            close()
+            startCamera()
+        }
+    }
+
+    override fun onFlashClick() {
+
     }
 
     override fun onTurnOnPermissionClick() {
@@ -148,17 +169,15 @@ class CameraFragment : Fragment(), EasyPermissions.PermissionCallbacks, CameraHo
         return activity?.windowManager?.defaultDisplay?.rotation ?: 0
     }
 
-    override fun onCaptured() {
+    private var imageForCrop: Uri? = null
+    override fun onCaptured(fromFrontCamera: Boolean) {
         Timber.d("onCaptured callback")
 
-        startCropActivity(Uri.fromFile(outputFile))
-    }
-
-    private var imageForCrop: Uri? = null
-    private fun startCropActivity(uri: Uri) {
         if (activity != null) {
+            val uri = Uri.fromFile(outputFile)
             imageForCrop = uri
             CropImage.activity(uri)
+                .setFlipHorizontally(fromFrontCamera)
                 .setInitialCropWindowPaddingRatio(0f)
                 .start(activity!!, this)
         }
@@ -171,7 +190,7 @@ class CameraFragment : Fragment(), EasyPermissions.PermissionCallbacks, CameraHo
             CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE -> {
 
                 when (resultCode) {
-                    Activity.RESULT_CANCELED -> redirectToNextStep(imageForCrop)
+                    Activity.RESULT_CANCELED -> Unit
 
                     Activity.RESULT_OK -> {
                         val result = CropImage.getActivityResult(data)
@@ -183,7 +202,6 @@ class CameraFragment : Fragment(), EasyPermissions.PermissionCallbacks, CameraHo
                     CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE -> {
                         Timber.e("Error while cropping")
                         Toast.makeText(activity!!, R.string.error_media_crop, Toast.LENGTH_LONG).show()
-                        redirectToNextStep(imageForCrop)
                     }
                 }
                 imageForCrop = null
@@ -444,6 +462,10 @@ class CameraFragment : Fragment(), EasyPermissions.PermissionCallbacks, CameraHo
 
 interface CameraFragmentHandler {
     fun onTakePictureClick()
+
+    fun onCameraSwitchClick()
+
+    fun onFlashClick()
 
     fun onTurnOnPermissionClick()
 }

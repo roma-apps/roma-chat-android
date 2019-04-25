@@ -20,6 +20,9 @@
     <string name="a11y_attach_media">attach</string>
     <string name="a11y_camera_result">result</string>
     <string name="a11y_delete">delete</string>
+    <string name="a11y_take_photo">take photo</string>
+    <string name="a11y_switch_camera">switch camera</string>
+    <string name="a11y_flash">flash</string>
 
     <string name="camera_permission_rationale">To use the app, please allow access to your camera.</string>
     <string name="camera_permission_rationale_action">Turn on</string>

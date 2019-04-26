@@ -70,9 +70,6 @@ class CameraFragment : Fragment(), EasyPermissions.PermissionCallbacks, CameraHo
 
     private lateinit var outputFile: File
 
-    private var isFlashSupported = false
-
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
@@ -105,6 +102,9 @@ class CameraFragment : Fragment(), EasyPermissions.PermissionCallbacks, CameraHo
         )
 
         viewModel.switchCameraSupported.postValue(camera?.isSwitchCameraSupported())
+
+        viewModel.flashSupported.postValue(camera?.isFlashSupported())
+        setFlashMode(viewModel.flashEnabled.value ?: false)
     }
 
     override fun onResume() {
@@ -148,11 +148,18 @@ class CameraFragment : Fragment(), EasyPermissions.PermissionCallbacks, CameraHo
             switchCamera()
             close()
             startCamera()
+
+            viewModel.flashSupported.postValue(camera?.isFlashSupported())
         }
     }
 
     override fun onFlashClick() {
+        setFlashMode(viewModel.flashEnabled.value?.not() ?: false)
+    }
 
+    private fun setFlashMode(flashEnabled: Boolean) {
+        viewModel.flashEnabled.postValue(flashEnabled)
+        camera?.setFlashMode(flashEnabled)
     }
 
     override fun onTurnOnPermissionClick() {
@@ -260,9 +267,6 @@ class CameraFragment : Fragment(), EasyPermissions.PermissionCallbacks, CameraHo
             } else {
                 textureView.setAspectRatio(previewSize.height, previewSize.width)
             }
-
-            // Check if the flash is supported.
-            isFlashSupported = camera.isFlashSupported()
 
         } catch (e: CameraAccessException) {
             Timber.e(e.toString())

@@ -72,9 +72,9 @@
                 android:layout_marginEnd="16dp"
                 android:contentDescription="@string/a11y_flash"
                 android:onClick="@{()-> handler.onFlashClick()}"
-                android:src="@drawable/ic_flash_auto"
+                android:src="@{viewModel.flashEnabled ? @drawable/ic_flash_on : @drawable/ic_flash_off}"
                 android:tint="@color/camera_icon"
-                android:visibility="gone"
+                android:visibility="@{safeUnbox(viewModel.flashSupported) ? View.VISIBLE : View.GONE}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/camera_switch" />
 

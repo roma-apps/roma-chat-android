@@ -96,8 +96,7 @@ class Camera constructor(
     private var state = State.PREVIEW
     private var imageReader: ImageReader? = null
 
-    private var previewRequestBuilder: CaptureRequest.Builder? = null
-    private var previewRequest: CaptureRequest? = null
+    private var flashMode = CaptureRequest.CONTROL_AE_MODE_ON
 
     fun switchCamera() {
         if (!isSwitchCameraSupported()) return
@@ -106,6 +105,12 @@ class Camera constructor(
         cameraSettingsStorage.save(CameraSettings(cameraId))
 
         characteristics = cameraManager.getCameraCharacteristics(cameraId)
+    }
+
+    fun setFlashMode(flashEnabled: Boolean) {
+        Timber.d("setFlashMode flashEnabled = $flashEnabled")
+        flashMode =
+            if (flashEnabled) CaptureRequest.CONTROL_AE_MODE_ON_ALWAYS_FLASH else CaptureRequest.CONTROL_AE_MODE_ON
     }
 
     /**
@@ -138,12 +143,6 @@ class Camera constructor(
      */
     fun startCamera(surface: Surface?) {
         this.surface = surface
-
-        // We set up a CaptureRequest.Builder with the output Surface.
-        previewRequestBuilder = cameraDevice!!.createCaptureRequest(
-            CameraDevice.TEMPLATE_PREVIEW
-        )
-        previewRequestBuilder?.addTarget(surface)
 
         // setup camera session
         val size = characteristics.getCaptureSize(CompareSizesByArea())
@@ -215,15 +214,6 @@ class Camera constructor(
 
     fun isSwitchCameraSupported() = frontCameraId != null && backCameraId != null
 
-    fun isAutoFocusSupported(): Boolean {
-        val afAvailableModes = characteristics.get(CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES)
-
-        val unsupported = afAvailableModes == null || afAvailableModes.isEmpty()
-                || (afAvailableModes.size == 1 && afAvailableModes[0] == CameraMetadata.CONTROL_AF_MODE_OFF)
-
-        return !unsupported
-    }
-
     fun chooseOptimalSize(
         textureViewWidth: Int,
         textureViewHeight: Int,
@@ -283,19 +273,9 @@ class Camera constructor(
 
     private fun startPreview() {
         try {
-            // Auto focus should be continuous for camera preview.
-            previewRequestBuilder?.set(
-                CaptureRequest.CONTROL_AF_MODE,
-                CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE
-            )
-            // Flash is automatically enabled when necessary.
-            setAutoFlash(previewRequestBuilder)
-
-            // Finally, we startCamera displaying the camera preview.
-            previewRequest = previewRequestBuilder?.build()
+            val builder = createPreviewRequestBuilder()
             captureSession?.setRepeatingRequest(
-                previewRequestBuilder?.build(),
-                captureCallback, backgroundHelper.backgroundHandler
+                builder?.build(), captureCallback, backgroundHelper.backgroundHandler
             )
         } catch (e: CameraAccessException) {
             Timber.e(e.toString())
@@ -304,38 +284,42 @@ class Camera constructor(
 
     private val captureCallback = object : CameraCaptureSession.CaptureCallback() {
         private fun process(result: CaptureResult) {
-//            Timber.d( "captureCallback $state")
             when (state) {
-                State.PREVIEW -> {
-//                    val afState = result.get(CaptureResult.CONTROL_AF_STATE) ?: return
-//                    if (afState == preAfState) {
-//                        return
-//                    }
-//                    preAfState = afState
-//                    focusListener?.onFocusStateChanged(afState)
-                }
-
                 State.WAITING_LOCK -> {
-                    capturePicture(result)
+                    val afState = result.get(CaptureResult.CONTROL_AF_STATE)
+                    // Auto Focus state is not ready in the first place
+                    if (afState == null) {
+                        runPreCapture()
+                    } else if (CaptureResult.CONTROL_AF_STATE_INACTIVE == afState ||
+                        CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED == afState ||
+                        CaptureResult.CONTROL_AF_STATE_NOT_FOCUSED_LOCKED == afState
+                    ) {
+                        // CONTROL_AE_STATE can be null on some devices
+                        val aeState = result.get(CaptureResult.CONTROL_AE_STATE)
+                        if (aeState == null || aeState == CaptureResult.CONTROL_AE_STATE_CONVERGED) {
+                            captureStillPicture()
+                        } else {
+                            runPreCapture()
+                        }
+                    } else {
+                        captureStillPicture()
+                    }
                 }
 
                 State.WAITING_PRECAPTURE -> {
-                    // CONTROL_AE_STATE can be null on some devices
                     val aeState = result.get(CaptureResult.CONTROL_AE_STATE)
-                    if (aeState == null ||
-                        aeState == CaptureResult.CONTROL_AE_STATE_PRECAPTURE ||
-                        aeState == CaptureRequest.CONTROL_AE_STATE_FLASH_REQUIRED
+                    if (aeState == null
+                        || aeState == CaptureRequest.CONTROL_AE_STATE_PRECAPTURE
+                        || aeState == CaptureRequest.CONTROL_AE_STATE_FLASH_REQUIRED
+                        || aeState == CaptureRequest.CONTROL_AE_STATE_CONVERGED
                     ) {
                         state = State.WAITING_NON_PRECAPTURE
                     }
                 }
 
                 State.WAITING_NON_PRECAPTURE -> {
-
-                    // CONTROL_AE_STATE can be null on some devices
                     val aeState = result.get(CaptureResult.CONTROL_AE_STATE)
-                    if (aeState == null || aeState != CaptureResult.CONTROL_AE_STATE_PRECAPTURE) {
-                        state = State.TAKEN
+                    if (aeState == null || aeState != CaptureRequest.CONTROL_AE_STATE_PRECAPTURE) {
                         captureStillPicture()
                     }
                 }
@@ -362,46 +346,18 @@ class Camera constructor(
 
     }
 
-    private fun capturePicture(result: CaptureResult) {
-        val afState = result.get(CaptureResult.CONTROL_AF_STATE)
-        //Timber.d("capturePicture $afState")
-        if (afState == null) {
-            captureStillPicture()
-        } else if (afState == CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED
-            || afState == CaptureResult.CONTROL_AF_STATE_NOT_FOCUSED_LOCKED
-        ) {
-            // CONTROL_AE_STATE can be null on some devices
-            val aeState = result.get(CaptureResult.CONTROL_AE_STATE)
-            if (aeState == null || aeState == CaptureResult.CONTROL_AE_STATE_CONVERGED) {
-                state = State.TAKEN
-                captureStillPicture()
-            } else {
-                runPrecaptureSequence()
-            }
-        }
-    }
-
-    /**
-     * Run the precapture sequence for capturing a still image. This method should be called when
-     * we get a response in [.captureCallback] from [.lockFocus].
-     */
-    private fun runPrecaptureSequence() {
+    private fun runPreCapture() {
         try {
-            // This is how to tell the camera to trigger.
-            previewRequestBuilder?.set(
+            state = State.WAITING_PRECAPTURE
+            val builder = createPreviewRequestBuilder()
+            builder?.set(
                 CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER,
                 CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_START
             )
-            // Tell #captureCallback to wait for the precapture sequence to be set.
-            state = State.WAITING_PRECAPTURE
-            captureSession?.capture(
-                previewRequestBuilder?.build(), captureCallback,
-                backgroundHelper.backgroundHandler
-            )
+            captureSession?.capture(builder?.build(), captureCallback, backgroundHelper.backgroundHandler)
         } catch (e: CameraAccessException) {
-            Timber.e(e.toString())
+            Timber.e("runPreCapture $e")
         }
-
     }
 
     fun takePicture(handler: ImageHandler) {
@@ -416,33 +372,68 @@ class Camera constructor(
             backgroundHelper.backgroundHandler?.post(handler.handleImage(image))
         }, backgroundHelper.backgroundHandler)
 
-        if (isAutoFocusSupported()) {
-            lockFocus()
-        } else {
-            captureStillPicture()
-        }
+        lockFocus()
     }
 
     /**
      * Lock the focus as the first step for a still image capture.
      */
     private fun lockFocus() {
-        //Timber.d("lockFocus() ${captureSession == null}")
         try {
-            // This is how to tell the camera to lock focus.
-            previewRequestBuilder?.set(
-                CaptureRequest.CONTROL_AF_TRIGGER,
-                CameraMetadata.CONTROL_AF_TRIGGER_START
-            )
-            // Tell #captureCallback to wait for the lock.
             state = State.WAITING_LOCK
+
+            val builder = createPreviewRequestBuilder()
+            if (!characteristics.isContinuousAutoFocusSupported()) {
+                // If continuous AF is not supported, start AF here
+                builder?.set(
+                    CaptureRequest.CONTROL_AF_TRIGGER,
+                    CameraMetadata.CONTROL_AF_TRIGGER_START
+                )
+            }
+
+            // Tell #captureCallback to wait for the lock.
             captureSession?.capture(
-                previewRequestBuilder?.build(), captureCallback,
+                builder?.build(), captureCallback,
                 backgroundHelper.backgroundHandler
             )
         } catch (e: CameraAccessException) {
             Timber.e(e.toString())
         }
+    }
+
+    @Throws(CameraAccessException::class)
+    private fun createPreviewRequestBuilder(): CaptureRequest.Builder? {
+        val builder = cameraDevice?.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
+        builder?.addTarget(surface)
+        enableDefaultModes(builder)
+        return builder
+    }
+
+    private fun enableDefaultModes(builder: CaptureRequest.Builder?) {
+        if (builder == null) return
+
+        // Auto focus should be continuous for camera preview.
+        // Use the same AE and AF modes as the preview.
+        builder.set(CaptureRequest.CONTROL_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO)
+        if (characteristics.isContinuousAutoFocusSupported()) {
+            builder.set(
+                CaptureRequest.CONTROL_AF_MODE,
+                CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE
+            )
+        } else {
+            builder.set(
+                CaptureRequest.CONTROL_AF_MODE,
+                CaptureRequest.CONTROL_AF_MODE_AUTO
+            )
+        }
+
+        if (characteristics.isAutoExposureSupported(flashMode)) {
+            builder.set(CaptureRequest.CONTROL_AE_MODE, flashMode)
+        } else {
+            builder.set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON)
+        }
+
+        builder.set(CaptureRequest.COLOR_CORRECTION_MODE, CaptureRequest.COLOR_CORRECTION_ABERRATION_MODE_HIGH_QUALITY)
     }
 
     /**
@@ -451,20 +442,18 @@ class Camera constructor(
      */
     private fun unlockFocus() {
         try {
-            // Reset the auto-focus trigger
-            previewRequestBuilder?.set(
-                CaptureRequest.CONTROL_AF_TRIGGER,
-                CameraMetadata.CONTROL_AF_TRIGGER_CANCEL
-            )
-            setAutoFlash(previewRequestBuilder)
-            captureSession?.capture(
-                previewRequestBuilder?.build(), captureCallback,
-                backgroundHelper.backgroundHandler
-            )
-            // After this, the camera will go back to the normal state of preview.
+            val builder = createPreviewRequestBuilder()
+            enableDefaultModes(builder)
+            if (!characteristics.isContinuousAutoFocusSupported()) {
+                // If continuous AF is not supported, start AF here
+                builder?.set(
+                    CaptureRequest.CONTROL_AF_TRIGGER,
+                    CaptureRequest.CONTROL_AF_TRIGGER_CANCEL
+                )
+            }
             state = State.PREVIEW
             captureSession?.setRepeatingRequest(
-                previewRequest, captureCallback,
+                builder?.build(), captureCallback,
                 backgroundHelper.backgroundHandler
             )
         } catch (e: CameraAccessException) {
@@ -473,32 +462,24 @@ class Camera constructor(
 
     }
 
-    private fun setAutoFlash(requestBuilder: CaptureRequest.Builder?) {
-        if (isFlashSupported()) {
-            requestBuilder?.set(
-                CaptureRequest.CONTROL_AE_MODE,
-                CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH
-            )
-        }
-    }
-
     /**
      * Capture a still picture. This method should be called when we get a response in
      * [.captureCallback] from both [.lockFocus].
      */
     private fun captureStillPicture() {
-
         Timber.d("captureStillPicture")
 
+        state = State.TAKEN
         try {
-            cameraDevice ?: return
             val rotation = cameraHost?.getRotation() ?: 0
 
             // This is the CaptureRequest.Builder that we use to take a picture.
-            val captureBuilder = cameraDevice?.createCaptureRequest(
-                CameraDevice.TEMPLATE_STILL_CAPTURE
-            )?.apply {
+            val builder = cameraDevice?.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE)
+            enableDefaultModes(builder)
+
+            builder?.apply {
                 addTarget(imageReader?.surface)
+                addTarget(surface)
 
                 // Sensor orientation is 90 for most devices, or 270 for some devices (eg. Nexus 5X)
                 // We have to take that into account and rotate JPEG properly.
@@ -508,34 +489,29 @@ class Camera constructor(
                     CaptureRequest.JPEG_ORIENTATION,
                     (ORIENTATIONS.get(rotation) + getSensorOrientation() + 270) % 360
                 )
-
-                // Use the same AE and AF modes as the preview.
-                set(
-                    CaptureRequest.CONTROL_AF_MODE,
-                    CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE
-                )
-            }?.also { setAutoFlash(it) }
-
-            val captureCallback = object : CameraCaptureSession.CaptureCallback() {
-
-                override fun onCaptureCompleted(
-                    session: CameraCaptureSession,
-                    request: CaptureRequest,
-                    result: TotalCaptureResult
-                ) {
-                    Timber.d("onCaptureCompleted")
-                    unlockFocus()
-                    cameraHost?.onCaptured(cameraId == frontCameraId)
-                }
             }
 
             captureSession?.apply {
                 stopRepeating()
-                abortCaptures()
-                capture(captureBuilder?.build(), captureCallback, null)
+                captureSession?.capture(
+                    builder?.build(),
+                    object : CameraCaptureSession.CaptureCallback() {
+                        override fun onCaptureCompleted(
+                            session: CameraCaptureSession,
+                            request: CaptureRequest,
+                            result: TotalCaptureResult
+                        ) {
+                            // Once still picture is captured, ImageReader.OnImageAvailable gets called
+                            unlockFocus()
+                            cameraHost?.onCaptured(cameraId == frontCameraId)
+                        }
+                    },
+                    backgroundHelper.backgroundHandler
+                )
             }
+
         } catch (e: CameraAccessException) {
-            Timber.e(e.toString())
+            Timber.e("captureStillPicture $e")
         }
     }
 

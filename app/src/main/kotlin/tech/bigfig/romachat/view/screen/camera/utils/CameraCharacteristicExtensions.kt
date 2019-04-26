@@ -96,3 +96,24 @@ fun CameraCharacteristics.chooseOptimalSize(
         else -> choices[0]
     }
 }
+
+fun CameraCharacteristics.isContinuousAutoFocusSupported(): Boolean =
+    isSupported(
+        CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES,
+        CameraCharacteristics.CONTROL_AF_MODE_CONTINUOUS_PICTURE
+    )
+
+fun CameraCharacteristics.isAutoExposureSupported(mode: Int): Boolean =
+    isSupported(CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES, mode)
+
+private fun CameraCharacteristics.isSupported(
+    modes: CameraCharacteristics.Key<IntArray>, mode: Int
+): Boolean {
+    val ints = this.get(modes) ?: return false
+    for (value in ints) {
+        if (value == mode) {
+            return true
+        }
+    }
+    return false
+}

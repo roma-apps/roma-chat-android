@@ -45,6 +45,7 @@
                 android:contentDescription="@string/a11y_take_photo"
                 android:onClick="@{()-> handler.onTakePictureClick()}"
                 android:src="@drawable/camera_shutter"
+                android:visibility="@{safeUnbox(viewModel.noCameraFound) ? View.GONE: View.VISIBLE}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent" />
@@ -103,6 +104,15 @@
                 android:text="@string/camera_permission_rationale_action" />
 
         </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/camera_no_camera_found"
+            android:textAlignment="center"
+            android:textSize="16sp"
+            android:visibility="@{safeUnbox(viewModel.noCameraFound) ? View.VISIBLE : View.GONE}" />
 
     </FrameLayout>
 

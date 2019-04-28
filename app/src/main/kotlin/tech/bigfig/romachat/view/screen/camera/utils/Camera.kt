@@ -181,6 +181,8 @@ class Camera constructor(
         }
     }
 
+    class NoCameraFoundException : Exception("Can't find any camera id")
+
     /**
      * Set up camera Id from id list
      */
@@ -197,9 +199,20 @@ class Camera constructor(
             }
         }
 
-        return if (cameraSettings.cameraId == frontCameraId && frontCameraId != null) frontCameraId!!
-        else if (cameraSettings.cameraId == backCameraId && backCameraId != null) backCameraId!!
-        else throw IllegalStateException("Can't find any camera id")
+        if (frontCameraId == null && backCameraId == null) {
+            Timber.e("Can't find any camera id, both front and back are null")
+            throw NoCameraFoundException()
+        }
+
+        return if (cameraSettings.cameraId.isNullOrEmpty()) { // Camera hasn't been switched yet
+            if (backCameraId != null) backCameraId!!
+            else if (frontCameraId != null) frontCameraId!!
+            else throw NoCameraFoundException()
+        } else { // Open camera which was used previous time
+            if (cameraSettings.cameraId == frontCameraId && frontCameraId != null) frontCameraId!!
+            else if (cameraSettings.cameraId == backCameraId && backCameraId != null) backCameraId!!
+            else throw NoCameraFoundException()
+        }
     }
 
     fun getCaptureSize() = characteristics.getCaptureSize(CompareSizesByArea())

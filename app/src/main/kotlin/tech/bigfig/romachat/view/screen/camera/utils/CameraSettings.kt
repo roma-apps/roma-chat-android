@@ -20,9 +20,15 @@ package tech.bigfig.romachat.view.screen.camera.utils
 import android.content.Context
 import android.content.SharedPreferences
 
+/**
+ * Camera settings which are saved through app launches
+ */
+data class CameraSettings(val cameraId: String?)
 
-data class CameraSettings(val cameraId:String?)
 
+/**
+ * Preferences storage to save camera settings
+ */
 class CameraSettingsStorage(context: Context) {
 
     private val preferences: SharedPreferences
@@ -40,7 +46,7 @@ class CameraSettingsStorage(context: Context) {
     fun read(): CameraSettings {
 
         return CameraSettings(
-            preferences.getString(CAMERA_ID, "")
+            preferences.getString(CAMERA_ID, null)
         )
     }
 

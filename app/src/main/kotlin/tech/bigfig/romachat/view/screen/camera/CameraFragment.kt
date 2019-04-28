@@ -96,10 +96,16 @@ class CameraFragment : Fragment(), EasyPermissions.PermissionCallbacks, CameraHo
 
         outputFile = File(activity?.getExternalFilesDir(null), "pic.jpg")
 
-        camera = Camera.initInstance(
-            activity!!.getSystemService(Context.CAMERA_SERVICE) as CameraManager,
-            CameraSettingsStorage(activity!!)
-        )
+        try {
+            camera = Camera.initInstance(
+                activity!!.getSystemService(Context.CAMERA_SERVICE) as CameraManager,
+                CameraSettingsStorage(activity!!)
+            )
+            viewModel.noCameraFound.postValue(false)
+        } catch (e: Camera.NoCameraFoundException) {
+            Timber.d(e)
+            viewModel.noCameraFound.postValue(true)
+        }
 
         viewModel.switchCameraSupported.postValue(camera?.isSwitchCameraSupported())
 

@@ -30,4 +30,6 @@ class CameraViewModel @Inject constructor(repository: ChatRepository) : ViewMode
 
     val flashSupported: MutableLiveData<Boolean> = MutableLiveData()
     val flashEnabled: MutableLiveData<Boolean> = MutableLiveData()
+
+    val noCameraFound: MutableLiveData<Boolean> = MutableLiveData()
 }

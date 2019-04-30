@@ -274,9 +274,12 @@ class ChatViewModel @Inject constructor(val repository: ChatRepository, val cont
         return HtmlUtils.fromHtml(res)
     }
 
+    /**
+     * Remove <a href="...">@username</a> from message
+     */
     private fun String.removeUsername(username: String?): String {
-        return this.replace(Regex("<a href=\"https://.*/users/$username\">@$username</a><br>\n"), "")
-            .replace(Regex("<a href=\"https://.*/users/$username\">@$username</a>"), "")
+        val link = "<a\\s+(?:[^>]*?\\s+)?href=([\"'])(\\S*)>@$username</a>"
+        return this.replace(Regex(link), "").replace(Regex("$link<br>\n"), "")
     }
 
     private fun showError(error: String, logError: String = "") {

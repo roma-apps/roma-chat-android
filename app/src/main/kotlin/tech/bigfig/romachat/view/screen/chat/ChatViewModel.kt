@@ -266,7 +266,7 @@ class ChatViewModel @Inject constructor(val repository: ChatRepository, val cont
     private fun formatContent(content: Spanned): Spanned {
 
         val res = HtmlUtils.toHtml(content)
-            .removeUsername(account?.username)
+            .removeUsername(account?.localUsername)
             .removeUsername(currentAccount?.username)
             .replace("  ", " ")
             .trim()
@@ -275,8 +275,8 @@ class ChatViewModel @Inject constructor(val repository: ChatRepository, val cont
     }
 
     private fun String.removeUsername(username: String?): String {
-        return this.replace("<a href=\"https://pleroma.site/users/$username\">@$username</a><br>\n", "")
-            .replace("<a href=\"https://pleroma.site/users/$username\">@$username</a>", "")
+        return this.replace(Regex("<a href=\"https://.*/users/$username\">@$username</a><br>\n"), "")
+            .replace(Regex("<a href=\"https://.*/users/$username\">@$username</a>"), "")
     }
 
     private fun showError(error: String, logError: String = "") {

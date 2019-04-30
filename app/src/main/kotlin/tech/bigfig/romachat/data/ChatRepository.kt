@@ -388,6 +388,7 @@ class ChatRepository @Inject constructor(
         return ChatAccountEntity(
             account.id,
             account.username,
+            account.localUsername,
             account.displayName,
             account.avatar
         )

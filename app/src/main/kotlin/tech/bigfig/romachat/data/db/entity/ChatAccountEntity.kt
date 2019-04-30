@@ -28,6 +28,7 @@ data class ChatAccountEntity(
     @PrimaryKey
     var id: String,
     val username: String,
+    val localUsername: String,
     var displayName: String,
     var avatarUrl: String
 ) : Parcelable

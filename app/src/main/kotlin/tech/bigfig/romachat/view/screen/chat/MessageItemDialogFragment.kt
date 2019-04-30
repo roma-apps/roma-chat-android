@@ -22,25 +22,54 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import android.widget.LinearLayout
+import androidx.fragment.app.DialogFragment
 import tech.bigfig.romachat.databinding.FragmentMessageItemDialogBinding
+import tech.bigfig.romachat.view.utils.CustomEmojiHelper
+import tech.bigfig.romachat.view.utils.TextFormatter
 
-class MessageItemDialogFragment : BottomSheetDialogFragment() {
+class MessageItemDialogFragment : DialogFragment() {
 
     private var listener: Listener? = null
 
     private lateinit var binding: FragmentMessageItemDialogBinding
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        binding = FragmentMessageItemDialogBinding.inflate(layoutInflater, container, false)
+        binding = FragmentMessageItemDialogBinding.inflate(inflater, container, false)
 
-        val messageId = arguments?.getString(ARG_MESSAGE_ID) ?: throw IllegalArgumentException("Empty message id")
+        val message =
+            arguments?.getParcelable<MessageViewData>(ARG_MESSAGE) ?: throw IllegalArgumentException("Empty message")
+
+        message.showDate = false
+        message.showAccount = true
+
+        binding.message = message
+        if (!message.isMedia && message.content != null) {
+            val emojifiedText =
+                CustomEmojiHelper.emojifyText(
+                    message.content,
+                    message.emojis,
+                    binding.messageContent.chatMessageContent
+                )
+            TextFormatter.setClickableText(
+                binding.messageContent.chatMessageContent,
+                emojifiedText,
+                message.mentions,
+                null
+            )
+        }
+
         binding.delete.setOnClickListener {
-            listener?.onDeleteClick(messageId)
+            listener?.onDeleteClick(message.id)
             dismiss()
         }
 
         return binding.root
+    }
+
+    override fun onResume() {
+        super.onResume()
+        dialog?.window?.setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
     }
 
     override fun onAttach(context: Context) {
@@ -64,13 +93,13 @@ class MessageItemDialogFragment : BottomSheetDialogFragment() {
 
     companion object {
 
-        fun newInstance(messageId: String): MessageItemDialogFragment =
+        fun newInstance(message: MessageViewData): MessageItemDialogFragment =
             MessageItemDialogFragment().apply {
                 arguments = Bundle().apply {
-                    putString(ARG_MESSAGE_ID, messageId)
+                    putParcelable(ARG_MESSAGE, message)
                 }
             }
 
-        private const val ARG_MESSAGE_ID = "ARG_MESSAGE_ID"
+        private const val ARG_MESSAGE = "ARG_MESSAGE"
     }
 }

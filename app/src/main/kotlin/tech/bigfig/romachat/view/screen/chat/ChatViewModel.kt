@@ -106,7 +106,7 @@ class ChatViewModel @Inject constructor(val repository: ChatRepository, val cont
                             false,
                             null,
                             false,
-                            null,
+                            if (message.fromMe) context.getString(R.string.chat_message_user_me) else account!!.displayName,
                             message.fromMe,
                             true,
                             null,
@@ -190,8 +190,7 @@ class ChatViewModel @Inject constructor(val repository: ChatRepository, val cont
         val mimeType = getMimeType(uri, context.contentResolver)
 
         if (mimeType != null) {
-            val topLevelType = mimeType.substring(0, mimeType.indexOf('/'))
-            when (topLevelType) {
+            when (mimeType.substring(0, mimeType.indexOf('/'))) {
                 "video" -> {
                     if (mediaSize > VIDEO_SIZE_LIMIT) {
                         showError(context.getString(R.string.chat_send_error_video_upload_size))
@@ -287,7 +286,7 @@ class ChatViewModel @Inject constructor(val repository: ChatRepository, val cont
         errorMessage.value = error
 
         val sb = StringBuilder(error)
-        if (!logError.isEmpty()) sb.append(" ").append(logError)
+        if (logError.isNotEmpty()) sb.append(" ").append(logError)
 
         Timber.e(sb.toString())
 

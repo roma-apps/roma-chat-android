@@ -15,21 +15,24 @@
  * see <http://www.gnu.org/licenses>.
  */
 
-package tech.bigfig.romachat.data.db.entity
+package tech.bigfig.romachat.utils
 
-import android.os.Parcelable
-import androidx.room.Entity
-import androidx.room.PrimaryKey
-import kotlinx.android.parcel.Parcelize
+import android.os.Parcel
+import android.text.Spanned
+import kotlinx.android.parcel.Parceler
 
-@Parcelize
-@Entity
-data class ChatAccountEntity(
-    @PrimaryKey
-    val id: String,
-    val username: String,
-    val localUsername: String,
-    val displayName: String,
-    val avatarUrl: String
-) : Parcelable
+object SpannedParceler : Parceler<Spanned> {
+    override fun create(parcel: Parcel): Spanned = HtmlUtils.fromHtml(parcel.readString())
 
+    override fun Spanned.write(parcel: Parcel, flags: Int) {
+        parcel.writeString(HtmlUtils.toHtml(this))
+    }
+}
+
+object SpannedNullParceler : Parceler<Spanned?> {
+    override fun create(parcel: Parcel): Spanned? = HtmlUtils.fromHtml(parcel.readString())
+
+    override fun Spanned?.write(parcel: Parcel, flags: Int) {
+        parcel.writeString(HtmlUtils.toHtml(this))
+    }
+}

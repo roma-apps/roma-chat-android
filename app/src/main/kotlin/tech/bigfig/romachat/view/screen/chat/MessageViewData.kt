@@ -17,26 +17,31 @@
 
 package tech.bigfig.romachat.view.screen.chat
 
+import android.os.Parcelable
 import android.text.Spanned
+import kotlinx.android.parcel.Parcelize
+import kotlinx.android.parcel.WriteWith
 import tech.bigfig.romachat.data.entity.Attachment
 import tech.bigfig.romachat.data.entity.Emoji
 import tech.bigfig.romachat.data.entity.Status
+import tech.bigfig.romachat.utils.SpannedNullParceler
 
+@Parcelize
 data class MessageViewData(
     val id: String,
 
-    val showDate: Boolean,
+    var showDate: Boolean,
     val date: String?,
 
-    val showAccount: Boolean,
+    var showAccount: Boolean,
     val account: String?,
     val fromMe: Boolean,
 
     val isMedia: Boolean,
 
-    val content: Spanned?,
+    val content: @WriteWith<SpannedNullParceler>() Spanned?,
     val mentions: Array<Status.Mention>?,
     val emojis: List<Emoji>?,
 
     val attachment: Attachment?
-)
+) : Parcelable

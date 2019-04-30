@@ -16,4 +16,6 @@
     <color name="chat_other">#2196F3</color>
 
     <color name="camera_icon">#fff</color>
+
+    <color name="divider">#ccc</color>
 </resources>

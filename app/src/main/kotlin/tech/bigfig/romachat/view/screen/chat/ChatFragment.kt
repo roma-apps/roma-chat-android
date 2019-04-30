@@ -235,7 +235,7 @@ class ChatFragment : Fragment(), MessageItemDialogFragment.Listener {
 
         override fun onMessageLongClick(message: MessageViewData) {
             if (message.fromMe) {
-                MessageItemDialogFragment.newInstance(message.id).show(childFragmentManager, "dialog")
+                MessageItemDialogFragment.newInstance(message).show(childFragmentManager, "dialog")
             }
         }
     }

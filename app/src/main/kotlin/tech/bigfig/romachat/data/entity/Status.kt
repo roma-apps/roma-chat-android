@@ -15,8 +15,10 @@
 
 package tech.bigfig.romachat.data.entity
 
+import android.os.Parcelable
 import android.text.Spanned
 import com.google.gson.annotations.SerializedName
+import kotlinx.android.parcel.Parcelize
 import java.util.*
 
 data class Status(
@@ -118,13 +120,13 @@ data class Status(
         return id.hashCode()
     }
 
-
+    @Parcelize
     data class Mention(
         val id: String?,
         val url: String?,
         @SerializedName("acct") var username: String?,
         @SerializedName("username") var localUsername: String?
-    )
+    ) : Parcelable
 
     class Application {
         var name: String? = null

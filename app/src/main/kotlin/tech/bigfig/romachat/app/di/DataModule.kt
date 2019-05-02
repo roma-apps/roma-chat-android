@@ -34,6 +34,7 @@ import tech.bigfig.romachat.data.api.RestApi
 import tech.bigfig.romachat.data.db.AccountManager
 import tech.bigfig.romachat.data.db.AppDatabase
 import tech.bigfig.romachat.utils.SpannedTypeAdapter
+import java.util.concurrent.TimeUnit
 
 import javax.inject.Singleton
 
@@ -81,6 +82,8 @@ class DataModule {
         return OkHttpClient.Builder()
             .addInterceptor(loggingInterceptor)
             .addInterceptor(InstanceSwitchAuthInterceptor(accountManager))
+            .readTimeout(30, TimeUnit.SECONDS)
+            .writeTimeout(30, TimeUnit.SECONDS)
             .build()
     }
 }

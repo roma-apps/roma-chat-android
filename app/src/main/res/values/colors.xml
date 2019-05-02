@@ -5,6 +5,7 @@
     <color name="colorAccent">#28b427</color>
 
     <color name="text_color">#333</color>
+    <color name="text_light_color">#aaa</color>
 
     <color name="validation_error">#F44336</color>
     <color name="validation_error_back">#FACAC6</color>

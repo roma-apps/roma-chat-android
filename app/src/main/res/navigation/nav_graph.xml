@@ -48,5 +48,9 @@
     <fragment
         android:id="@+id/userSearchFragment"
         android:name="tech.bigfig.romachat.view.screen.search.UserSearchFragment"
-        android:label="UserSearchFragment" />
+        android:label="UserSearchFragment"/>
+
+    <action
+        android:id="@+id/action_global_chatFragment"
+        app:destination="@id/chatFragment" />
 </navigation>

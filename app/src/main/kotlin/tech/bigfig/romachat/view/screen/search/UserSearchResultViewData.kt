@@ -17,13 +17,19 @@
 
 package tech.bigfig.romachat.view.screen.search
 
+import android.os.Parcelable
+import kotlinx.android.parcel.IgnoredOnParcel
+import kotlinx.android.parcel.Parcelize
 import tech.bigfig.romachat.data.entity.Account
 
+@Parcelize
 data class UserSearchResultViewData(
     val account: Account,
     val isAdded: Boolean,
     val isCurrentAccount: Boolean
-) {
+) : Parcelable {
+
+    @IgnoredOnParcel
     val showAdd = !isCurrentAccount
 }
 

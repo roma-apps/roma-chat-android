@@ -31,6 +31,7 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import tech.bigfig.romachat.app.App
 import tech.bigfig.romachat.databinding.FragmentUserSearchBinding
+import tech.bigfig.romachat.view.screen.profile.ProfileFragment
 import tech.bigfig.romachat.view.utils.RetryListener
 import timber.log.Timber
 import javax.inject.Inject
@@ -101,7 +102,7 @@ class UserSearchFragment : Fragment() {
 
     private val adapterListener = object : UserSearchAdapter.UserSearchAdapterListener {
         override fun onUserClick(item: UserSearchResultViewData) {
-            //TODO open profile screen
+            ProfileFragment.newInstance(item).show(childFragmentManager, "dialog")
         }
 
         override fun onAddClick(item: UserSearchResultViewData) {

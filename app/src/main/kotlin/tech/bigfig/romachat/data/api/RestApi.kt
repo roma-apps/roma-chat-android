@@ -62,7 +62,7 @@ interface RestApi {
     @GET("api/v1/accounts/{id}/following")
     fun accountFollowing(
         @Path("id") accountId: String,
-        @Query("max_id") maxId: String
+        @Query("max_id") maxId: String?
     ): Call<List<Account>>
 
     @GET("api/v1/timelines/direct")
@@ -95,4 +95,10 @@ interface RestApi {
 
     @DELETE("api/v1/statuses/{id}")
     fun deleteStatus(@Path("id") statusId: String): Call<ResponseBody>
+
+    //-------
+    // SEARCH
+
+    @GET("api/v2/search")
+    fun search(@Query("q") query: String, @Query("resolve") resolve: Boolean?): Call<SearchResults>
 }

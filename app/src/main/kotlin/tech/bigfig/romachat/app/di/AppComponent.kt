@@ -25,6 +25,7 @@ import tech.bigfig.romachat.view.screen.chat.ChatMessagesService
 import tech.bigfig.romachat.view.screen.chatlist.ChatListFragment
 import tech.bigfig.romachat.view.screen.login.LoginActivity
 import tech.bigfig.romachat.view.screen.recipient.CameraResultRecipientFragment
+import tech.bigfig.romachat.view.screen.search.UserSearchFragment
 import tech.bigfig.romachat.view.screen.splash.SplashActivity
 import javax.inject.Singleton
 
@@ -45,6 +46,8 @@ interface AppComponent {
     fun inject(fragment: CameraResultFragment)
 
     fun inject(fragment: CameraResultRecipientFragment)
+
+    fun inject(fragment: UserSearchFragment)
 
     fun inject(service: ChatMessagesService)
 }

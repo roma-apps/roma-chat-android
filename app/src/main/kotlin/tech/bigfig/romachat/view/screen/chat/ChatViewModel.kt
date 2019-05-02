@@ -27,6 +27,7 @@ import androidx.lifecycle.ViewModel
 import tech.bigfig.romachat.R
 import tech.bigfig.romachat.data.ChatRepository
 import tech.bigfig.romachat.data.ResultStatus
+import tech.bigfig.romachat.data.UserRepository
 import tech.bigfig.romachat.data.db.entity.ChatAccountEntity
 import tech.bigfig.romachat.data.entity.Status
 import tech.bigfig.romachat.utils.HtmlUtils
@@ -38,10 +39,10 @@ import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
 
-class ChatViewModel @Inject constructor(val repository: ChatRepository, val context: Context) : ViewModel() {
+class ChatViewModel @Inject constructor(val repository: ChatRepository, userRepository: UserRepository, val context: Context) : ViewModel() {
 
     var account: ChatAccountEntity? = null
-    private var currentAccount = repository.getCurrentAccount()
+    private var currentAccount = userRepository.getCurrentAccount()
 
     private val loadData = MutableLiveData<Boolean>()
     private val submitMessage: MutableLiveData<String> = MutableLiveData()

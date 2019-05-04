@@ -88,7 +88,7 @@ class CameraResultRecipientFragment : Fragment() {
 
         binding = FragmentCameraResultRecipientBinding.inflate(layoutInflater, container, false)
         binding.viewModel = viewModel
-        binding.lifecycleOwner = this
+        binding.lifecycleOwner = viewLifecycleOwner
 
         (activity as AppCompatActivity).let {
             it.setSupportActionBar(binding.toolbar)

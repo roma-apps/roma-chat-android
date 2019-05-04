@@ -55,7 +55,7 @@ class CameraResultFragment : Fragment() {
 
         binding = FragmentCameraResultBinding.inflate(layoutInflater, container, false)
         binding.viewModel = viewModel
-        binding.lifecycleOwner = this
+        binding.lifecycleOwner = viewLifecycleOwner
 
         binding.listener = object : ChatResultFragmentListener {
             override fun onNext() {

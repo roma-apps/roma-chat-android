@@ -64,7 +64,7 @@ class UserSearchFragment : Fragment() {
 
         binding = FragmentUserSearchBinding.inflate(layoutInflater, container, false)
         binding.viewModel = viewModel
-        binding.lifecycleOwner = this
+        binding.lifecycleOwner = viewLifecycleOwner
 
         binding.retryListener = object : RetryListener {
             override fun onRetry() {

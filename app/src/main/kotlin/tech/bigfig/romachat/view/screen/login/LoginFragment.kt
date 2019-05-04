@@ -68,7 +68,7 @@ class LoginFragment : Fragment() {
 
         binding = FragmentLoginBinding.inflate(layoutInflater, container, false)
         binding.viewModel = viewModel
-        binding.lifecycleOwner = activity
+        binding.lifecycleOwner = viewLifecycleOwner
 
         binding.loginInstance.setOnEditorActionListener { v, actionId, event ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {

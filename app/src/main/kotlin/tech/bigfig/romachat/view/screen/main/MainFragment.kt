@@ -41,7 +41,7 @@ class MainFragment : Fragment() {
         setHasOptionsMenu(true)
 
         binding = FragmentMainBinding.inflate(layoutInflater, container, false)
-        binding.lifecycleOwner = this
+        binding.lifecycleOwner = viewLifecycleOwner
 
         binding.mainPager.adapter = MainFragmentPagerAdapter(childFragmentManager)
         binding.mainPager.currentItem = 1

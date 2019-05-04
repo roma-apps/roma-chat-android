@@ -81,7 +81,7 @@ class CameraFragment : Fragment(), EasyPermissions.PermissionCallbacks, CameraHo
         binding = FragmentCameraBinding.inflate(layoutInflater, container, false)
         binding.viewModel = viewModel
         binding.handler = this
-        binding.lifecycleOwner = this
+        binding.lifecycleOwner = viewLifecycleOwner
 
         textureView = binding.cameraTexture
 

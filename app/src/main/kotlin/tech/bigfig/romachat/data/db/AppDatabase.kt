@@ -17,6 +17,8 @@ package tech.bigfig.romachat.data.db
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import tech.bigfig.romachat.data.db.dao.AccountDao
 import tech.bigfig.romachat.data.db.dao.ChatAccountDao
 import tech.bigfig.romachat.data.db.dao.MessageDao
@@ -29,7 +31,7 @@ import tech.bigfig.romachat.data.db.entity.MessageEntity
  */
 
 @Database(
-    entities = [AccountEntity::class, MessageEntity::class, ChatAccountEntity::class], version = 1
+    entities = [AccountEntity::class, MessageEntity::class, ChatAccountEntity::class], version = 2
 )
 abstract class AppDatabase : RoomDatabase() {
 
@@ -37,4 +39,11 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun messageDao(): MessageDao
     abstract fun chatAccountDao(): ChatAccountDao
 
+    companion object {
+        val MIGRATION_1_2: Migration  = object: Migration(1, 2) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE ChatAccountEntity ADD COLUMN localUsername TEXT NOT NULL default ''");
+            }
+        }
+    }
 }

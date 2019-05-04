@@ -45,6 +45,7 @@ class DataModule {
     @Singleton
     fun provideDb(context: Context): AppDatabase {
         return Room.databaseBuilder(context, AppDatabase::class.java, "romachatDB")
+            .addMigrations(AppDatabase.MIGRATION_1_2)
             .allowMainThreadQueries()
             .build()
     }

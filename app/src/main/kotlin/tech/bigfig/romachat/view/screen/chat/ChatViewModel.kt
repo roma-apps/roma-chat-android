@@ -142,7 +142,7 @@ class ChatViewModel @Inject constructor(val repository: ChatRepository, userRepo
         //@username mention is required
         var message = text
         if (!text.contains("@${account?.username}")) {
-            message = text.plus(" @${account?.username}")
+            message = "@${account?.username} $text"
         }
 
         isError.value = false

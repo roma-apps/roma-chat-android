@@ -39,4 +39,7 @@ class UserRepository @Inject constructor(
                 accountManager.activeAccount?.accountId ?: throw IllegalStateException("Active account is null"), null
             )
         ) { it }
+
+
+    fun follow(accountId: String) = apiCallToLiveData(restApi.followAccount(accountId, true)) { it }
 }

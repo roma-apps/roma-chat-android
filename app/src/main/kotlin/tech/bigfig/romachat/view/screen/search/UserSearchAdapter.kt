@@ -59,6 +59,7 @@ class UserSearchAdapter(
             binding.executePendingBindings()
 
             binding.root.setOnClickListener { listener?.onUserClick(item) }
+            binding.status.setOnClickListener { listener?.onAddClick(item) }
         }
     }
 

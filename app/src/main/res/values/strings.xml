@@ -55,6 +55,7 @@
     <string name="user_search_hint">Find friends</string>
     <string name="user_search_add">Add</string>
     <string name="user_search_added">Added</string>
+    <string name="user_search_adding">Adding</string>
     <string name="profile_add_friend">Add Friend</string>
     <string name="profile_chat">Chat</string>
 

@@ -30,7 +30,7 @@ import tech.bigfig.romachat.utils.zip
 import timber.log.Timber
 import javax.inject.Inject
 
-class UserSearchViewModel @Inject constructor(repository: UserRepository) : ViewModel() {
+class UserSearchViewModel @Inject constructor(val repository: UserRepository) : ViewModel() {
 
     private var currentAccount = repository.getCurrentAccount()
 
@@ -44,10 +44,12 @@ class UserSearchViewModel @Inject constructor(repository: UserRepository) : View
     }
 
     // Zip search results with following users to show the complete user list
-    val searchCallResult: LiveData<Pair<Result<SearchResults>, Result<List<Account>>>> = Transformations.switchMap(searchQuery) {
-        repository.search(it).zip(repository.getFollowing())
-    }
+    val searchCallResult: LiveData<Pair<Result<SearchResults>, Result<List<Account>>>> =
+        Transformations.switchMap(searchQuery) {
+            repository.search(it).zip(repository.getFollowing())
+        }
 
+    private var searchResultsList = listOf<UserSearchResultViewData>()
     val searchResults: LiveData<List<UserSearchResultViewData>?> =
         Transformations.map(searchCallResult) { callResults ->
             if (callResults.first.status == ResultStatus.SUCCESS && callResults.first.data != null) {//search call status
@@ -57,28 +59,53 @@ class UserSearchViewModel @Inject constructor(repository: UserRepository) : View
                 } else {
                     noDataFound.postValue(false)
 
-                    processSearchResults(callResults.first.data!!, callResults.second.data)
+                    searchResultsList = processSearchResults(callResults.first.data!!, callResults.second.data)
+                    searchResultsList
                 }
             } else null
         }
 
     private fun processSearchResults(
         searchResults: SearchResults, following: List<Account>?
-    ): List<UserSearchResultViewData>? {
+    ): List<UserSearchResultViewData> {
 
         val followingMap = following?.associateBy({ it.id }, { it })
         return searchResults.accounts.map { account ->
+            val isCurrentAccount = account.id == currentAccount?.accountId
             UserSearchResultViewData(
                 account,
-                followingMap?.containsKey(account.id) ?: false,
-                account.id == currentAccount?.accountId
+                !isCurrentAccount,
+                if (followingMap?.containsKey(account.id) == true) AddUserStatus.ADDED else AddUserStatus.NOT_ADDED,
+                isCurrentAccount
             )
         }
     }
 
-    fun addUser(item: UserSearchResultViewData) {
-        if (item.isAdded) return
+    private val accountToFollow = MutableLiveData<String>()
 
-//TODO call api to follow
+    fun addUser(item: UserSearchResultViewData) {
+        Timber.d("add user $item")
+        if (item.addUserStatus != AddUserStatus.NOT_ADDED) return
+
+        accountToFollow.value = item.account.id
     }
+
+    val addUser: LiveData<Unit> =
+        Transformations.switchMap(accountToFollow) { accountId ->
+            Transformations.map(repository.follow(accountId)) { result ->
+                Timber.d("follow ${result.status}")
+                when (result.status) {
+                    ResultStatus.LOADING ->
+                        searchResultsList.find { it.account.id == accountId }?.addUserStatus = AddUserStatus.ADDING
+
+                    ResultStatus.SUCCESS ->
+                        searchResultsList.find { it.account.id == accountId }?.addUserStatus = AddUserStatus.ADDED
+
+                    ResultStatus.ERROR -> {
+                        Timber.d("follow error ${result.error}")
+                        searchResultsList.find { it.account.id == accountId }?.addUserStatus = AddUserStatus.NOT_ADDED
+                    }
+                }
+            }
+        }
 }

@@ -62,6 +62,11 @@ class UserSearchFragment : Fragment() {
             }
         })
 
+        viewModel.addUser.observe(this, Observer {
+            //TODO update exact row would be better
+            adapter.notifyDataSetChanged()
+        })
+
         binding = FragmentUserSearchBinding.inflate(layoutInflater, container, false)
         binding.viewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner

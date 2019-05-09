@@ -56,14 +56,21 @@ interface RestApi {
     @GET("api/v1/accounts/verify_credentials")
     fun accountVerifyCredentials(): Call<Account>
 
-    //-----
-    // CHAT
+    //--------
+    // ACCOUNT
 
     @GET("api/v1/accounts/{id}/following")
     fun accountFollowing(
         @Path("id") accountId: String,
         @Query("max_id") maxId: String?
     ): Call<List<Account>>
+
+    @FormUrlEncoded
+    @POST("api/v1/accounts/{id}/follow")
+    fun followAccount(@Path("id") accountId: String, @Field("reblogs") showReblogs: Boolean): Call<Relationship>
+
+    //-----
+    // CHAT
 
     @GET("api/v1/timelines/direct")
     fun directTimeline(

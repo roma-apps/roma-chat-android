@@ -1,5 +1,4 @@
-/*
- * Copyright (c) 2019 Vasily Kabunov
+/* Copyright 2017 Andrew Dawson
  *
  * This file is a part of Roma.
  *
@@ -12,26 +11,18 @@
  * Public License for more details.
  *
  * You should have received a copy of the GNU General Public License along with Roma; if not,
- * see <http://www.gnu.org/licenses>.
- */
+ * see <http://www.gnu.org/licenses>. */
 
-package tech.bigfig.romachat.view.screen.search
+package tech.bigfig.romachat.data.entity
 
-import android.os.Parcelable
-import kotlinx.android.parcel.Parcelize
-import tech.bigfig.romachat.data.entity.Account
+import com.google.gson.annotations.SerializedName
 
-@Parcelize
-data class UserSearchResultViewData(
-    val account: Account,
-    val showAdd: Boolean,
-    var addUserStatus: AddUserStatus,
-    val isCurrentAccount: Boolean
-) : Parcelable
-
-enum class AddUserStatus {
-    NOT_ADDED,
-    ADDING,
-    ADDED
-}
-
+data class Relationship (
+    val id: String,
+    val following: Boolean,
+    @SerializedName("followed_by") val followedBy: Boolean,
+    val blocking: Boolean,
+    val muting: Boolean,
+    val requested: Boolean,
+    @SerializedName("showing_reblogs") val showingReblogs: Boolean
+)

@@ -9,6 +9,8 @@
 
         <import type="android.view.View" />
 
+        <import type="tech.bigfig.romachat.view.screen.search.AddUserStatus" />
+
         <variable
             name="searchResult"
             type="tech.bigfig.romachat.view.screen.search.UserSearchResultViewData" />
@@ -74,8 +76,8 @@
                 android:id="@+id/status"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
                 android:background="@drawable/user_add"
+                android:gravity="center_vertical"
                 android:paddingStart="12dp"
                 android:paddingEnd="16dp"
                 android:visibility="@{safeUnbox(searchResult.showAdd) ? View.VISIBLE : View.INVISIBLE}"
@@ -86,20 +88,20 @@
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:tint="@{safeUnbox(searchResult.isAdded) ? @color/colorAccent : @color/text_color}"
-                    android:src="@{safeUnbox(searchResult.isAdded) ? @drawable/ic_added_user : @drawable/ic_add_user}" />
+                    android:src="@{searchResult.addUserStatus == AddUserStatus.ADDED ? @drawable/ic_added_user : @drawable/ic_add_user}"
+                    android:tint="@{searchResult.addUserStatus == AddUserStatus.ADDED ? @color/colorAccent : @color/text_color}" />
 
                 <TextView
-                    android:layout_marginStart="8dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="8dp"
                     android:drawablePadding="8dp"
-                    android:singleLine="true"
                     android:fontFamily="sans-serif-medium"
-                    android:text="@{safeUnbox(searchResult.isAdded) ? @string/user_search_added : @string/user_search_add}"
-                    android:textColor="@{safeUnbox(searchResult.isAdded) ? @color/colorAccent : @color/text_color}"
+                    android:singleLine="true"
+                    android:text="@{searchResult.addUserStatus == AddUserStatus.ADDED ? @string/user_search_added : searchResult.addUserStatus == AddUserStatus.ADDING ? @string/user_search_adding : @string/user_search_add}"
+                    android:textColor="@{searchResult.addUserStatus == AddUserStatus.ADDED ? @color/colorAccent : @color/text_color}"
                     android:textSize="14sp"
                     tools:text="Add" />
 

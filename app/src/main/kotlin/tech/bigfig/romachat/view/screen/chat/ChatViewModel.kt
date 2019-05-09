@@ -39,7 +39,11 @@ import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
 
-class ChatViewModel @Inject constructor(val repository: ChatRepository, userRepository: UserRepository, val context: Context) : ViewModel() {
+class ChatViewModel @Inject constructor(
+    val repository: ChatRepository,
+    userRepository: UserRepository,
+    val context: Context
+) : ViewModel() {
 
     var account: ChatAccountEntity? = null
     private var currentAccount = userRepository.getCurrentAccount()
@@ -69,7 +73,9 @@ class ChatViewModel @Inject constructor(val repository: ChatRepository, userRepo
                 account?.id ?: throw IllegalArgumentException("accountId is null")
             )
         )
-        { messages ->
+        {
+            val messages = it.reversed()
+
             @Suppress("DEPRECATION")
             var lastDate = Date(1970, 1, 1)
             var lastFromMe: Boolean? = null
@@ -122,7 +128,7 @@ class ChatViewModel @Inject constructor(val repository: ChatRepository, userRepo
                 lastFromMe = message.fromMe
             }
 
-            return@map res.toList()
+            return@map res.reversed()
         }
     }
 

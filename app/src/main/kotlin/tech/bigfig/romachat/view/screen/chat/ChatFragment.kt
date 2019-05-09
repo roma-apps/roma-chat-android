@@ -80,6 +80,8 @@ class ChatFragment : Fragment(), MessageItemDialogFragment.Listener {
             if (messages != null) {
                 Timber.d("showing ${messages.size} messages")
                 adapter.setItems(messages)
+
+                binding.chatMessageList.scrollToPosition(0)
             }
         })
 
@@ -122,7 +124,10 @@ class ChatFragment : Fragment(), MessageItemDialogFragment.Listener {
 
         adapter = ChatAdapter(adapterListener)
 
-        binding.chatMessageList.layoutManager = LinearLayoutManager(context)
+        binding.chatMessageList.layoutManager = LinearLayoutManager(context).apply {
+            reverseLayout = true
+            stackFromEnd = true
+        }
         binding.chatMessageList.adapter = adapter
         binding.chatMessageList.isNestedScrollingEnabled = false
 

@@ -93,10 +93,3 @@ class CameraResultFragment : Fragment() {
 interface ChatResultFragmentListener {
     fun onNext()
 }
-
-@BindingAdapter("app:imageUri")
-fun loadImage(view: ImageView, uri: Uri) {
-    Picasso.get().load(uri)
-        .fit().centerCrop()
-        .into(view)
-}

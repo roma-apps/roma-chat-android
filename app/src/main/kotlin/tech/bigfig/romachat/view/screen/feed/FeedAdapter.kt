@@ -98,11 +98,6 @@ class FeedAdapter(
     }
 }
 
-@BindingAdapter("app:avatarUrl")
-fun loadImage(view: ImageView, avatarUrl: String) {
-    Picasso.get().load(avatarUrl).error(R.drawable.default_user_avatar).into(view)
-}
-
 @BindingAdapter("app:date")
 fun formatDate(view: TextView, date: Date) {
     view.text = DateUtils.getRelativeTimeSpanString(view.context, date.time, Date().time)

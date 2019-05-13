@@ -67,8 +67,3 @@ class CameraResultRecipientAdapter(
         fun onAccountClick(account: ChatAccountEntity)
     }
 }
-
-@BindingAdapter("app:avatarUrl")
-fun loadImage(view: ImageView, avatarUrl: String) {
-    Picasso.get().load(avatarUrl).error(R.drawable.default_user_avatar).into(view)
-}

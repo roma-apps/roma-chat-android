@@ -108,4 +108,33 @@ interface RestApi {
 
     @GET("api/v2/search")
     fun search(@Query("q") query: String, @Query("resolve") resolve: Boolean?): Call<SearchResults>
+
+    //-----
+    // FEED
+
+    @GET("api/v1/timelines/home")
+    fun homeTimeline(
+        @Query("max_id") maxId: String?,
+        @Query("since_id") sinceId: String?,
+        @Query("limit") limit: Int?
+    ): Call<List<Status>>
+
+    @GET("api/v1/timelines/public")
+    fun publicTimeline(
+        @Query("local") local: Boolean?,
+        @Query("max_id") maxId: String?,
+        @Query("since_id") sinceId: String?,
+        @Query("limit") limit: Int?
+    ): Call<List<Status>>
+
+    @GET("api/v1/accounts/{id}/statuses")
+    fun accountStatuses(
+        @Path("id") accountId: String,
+        @Query("max_id") maxId: String?,
+        @Query("since_id") sinceId: String?,
+        @Query("limit") limit: Int?,
+        @Query("exclude_replies") excludeReplies: Boolean?,
+        @Query("only_media") onlyMedia: Boolean?,
+        @Query("pinned") pinned: Boolean?
+    ): Call<List<Status>>
 }

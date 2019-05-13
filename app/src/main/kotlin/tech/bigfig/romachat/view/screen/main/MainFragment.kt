@@ -28,6 +28,7 @@ import tech.bigfig.romachat.R
 import tech.bigfig.romachat.databinding.FragmentMainBinding
 import tech.bigfig.romachat.view.screen.camera.CameraFragment
 import tech.bigfig.romachat.view.screen.chatlist.ChatListFragment
+import tech.bigfig.romachat.view.screen.feed.FeedHostFragment
 
 
 class MainFragment : Fragment() {
@@ -68,12 +69,13 @@ class MainFragment : Fragment() {
         FragmentPagerAdapter(fragmentManager) {
 
         override fun getCount(): Int {
-            return 2
+            return 3
         }
 
         override fun getItem(position: Int): Fragment {
             return when (position) {
                 0 -> ChatListFragment.newInstance()
+                2 -> FeedHostFragment.newInstance()
                 else -> CameraFragment.newInstance()
             }
         }

@@ -1,0 +1,57 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <import type="tech.bigfig.romachat.data.Result" />
+
+        <import type="tech.bigfig.romachat.data.ResultStatus" />
+
+        <variable
+            name="viewModel"
+            type="tech.bigfig.romachat.view.screen.feed.FeedViewModel" />
+
+        <variable
+            name="retryListener"
+            type="tech.bigfig.romachat.view.utils.RetryListener" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/feedList"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:visibility="@{viewModel.loadPosts.status == ResultStatus.SUCCESS ? View.VISIBLE : View.INVISIBLE}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/include" />
+
+        <androidx.core.widget.ContentLoadingProgressBar
+            android:id="@+id/user_search_progress"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="@{viewModel.loadPosts.status == ResultStatus.LOADING ? View.VISIBLE : View.INVISIBLE}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <include
+            android:id="@+id/include"
+            layout="@layout/layout_error_try_again"
+            app:result="@{(Result) viewModel.loadPosts}"
+            app:retryListener="@{() -> retryListener.onRetry()}" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

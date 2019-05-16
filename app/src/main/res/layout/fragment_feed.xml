@@ -28,7 +28,7 @@
             android:id="@+id/feedList"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:visibility="@{viewModel.loadPosts.status == ResultStatus.SUCCESS ? View.VISIBLE : View.INVISIBLE}"
+            android:visibility="@{viewModel.firstPageStatus.status == ResultStatus.SUCCESS ? View.VISIBLE : View.INVISIBLE}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -40,17 +40,17 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:visibility="@{viewModel.isLoading ? View.VISIBLE : View.INVISIBLE}"
+            android:visibility="@{viewModel.firstPageStatus.status == ResultStatus.LOADING ? View.VISIBLE : View.INVISIBLE}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <!--<include-->
-            <!--android:id="@+id/include"-->
-            <!--layout="@layout/layout_error_try_again"-->
-            <!--app:result="@{(Result) viewModel.loadPosts}"-->
-            <!--app:retryListener="@{() -> retryListener.onRetry()}" />-->
+        <include
+            android:id="@+id/include"
+            layout="@layout/layout_error_try_again"
+            app:result="@{(Result) viewModel.firstPageStatus}"
+            app:retryListener="@{() -> retryListener.onRetry()}" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

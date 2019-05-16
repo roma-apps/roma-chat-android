@@ -31,8 +31,9 @@ class FeedViewModel @Inject constructor(val repository: FeedRepository) : ViewMo
 
     var feedType: FeedType? = null
 
-    val isLoading: MutableLiveData<Boolean> = MutableLiveData()
-    val isError: MutableLiveData<Boolean> = MutableLiveData()
+    // Show loader/error/list of items depending on api response only for first page,
+    // for next pages recyclerview loader will be shown
+    val firstPageStatus: MutableLiveData<Result<Unit>> = MutableLiveData()
     private var firstTimeLoading = true
 
     private val loadData = MutableLiveData<Boolean>()
@@ -60,14 +61,16 @@ class FeedViewModel @Inject constructor(val repository: FeedRepository) : ViewMo
         Transformations.map(getFeed()) { result ->
             when (result.status) {
                 ResultStatus.LOADING -> {
-                    isLoading.postValue(firstTimeLoading)
+                    if (firstTimeLoading) {
+                        firstPageStatus.postValue(Result.loading())
+                    }
                     null
                 }
 
                 ResultStatus.SUCCESS -> {
 
                     firstTimeLoading = false
-                    isLoading.postValue(false)
+                    firstPageStatus.postValue(Result.success(null))
 
                     if (result.data != null) {
                         postList.addAll(result.data)
@@ -78,7 +81,9 @@ class FeedViewModel @Inject constructor(val repository: FeedRepository) : ViewMo
                 }
 
                 ResultStatus.ERROR -> {
-                    isLoading.postValue(false)
+                    if (firstTimeLoading) {
+                        firstPageStatus.postValue(Result.error(result.error ?: ""))
+                    }
                     null
                 }
             }

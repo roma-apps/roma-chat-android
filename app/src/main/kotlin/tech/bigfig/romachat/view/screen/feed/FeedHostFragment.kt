@@ -39,6 +39,7 @@ class FeedHostFragment : Fragment() {
         binding = FragmentFeedHostBinding.inflate(layoutInflater, container, false)
 
         binding.tabLayout.setupWithViewPager(binding.pager)
+        binding.pager.offscreenPageLimit = 2
         binding.pager.adapter =
             FeedHostFragmentPagerAdapter(arrayOf(Tab.HOME, Tab.ALL, Tab.ME), childFragmentManager, context)
 

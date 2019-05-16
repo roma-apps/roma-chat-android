@@ -26,14 +26,14 @@ class FeedRepository @Inject constructor(
     private val restApi: RestApi, private val accountManager: AccountManager
 ) {
 
-    fun getHomeFeed() = apiCallToLiveData(restApi.homeTimeline(null, null, null)) { it }
+    fun getHomeFeed(fromId:String?) = apiCallToLiveData(restApi.homeTimeline(fromId, null, null)) { it }
 
-    fun getAllFeed() = apiCallToLiveData(restApi.publicTimeline(true, null, null, null)) { it }
+    fun getAllFeed(fromId:String?) = apiCallToLiveData(restApi.publicTimeline(true, fromId, null, null)) { it }
 
-    fun getUserFeed() = apiCallToLiveData(
+    fun getUserFeed(fromId:String?) = apiCallToLiveData(
         restApi.accountStatuses(
             accountManager.activeAccount?.accountId ?: throw IllegalStateException("Active account is null"),
-            null,
+            fromId,
             null,
             null,
             true,

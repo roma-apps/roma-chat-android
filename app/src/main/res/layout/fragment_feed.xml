@@ -32,7 +32,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/include" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <androidx.core.widget.ContentLoadingProgressBar
             android:id="@+id/user_search_progress"
@@ -40,17 +40,17 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:visibility="@{viewModel.loadPosts.status == ResultStatus.LOADING ? View.VISIBLE : View.INVISIBLE}"
+            android:visibility="@{viewModel.isLoading ? View.VISIBLE : View.INVISIBLE}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <include
-            android:id="@+id/include"
-            layout="@layout/layout_error_try_again"
-            app:result="@{(Result) viewModel.loadPosts}"
-            app:retryListener="@{() -> retryListener.onRetry()}" />
+        <!--<include-->
+            <!--android:id="@+id/include"-->
+            <!--layout="@layout/layout_error_try_again"-->
+            <!--app:result="@{(Result) viewModel.loadPosts}"-->
+            <!--app:retryListener="@{() -> retryListener.onRetry()}" />-->
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

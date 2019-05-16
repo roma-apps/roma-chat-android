@@ -18,14 +18,14 @@
 package tech.bigfig.romachat.view.screen.feed
 
 
+import android.text.SpannableStringBuilder
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.squareup.picasso.Picasso
-import tech.bigfig.romachat.R
 import tech.bigfig.romachat.data.entity.Status
 import tech.bigfig.romachat.databinding.LayoutFeedListItemBinding
 import tech.bigfig.romachat.view.utils.CustomEmojiHelper
@@ -37,15 +37,10 @@ import java.util.*
 
 class FeedAdapter(
     private val listener: UserSearchAdapterListener?
-) : RecyclerView.Adapter<FeedAdapter.ViewHolder>() {
-
-    private var values: MutableList<Status> = mutableListOf()
+) : ListAdapter<Status, FeedAdapter.ViewHolder>(DiffCallback()) {
 
     fun setItems(newValues: List<Status>) {
-        values.clear()
-        values.addAll(newValues)
-
-        notifyDataSetChanged()
+        submitList(newValues)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -54,10 +49,8 @@ class FeedAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(values[position])
+        holder.bind(getItem(position))
     }
-
-    override fun getItemCount() = values.size
 
     inner class ViewHolder(val binding: LayoutFeedListItemBinding) : RecyclerView.ViewHolder(binding.root) {
 
@@ -88,6 +81,19 @@ class FeedAdapter(
             //
 //            binding.root.setOnClickListener { listener?.onUserClick(item) }
 //            binding.status.setOnClickListener { listener?.onAddClick(item) }
+        }
+    }
+
+    class DiffCallback : DiffUtil.ItemCallback<Status>() {
+        override fun areItemsTheSame(oldItem: Status, newItem: Status): Boolean {
+            return oldItem.id == newItem.id
+        }
+
+        override fun areContentsTheSame(oldItem: Status, newItem: Status): Boolean {
+            return oldItem.account.displayName == newItem.account.displayName
+                    && oldItem.account.avatar == newItem.account.avatar
+                    && SpannableStringBuilder(oldItem.content) == SpannableStringBuilder(newItem.content)
+                    && oldItem.createdAt == newItem.createdAt
         }
     }
 

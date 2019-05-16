@@ -31,36 +31,54 @@ class FeedViewModel @Inject constructor(val repository: FeedRepository) : ViewMo
 
     var feedType: FeedType? = null
 
+    val isLoading: MutableLiveData<Boolean> = MutableLiveData()
+    val isError: MutableLiveData<Boolean> = MutableLiveData()
+    private var firstTimeLoading = true
+
     private val loadData = MutableLiveData<Boolean>()
+
+    private val postList = mutableListOf<Status>()
 
     fun loadData() {
         loadData.value = true
     }
 
-    private var loadPostsInstance: LiveData<Result<List<Status>>>? = null
-    val loadPosts: LiveData<Result<List<Status>>>
-        get() {
-            if (loadPostsInstance == null) {
-                loadPostsInstance = when (feedType) {
-                    FeedType.HOME -> repository.getHomeFeed()
-                    FeedType.ALL -> repository.getAllFeed()
-                    FeedType.ME -> repository.getUserFeed()
-                    else -> repository.getHomeFeed()
-                }
-            }
-            return loadPostsInstance!!
+    private fun getFeed(): LiveData<Result<List<Status>>> {
+        return when (feedType) {
+            FeedType.HOME -> repository.getHomeFeed(getLastPostId())
+            FeedType.ALL -> repository.getAllFeed(getLastPostId())
+            FeedType.ME -> repository.getUserFeed(getLastPostId())
+            else -> repository.getHomeFeed(getLastPostId())
         }
+    }
+
+    private fun getLastPostId(): String? {
+        return postList.lastOrNull()?.id
+    }
 
     val posts: LiveData<List<Status>?> = Transformations.switchMap(loadData) {
-        Transformations.map(loadPosts) { result ->
+        Transformations.map(getFeed()) { result ->
             when (result.status) {
-                ResultStatus.LOADING ->
+                ResultStatus.LOADING -> {
+                    isLoading.postValue(firstTimeLoading)
                     null
+                }
 
-                ResultStatus.SUCCESS ->
-                    result.data
+                ResultStatus.SUCCESS -> {
+
+                    firstTimeLoading = false
+                    isLoading.postValue(false)
+
+                    if (result.data != null) {
+                        postList.addAll(result.data)
+                    }
+
+                    // ListAdapter requires new copy of the list
+                    postList.filter { true }
+                }
 
                 ResultStatus.ERROR -> {
+                    isLoading.postValue(false)
                     null
                 }
             }

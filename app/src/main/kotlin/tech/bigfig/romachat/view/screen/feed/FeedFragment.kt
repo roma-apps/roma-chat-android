@@ -27,6 +27,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.paginate.Paginate
 import tech.bigfig.romachat.app.App
 import tech.bigfig.romachat.databinding.FragmentFeedBinding
 import tech.bigfig.romachat.view.utils.RetryListener
@@ -58,7 +59,10 @@ class FeedFragment : Fragment() {
         viewModel.posts.observe(this, Observer { posts ->
             if (posts != null) {
                 Timber.d("showing ${posts.size} posts")
+
                 adapter.setItems(posts)
+
+                processPagination(posts.size)
             }
         })
 
@@ -74,7 +78,6 @@ class FeedFragment : Fragment() {
             }
         }
 
-
         adapter = FeedAdapter(adapterListener)
 
         binding.feedList.layoutManager = LinearLayoutManager(context)
@@ -84,6 +87,49 @@ class FeedFragment : Fragment() {
     }
 
     private val adapterListener = object : FeedAdapter.UserSearchAdapterListener {
+    }
+
+    //-----------
+    // PAGINATION
+
+    private var paginate: Paginate? = null
+    private var prevTotalSize = 0
+    private var loadingMore = false
+
+    private fun processPagination(totalSize: Int) {
+        if (paginate == null) {
+            // Init pagination after first part of data is loaded
+            paginate = Paginate.with(binding.feedList, paginateCallbacks)
+                .setLoadingTriggerThreshold(5)
+                .addLoadingListItem(true)
+                .build()
+
+            return
+        }
+
+        loadingMore = false
+        paginate?.setHasMoreDataToLoad(prevTotalSize < totalSize) // Stop showing loader if there is no new data
+        prevTotalSize = totalSize
+    }
+
+    private val paginateCallbacks = object : Paginate.Callbacks {
+        override fun onLoadMore() {
+            // Load next page of data (e.g. network or database)
+            Timber.d("onLoadMore")
+            if (loadingMore) return
+            loadingMore = true
+            viewModel.loadData()
+        }
+
+        override fun isLoading(): Boolean {
+            // Indicate whether new page loading is in progress or not
+            return loadingMore
+        }
+
+        override fun hasLoadedAllItems(): Boolean {
+            // Indicate whether all data (pages) are loaded or not
+            return false
+        }
     }
 
     companion object {

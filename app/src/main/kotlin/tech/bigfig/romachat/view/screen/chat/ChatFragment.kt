@@ -48,6 +48,7 @@ import tech.bigfig.romachat.data.entity.Attachment
 import tech.bigfig.romachat.data.entity.Media
 import tech.bigfig.romachat.data.entity.MediaType
 import tech.bigfig.romachat.databinding.FragmentChatBinding
+import tech.bigfig.romachat.utils.OpenLinkHelper
 import tech.bigfig.romachat.utils.isImageMedia
 import tech.bigfig.romachat.view.utils.RetryListener
 import timber.log.Timber
@@ -213,6 +214,12 @@ class ChatFragment : Fragment(), MessageItemDialogFragment.Listener {
     }
 
     private var adapterListener = object : ChatAdapter.ChatAdapterListener {
+        override fun onUrlClick(url: String) {
+            if (activity != null) {
+                OpenLinkHelper.openLink(url, activity!!)
+            }
+        }
+
         override fun onMessageClick(message: MessageViewData, view: View) {
             if (message.isMedia && message.attachment != null) {
                 val url = message.attachment.url

@@ -30,6 +30,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.paginate.Paginate
 import tech.bigfig.romachat.app.App
 import tech.bigfig.romachat.databinding.FragmentFeedBinding
+import tech.bigfig.romachat.utils.OpenLinkHelper
+import tech.bigfig.romachat.view.utils.ContentClickListener
 import tech.bigfig.romachat.view.utils.RetryListener
 import timber.log.Timber
 import javax.inject.Inject
@@ -86,7 +88,24 @@ class FeedFragment : Fragment() {
         return binding.root
     }
 
-    private val adapterListener = object : FeedAdapter.UserSearchAdapterListener {
+    private val adapterListener = object : ContentClickListener {
+        override fun onTagClick(tag: String) {
+        }
+
+        override fun onAccountClick(id: String) {
+        }
+
+        override fun onUrlClick(url: String) {
+            if (activity != null) {
+                OpenLinkHelper.openLink(url, activity!!)
+            }
+        }
+
+        override fun onClick() {
+        }
+
+        override fun onLongClick() {
+        }
     }
 
     //-----------

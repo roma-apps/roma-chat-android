@@ -42,7 +42,7 @@ object TextFormatter {
      */
     fun setClickableText(
         view: TextView, content: Spanned,
-        mentions: Array<Status.Mention>?, listener: MessageClickListener?
+        mentions: Array<Status.Mention>?, listener: ContentClickListener?
     ) {
         val builder = SpannableStringBuilder(content)
         val urlSpans = content.getSpans(0, content.length, URLSpan::class.java)

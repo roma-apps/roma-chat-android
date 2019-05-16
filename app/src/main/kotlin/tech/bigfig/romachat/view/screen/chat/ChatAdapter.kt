@@ -30,7 +30,7 @@ import tech.bigfig.romachat.R
 import tech.bigfig.romachat.data.entity.Attachment
 import tech.bigfig.romachat.databinding.LayoutChatMessageItemBinding
 import tech.bigfig.romachat.view.utils.CustomEmojiHelper
-import tech.bigfig.romachat.view.utils.MessageClickListener
+import tech.bigfig.romachat.view.utils.ContentClickListener
 import tech.bigfig.romachat.view.utils.TextFormatter
 
 
@@ -69,7 +69,7 @@ class ChatAdapter(
                 val emojifiedText =
                     CustomEmojiHelper.emojifyText(message.content, message.emojis, binding.chatMessageContent)
                 TextFormatter.setClickableText(binding.chatMessageContent, emojifiedText, message.mentions,
-                    object : MessageClickListener {
+                    object : ContentClickListener {
                         override fun onTagClick(tag: String) {
                         }
 
@@ -77,6 +77,7 @@ class ChatAdapter(
                         }
 
                         override fun onUrlClick(url: String) {
+                            listener?.onUrlClick(url)
                         }
 
                         override fun onClick() {
@@ -101,6 +102,7 @@ class ChatAdapter(
     interface ChatAdapterListener {
         fun onMessageClick(message: MessageViewData, view: View)
         fun onMessageLongClick(message: MessageViewData)
+        fun onUrlClick(url: String)
     }
 }
 

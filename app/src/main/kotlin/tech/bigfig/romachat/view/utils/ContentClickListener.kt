@@ -17,7 +17,7 @@
 
 package tech.bigfig.romachat.view.utils
 
-interface MessageClickListener {
+interface ContentClickListener {
     fun onTagClick(tag: String)
     fun onAccountClick(id: String)
     fun onUrlClick(url: String)

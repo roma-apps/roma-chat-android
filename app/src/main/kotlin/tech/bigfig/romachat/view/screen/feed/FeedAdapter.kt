@@ -28,15 +28,15 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import tech.bigfig.romachat.data.entity.Status
 import tech.bigfig.romachat.databinding.LayoutFeedListItemBinding
+import tech.bigfig.romachat.view.utils.ContentClickListener
 import tech.bigfig.romachat.view.utils.CustomEmojiHelper
 import tech.bigfig.romachat.view.utils.DateUtils
-import tech.bigfig.romachat.view.utils.MessageClickListener
 import tech.bigfig.romachat.view.utils.TextFormatter
 import java.util.*
 
 
 class FeedAdapter(
-    private val listener: UserSearchAdapterListener?
+    private val listener: ContentClickListener?
 ) : ListAdapter<Status, FeedAdapter.ViewHolder>(DiffCallback()) {
 
     fun setItems(newValues: List<Status>) {
@@ -59,25 +59,7 @@ class FeedAdapter(
             binding.executePendingBindings()
 
             val emojifiedText = CustomEmojiHelper.emojifyText(item.content, item.emojis, binding.content)
-            TextFormatter.setClickableText(binding.content, emojifiedText, item.mentions,
-                object : MessageClickListener {
-                    override fun onTagClick(tag: String) {
-                    }
-
-                    override fun onAccountClick(id: String) {
-                    }
-
-                    override fun onUrlClick(url: String) {
-                    }
-
-                    override fun onClick() {
-//                        listener?.onMessageClick(message, binding.chatMessageMediaPreview)
-                    }
-
-                    override fun onLongClick() {
-//                        listener?.onMessageLongClick(message)
-                    }
-                })
+            TextFormatter.setClickableText(binding.content, emojifiedText, item.mentions, listener)
             //
 //            binding.root.setOnClickListener { listener?.onUserClick(item) }
 //            binding.status.setOnClickListener { listener?.onAddClick(item) }

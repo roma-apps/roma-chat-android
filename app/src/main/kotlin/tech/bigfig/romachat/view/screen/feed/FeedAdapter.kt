@@ -20,6 +20,7 @@ package tech.bigfig.romachat.view.screen.feed
 
 import android.text.SpannableStringBuilder
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
@@ -89,4 +90,10 @@ class FeedAdapter(
 @BindingAdapter("app:date")
 fun formatDate(view: TextView, date: Date) {
     view.text = DateUtils.getRelativeTimeSpanString(view.context, date.time, Date().time)
+}
+
+@BindingAdapter("app:title")
+fun formatTitle(view: TextView, status: Status) {
+    view.visibility = if (status.spoilerText.isEmpty()) View.GONE else View.VISIBLE
+    view.text = CustomEmojiHelper.emojifyString(status.spoilerText, status.emojis, view)
 }

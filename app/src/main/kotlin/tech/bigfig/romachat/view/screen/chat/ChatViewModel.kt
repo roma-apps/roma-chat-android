@@ -87,7 +87,10 @@ class ChatViewModel @Inject constructor(
 
                 val content = formatContent(message.content)
 
-                if (content.isNotEmpty()) {//might be empty if message contained only @user mention
+                // Content might be empty if message contained only @user mention
+                if (content.isEmpty() && message.attachments.isEmpty()) return@forEach
+
+                if (content.isNotEmpty()) {
                     res.add(
                         MessageViewData(
                             message.id,

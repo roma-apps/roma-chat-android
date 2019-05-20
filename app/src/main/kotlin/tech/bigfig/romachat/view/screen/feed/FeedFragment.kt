@@ -22,16 +22,24 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.app.ActivityOptionsCompat
+import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
+import androidx.navigation.ActivityNavigator
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.paginate.Paginate
+import tech.bigfig.romachat.NavGraphDirections
 import tech.bigfig.romachat.app.App
+import tech.bigfig.romachat.data.entity.Attachment
+import tech.bigfig.romachat.data.entity.Media
+import tech.bigfig.romachat.data.entity.MediaType
+import tech.bigfig.romachat.data.entity.Status
 import tech.bigfig.romachat.databinding.FragmentFeedBinding
 import tech.bigfig.romachat.utils.OpenLinkHelper
-import tech.bigfig.romachat.view.utils.ContentClickListener
 import tech.bigfig.romachat.view.utils.RetryListener
 import timber.log.Timber
 import javax.inject.Inject
@@ -88,7 +96,35 @@ class FeedFragment : Fragment() {
         return binding.root
     }
 
-    private val adapterListener = object : ContentClickListener {
+    private val adapterListener = object : FeedAdapter.FeedAdapterListener {
+        override fun onMediaClick(status: Status, mediaIndex: Int, view: View) {
+            if (status.attachments.isEmpty()) return
+
+            val attachments = status.attachments.map { attachment ->
+                Media(
+                    attachment.url, when (attachment.type) {
+                        Attachment.Type.IMAGE -> MediaType.IMAGE
+                        Attachment.Type.VIDEO,
+                        Attachment.Type.GIFV -> MediaType.VIDEO
+                        else -> {
+                            Timber.d("Unknown media type: ${attachment.type}")
+                            return
+                        }
+                    }
+                )
+            }
+
+            val currentMediaUrl: String = status.attachments[mediaIndex].url
+            ViewCompat.setTransitionName(view, currentMediaUrl)
+            val options = ActivityOptionsCompat.makeSceneTransitionAnimation(activity!!, view, currentMediaUrl)
+            val extras = ActivityNavigator.Extras.Builder().setActivityOptions(options).build()
+            view.findNavController()
+                .navigate(
+                    NavGraphDirections.actionGlobalViewMediaActivity(attachments.toTypedArray(), mediaIndex),
+                    extras
+                )
+        }
+
         override fun onTagClick(tag: String) {
         }
 

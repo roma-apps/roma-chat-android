@@ -23,14 +23,22 @@ import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.navigation.navArgs
-import kotlinx.android.synthetic.main.activity_view_media.*
+import androidx.viewpager.widget.ViewPager
 import tech.bigfig.romachat.R
+import tech.bigfig.romachat.data.entity.Media
+import tech.bigfig.romachat.databinding.ActivityViewMediaBinding
 import java.util.*
 
 class ViewMediaActivity : AppCompatActivity(), ViewImageFragment.PhotoActionsListener {
 
     private val navArgs: ViewMediaActivityArgs by navArgs()
+
+    private lateinit var binding: ActivityViewMediaBinding
 
     private var toolbarVisible = true
     private val toolbarVisibilityListeners = ArrayList<ToolbarVisibilityListener>()
@@ -55,21 +63,28 @@ class ViewMediaActivity : AppCompatActivity(), ViewImageFragment.PhotoActionsLis
 
         supportPostponeEnterTransition()
 
-        val media = navArgs.media
+        val media = navArgs.mediaList
+        val initialPosition = navArgs.currentMediaIndex
 
-        if (savedInstanceState == null) {
-            supportFragmentManager.beginTransaction()
-                .add(R.id.fragment_container, ViewMediaFragment.newInstance(media, true)).commit()
-        }
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_view_media)
 
-        setSupportActionBar(toolbar)
+        val adapter = ImagePagerAdapter(supportFragmentManager, media, initialPosition)
+        binding.viewPager.adapter = adapter
+        binding.viewPager.currentItem = initialPosition
+        binding.viewPager.addOnPageChangeListener(object : ViewPager.SimpleOnPageChangeListener() {
+            override fun onPageSelected(position: Int) {
+                binding.toolbar.title = adapter.getPageTitle(position)
+            }
+        })
+
+        setSupportActionBar(binding.toolbar)
         val actionBar = supportActionBar
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true)
             actionBar.setDisplayShowHomeEnabled(true)
-            actionBar.title = ""
+            actionBar.title = adapter.getPageTitle(initialPosition)
         }
-        toolbar.setNavigationOnClickListener { supportFinishAfterTransition() }
+        binding.toolbar.setNavigationOnClickListener { supportFinishAfterTransition() }
 
         window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LOW_PROFILE
         window.statusBarColor = Color.BLACK
@@ -92,13 +107,37 @@ class ViewMediaActivity : AppCompatActivity(), ViewImageFragment.PhotoActionsLis
 
         val alpha = if (toolbarVisible) 1.0f else 0.0f
 
-        toolbar.animate().alpha(alpha)
+        binding.toolbar.animate().alpha(alpha)
             .setListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
-                    toolbar.visibility = visibility
+                    binding.toolbar.visibility = visibility
                     animation.removeListener(this)
                 }
             })
             .start()
     }
+
+    class ImagePagerAdapter(
+        fragmentManager: FragmentManager,
+        private val attachments: Array<Media>,
+        private val initialPosition: Int
+    ) : FragmentStatePagerAdapter(fragmentManager) {
+
+        override fun getItem(position: Int): Fragment {
+            return if (position >= 0 && position < attachments.size) {
+                ViewMediaFragment.newInstance(attachments[position], position == initialPosition)
+            } else {
+                throw IllegalStateException()
+            }
+        }
+
+        override fun getCount(): Int {
+            return attachments.size
+        }
+
+        override fun getPageTitle(position: Int): CharSequence {
+            return if (attachments.size <= 1) "" else "${position + 1}/${attachments.size}"
+        }
+    }
+
 }

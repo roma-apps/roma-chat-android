@@ -28,7 +28,6 @@ import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.flexbox.FlexboxLayout
 import com.squareup.picasso.Picasso
 import tech.bigfig.romachat.R
 import tech.bigfig.romachat.data.entity.Attachment
@@ -42,7 +41,7 @@ import java.util.*
 
 
 class FeedAdapter(
-    private val listener: ContentClickListener?
+    private val listener: FeedAdapterListener?
 ) : ListAdapter<Status, FeedAdapter.ViewHolder>(DiffCallback()) {
 
     fun setItems(newValues: List<Status>) {
@@ -70,10 +69,11 @@ class FeedAdapter(
             binding.attachments.visibility = if (item.attachments.isNotEmpty()) View.VISIBLE else View.GONE
             if (item.attachments.isNotEmpty()) {
                 binding.attachments.removeAllViews()
-                item.attachments.forEach { attachment ->
+                item.attachments.forEachIndexed { index, attachment ->
                     val imageView = ImageView(binding.attachments.context).apply {
                         scaleType = ImageView.ScaleType.CENTER_CROP
                         adjustViewBounds = false
+                        setOnClickListener { listener?.onMediaClick(item, index, this) }
                     }
 
                     val height =
@@ -96,8 +96,6 @@ class FeedAdapter(
 //                    }
                 }
             }
-//            binding.root.setOnClickListener { listener?.onUserClick(item) }
-//            binding.status.setOnClickListener { listener?.onAddClick(item) }
         }
     }
 
@@ -114,10 +112,8 @@ class FeedAdapter(
         }
     }
 
-    interface UserSearchAdapterListener {
-//        fun onUserClick(item: UserSearchResultViewData)
-//
-//        fun onAddClick(item: UserSearchResultViewData)
+    interface FeedAdapterListener : ContentClickListener {
+        fun onMediaClick(status: Status, mediaIndex: Int, view: View)
     }
 }
 

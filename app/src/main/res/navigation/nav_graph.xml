@@ -34,8 +34,12 @@
         android:name="tech.bigfig.romachat.view.screen.media.ViewMediaActivity"
         android:label="ViewMediaActivity">
         <argument
-            android:name="media"
-            app:argType="tech.bigfig.romachat.data.entity.Media" />
+            android:name="mediaList"
+            app:argType="tech.bigfig.romachat.data.entity.Media[]" />
+        <argument
+            android:name="currentMediaIndex"
+            app:argType="integer"
+            android:defaultValue="0" />
     </activity>
     <fragment
         android:id="@+id/cameraResultRecipientFragment"
@@ -53,4 +57,7 @@
     <action
         android:id="@+id/action_global_chatFragment"
         app:destination="@id/chatFragment" />
+    <action
+        android:id="@+id/action_global_viewMediaActivity"
+        app:destination="@id/viewMediaActivity" />
 </navigation>

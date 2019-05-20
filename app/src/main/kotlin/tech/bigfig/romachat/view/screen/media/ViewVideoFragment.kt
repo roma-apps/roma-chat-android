@@ -53,16 +53,20 @@ class ViewVideoFragment : ViewMediaFragment() {
     override fun setUserVisibleHint(isVisibleToUser: Boolean) {
         // Start/pause/resume video playback as fragment is shown/hidden
         super.setUserVisibleHint(isVisibleToUser)
+        try {
+            if (isVisibleToUser) {
+                if (mediaActivity.isToolbarVisible()) {
+                    handler.postDelayed(hideToolbar, TOOLBAR_HIDE_DELAY_MS)
+                }
+                binding.videoPlayer.start()
+            } else {
 
-        if (isVisibleToUser) {
-            if (mediaActivity.isToolbarVisible()) {
-                handler.postDelayed(hideToolbar, TOOLBAR_HIDE_DELAY_MS)
+                handler.removeCallbacks(hideToolbar)
+                binding.videoPlayer.pause()
+                mediaController.hide()
+
             }
-            binding.videoPlayer.start()
-        } else {
-            handler.removeCallbacks(hideToolbar)
-            binding.videoPlayer.pause()
-            mediaController.hide()
+        } catch (e: Exception) {
         }
     }
 
@@ -82,13 +86,13 @@ class ViewVideoFragment : ViewMediaFragment() {
         videoView.setOnPreparedListener { mp ->
             binding.progressBar.visibility = View.GONE
             mp.isLooping = true
-            if (arguments!!.getBoolean(ViewMediaFragment.ARG_START_POSTPONED_TRANSITION)) {
+            if (arguments!!.getBoolean(ARG_START_POSTPONED_TRANSITION)) {
                 hideToolbarAfterDelay(TOOLBAR_HIDE_DELAY_MS)
                 videoView.start()
             }
         }
 
-        if (arguments!!.getBoolean(ViewMediaFragment.ARG_START_POSTPONED_TRANSITION)) {
+        if (arguments!!.getBoolean(ARG_START_POSTPONED_TRANSITION)) {
             mediaActivity.onBringUp()
         }
     }

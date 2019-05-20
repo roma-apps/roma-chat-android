@@ -241,7 +241,7 @@ class ChatFragment : Fragment(), MessageItemDialogFragment.Listener {
 
                 val options = ActivityOptionsCompat.makeSceneTransitionAnimation(activity!!, view, url)
                 val extras = ActivityNavigator.Extras.Builder().setActivityOptions(options).build()
-                view.findNavController().navigate(ChatFragmentDirections.actionToViewMediaActivity(media), extras)
+                view.findNavController().navigate(ChatFragmentDirections.actionToViewMediaActivity(arrayOf(media)), extras)
             }
         }
 

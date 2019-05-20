@@ -21,39 +21,69 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import tech.bigfig.romachat.NavGraphDirections
+import tech.bigfig.romachat.app.App
 import tech.bigfig.romachat.data.db.entity.ChatAccountEntity
 import tech.bigfig.romachat.databinding.FragmentProfileBinding
 import tech.bigfig.romachat.view.screen.search.UserSearchResultViewData
+import tech.bigfig.romachat.view.utils.RetryListener
+import timber.log.Timber
+import javax.inject.Inject
 
 class ProfileFragment : BottomSheetDialogFragment() {
 
+    @Inject
+    lateinit var viewModelFactory: ViewModelProvider.Factory
+
+    private lateinit var viewModel: ProfileViewModel
     private lateinit var binding: FragmentProfileBinding
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        binding = FragmentProfileBinding.inflate(inflater, container, false)
 
-        val user =
-            arguments?.getParcelable<UserSearchResultViewData>(ARG_USER) ?: throw IllegalArgumentException("Empty user")
+        App.getApplication(activity!!).appComponent.inject(this)
 
-        binding.user = user
+        viewModel = ViewModelProviders.of(this, viewModelFactory)
+            .get(ProfileViewModel::class.java)
 
-        binding.chat.setOnClickListener {
+        val userId = arguments?.getString(ARG_USER_ID)
+        val searchResult = arguments?.getParcelable<UserSearchResultViewData>(ARG_SEARCH_RESULT)
 
-            findNavController().navigate(
-                NavGraphDirections.actionGlobalChatFragment(
-                    ChatAccountEntity(
-                        user.account.id,
-                        user.account.username,
-                        user.account.localUsername,
-                        user.account.displayName,
-                        user.account.avatar
+        viewModel.user.observe(this, Observer { user ->
+            if (user != null) {
+                Timber.d("showing user profile for $user")
+                binding.chat.setOnClickListener {
+
+                    findNavController().navigate(
+                        NavGraphDirections.actionGlobalChatFragment(
+                            ChatAccountEntity(
+                                user.id,
+                                user.username,
+                                user.localUsername,
+                                user.displayName,
+                                user.avatarUrl
+                            )
+                        )
                     )
-                )
-            )
-            dismiss()
+                    dismiss()
+                }
+            }
+        })
+
+        viewModel.initData(userId, searchResult)
+
+        binding = FragmentProfileBinding.inflate(inflater, container, false)
+        binding.viewModel = viewModel
+        binding.lifecycleOwner = viewLifecycleOwner
+
+        binding.retryListener = object : RetryListener {
+            override fun onRetry() {
+                viewModel.loadData()
+            }
         }
 
         return binding.root
@@ -61,13 +91,21 @@ class ProfileFragment : BottomSheetDialogFragment() {
 
     companion object {
 
-        fun newInstance(message: UserSearchResultViewData): ProfileFragment =
+        fun newInstance(userId: String): ProfileFragment =
             ProfileFragment().apply {
                 arguments = Bundle().apply {
-                    putParcelable(ARG_USER, message)
+                    putString(ARG_USER_ID, userId)
                 }
             }
 
-        private const val ARG_USER = "ARG_USER"
+        fun newInstanceFromSearch(searchResult: UserSearchResultViewData): ProfileFragment =
+            ProfileFragment().apply {
+                arguments = Bundle().apply {
+                    putParcelable(ARG_SEARCH_RESULT, searchResult)
+                }
+            }
+
+        private const val ARG_USER_ID = "ARG_USER_ID"
+        private const val ARG_SEARCH_RESULT = "ARG_SEARCH_RESULT"
     }
 }

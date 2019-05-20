@@ -50,6 +50,7 @@ import tech.bigfig.romachat.data.entity.MediaType
 import tech.bigfig.romachat.databinding.FragmentChatBinding
 import tech.bigfig.romachat.utils.OpenLinkHelper
 import tech.bigfig.romachat.utils.isImageMedia
+import tech.bigfig.romachat.view.screen.profile.ProfileFragment
 import tech.bigfig.romachat.view.utils.RetryListener
 import timber.log.Timber
 import javax.inject.Inject
@@ -214,6 +215,10 @@ class ChatFragment : Fragment(), MessageItemDialogFragment.Listener {
     }
 
     private var adapterListener = object : ChatAdapter.ChatAdapterListener {
+        override fun onAccountClick(accountId: String) {
+            ProfileFragment.newInstance(accountId).show(childFragmentManager, "dialog")
+        }
+
         override fun onUrlClick(url: String) {
             if (activity != null) {
                 OpenLinkHelper.openLink(url, activity!!)

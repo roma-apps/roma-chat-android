@@ -40,6 +40,7 @@ import tech.bigfig.romachat.data.entity.MediaType
 import tech.bigfig.romachat.data.entity.Status
 import tech.bigfig.romachat.databinding.FragmentFeedBinding
 import tech.bigfig.romachat.utils.OpenLinkHelper
+import tech.bigfig.romachat.view.screen.profile.ProfileFragment
 import tech.bigfig.romachat.view.utils.RetryListener
 import timber.log.Timber
 import javax.inject.Inject
@@ -61,7 +62,7 @@ class FeedFragment : Fragment() {
         App.getApplication(activity!!).appComponent.inject(this)
 
         viewModel = ViewModelProviders.of(this, viewModelFactory)
-            .get(FeedViewModel::class.java).apply { feedType = FeedType.ALL }
+            .get(FeedViewModel::class.java)
 
         viewModel.feedType =
             arguments?.getSerializable(ARG_TYPE) as FeedType? ?: throw IllegalArgumentException("Empty type")
@@ -129,6 +130,7 @@ class FeedFragment : Fragment() {
         }
 
         override fun onAccountClick(id: String) {
+            ProfileFragment.newInstance(id).show(childFragmentManager, "dialog")
         }
 
         override fun onUrlClick(url: String) {

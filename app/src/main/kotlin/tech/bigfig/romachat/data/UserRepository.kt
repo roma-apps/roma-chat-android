@@ -31,6 +31,8 @@ class UserRepository @Inject constructor(
         return accountManager.activeAccount
     }
 
+    fun getAccount(accountId: String) = apiCallToLiveData(restApi.account(accountId)) { it }
+
     fun search(query: String) = apiCallToLiveData(restApi.search(query, true)) { it }
 
     fun getFollowing() =
@@ -39,7 +41,6 @@ class UserRepository @Inject constructor(
                 accountManager.activeAccount?.accountId ?: throw IllegalStateException("Active account is null"), null
             )
         ) { it }
-
 
     fun follow(accountId: String) = apiCallToLiveData(restApi.followAccount(accountId, true)) { it }
 }

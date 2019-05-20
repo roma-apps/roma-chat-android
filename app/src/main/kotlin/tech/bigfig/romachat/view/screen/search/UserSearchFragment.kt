@@ -107,7 +107,7 @@ class UserSearchFragment : Fragment() {
 
     private val adapterListener = object : UserSearchAdapter.UserSearchAdapterListener {
         override fun onUserClick(item: UserSearchResultViewData) {
-            ProfileFragment.newInstance(item).show(childFragmentManager, "dialog")
+            ProfileFragment.newInstanceFromSearch(item).show(childFragmentManager, "dialog")
         }
 
         override fun onAddClick(item: UserSearchResultViewData) {

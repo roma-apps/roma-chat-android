@@ -15,15 +15,13 @@
  * see <http://www.gnu.org/licenses>.
  */
 
-package tech.bigfig.romachat.view.utils
+package tech.bigfig.romachat.view.screen.profile
 
-import android.widget.ImageView
-import androidx.databinding.BindingAdapter
-import com.squareup.picasso.Picasso
-import tech.bigfig.romachat.R
-
-@BindingAdapter("app:avatarUrl")
-fun loadImage(view: ImageView, avatarUrl: String?) {
-    if (avatarUrl.isNullOrEmpty()) return
-    Picasso.get().load(avatarUrl).error(R.drawable.default_user_avatar).into(view)
-}
+data class ProfileViewData(
+    val id: String,
+    val username: String,
+    val localUsername: String,
+    val displayName: String,
+    val avatarUrl: String,
+    val note: String
+)

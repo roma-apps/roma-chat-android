@@ -74,6 +74,7 @@ class ChatAdapter(
                         }
 
                         override fun onAccountClick(id: String) {
+                            listener?.onAccountClick(id)
                         }
 
                         override fun onUrlClick(url: String) {
@@ -103,6 +104,7 @@ class ChatAdapter(
         fun onMessageClick(message: MessageViewData, view: View)
         fun onMessageLongClick(message: MessageViewData)
         fun onUrlClick(url: String)
+        fun onAccountClick(accountId: String)
     }
 }
 

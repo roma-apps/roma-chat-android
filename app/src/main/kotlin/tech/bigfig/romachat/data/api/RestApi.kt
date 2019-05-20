@@ -69,6 +69,9 @@ interface RestApi {
     @POST("api/v1/accounts/{id}/follow")
     fun followAccount(@Path("id") accountId: String, @Field("reblogs") showReblogs: Boolean): Call<Relationship>
 
+    @GET("api/v1/accounts/{id}")
+    fun account(@Path("id") accountId: String): Call<Account>
+
     //-----
     // CHAT
 
@@ -78,9 +81,6 @@ interface RestApi {
         @Query("since_id") sinceId: String?,
         @Query("limit") limit: Int?
     ): Call<List<Status>>
-
-    @GET("api/v1/accounts/{id}")
-    fun account(@Path("id") accountId: String): Call<Account>
 
     @FormUrlEncoded
     @POST("api/v1/statuses")

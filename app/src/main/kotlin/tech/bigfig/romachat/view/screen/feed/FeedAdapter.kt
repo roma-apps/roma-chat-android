@@ -22,11 +22,16 @@ import android.text.SpannableStringBuilder
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.flexbox.FlexboxLayout
+import com.squareup.picasso.Picasso
+import tech.bigfig.romachat.R
+import tech.bigfig.romachat.data.entity.Attachment
 import tech.bigfig.romachat.data.entity.Status
 import tech.bigfig.romachat.databinding.LayoutFeedListItemBinding
 import tech.bigfig.romachat.view.utils.ContentClickListener
@@ -61,7 +66,36 @@ class FeedAdapter(
 
             val emojifiedText = CustomEmojiHelper.emojifyText(item.content, item.emojis, binding.content)
             TextFormatter.setClickableText(binding.content, emojifiedText, item.mentions, listener)
-            //
+
+            binding.attachments.visibility = if (item.attachments.isNotEmpty()) View.VISIBLE else View.GONE
+            if (item.attachments.isNotEmpty()) {
+                binding.attachments.removeAllViews()
+                item.attachments.forEach { attachment ->
+                    val imageView = ImageView(binding.attachments.context).apply {
+                        scaleType = ImageView.ScaleType.CENTER_CROP
+                        adjustViewBounds = false
+                    }
+
+                    val height =
+                        binding.attachments.context.resources.getDimensionPixelSize(R.dimen.feed_media_max_height)
+
+                    val request =
+                        if (attachment.type == Attachment.Type.IMAGE) Picasso.get().load(attachment.previewUrl)
+                        else Picasso.get().load(R.drawable.video_preview_background)
+
+                    request.error(R.drawable.video_preview_background)
+                        .resize(0, height).onlyScaleDown()
+                        .into(imageView)
+
+
+                    binding.attachments.addView(imageView)
+
+//                    val lp = imageView.layoutParams as FlexboxLayout.LayoutParams
+//                    if (item.attachments.size > 1) {
+//                        lp.flexGrow = 1f
+//                    }
+                }
+            }
 //            binding.root.setOnClickListener { listener?.onUserClick(item) }
 //            binding.status.setOnClickListener { listener?.onAddClick(item) }
         }

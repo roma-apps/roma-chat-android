@@ -89,11 +89,22 @@
                 android:layout_marginTop="8dp"
                 android:textColor="@color/text_color"
                 android:textSize="16sp"
-                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/avatar"
                 app:layout_constraintTop_toBottomOf="@+id/title"
                 tools:text="content" />
+
+            <com.google.android.flexbox.FlexboxLayout
+                android:id="@+id/attachments"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:flexWrap="wrap"
+                app:showDivider="middle|end"
+                app:dividerDrawable="@drawable/feed_media_divider"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/content"
+                app:layout_constraintTop_toBottomOf="@+id/content" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

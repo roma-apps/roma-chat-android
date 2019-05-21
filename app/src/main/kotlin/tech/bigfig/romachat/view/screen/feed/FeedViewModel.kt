@@ -30,6 +30,7 @@ import javax.inject.Inject
 class FeedViewModel @Inject constructor(val repository: FeedRepository) : ViewModel() {
 
     var feedType: FeedType? = null
+    var hashTag: String? = null
 
     // Show loader/error/list of items depending on api response only for first page,
     // for next pages recyclerview loader will be shown
@@ -49,6 +50,10 @@ class FeedViewModel @Inject constructor(val repository: FeedRepository) : ViewMo
             FeedType.HOME -> repository.getHomeFeed(getLastPostId())
             FeedType.ALL -> repository.getAllFeed(getLastPostId())
             FeedType.ME -> repository.getUserFeed(getLastPostId())
+            FeedType.HASHTAG -> repository.getHashFeed(
+                hashTag ?: throw IllegalStateException("Empty hashtag"),
+                getLastPostId()
+            )
             else -> repository.getHomeFeed(getLastPostId())
         }
     }

@@ -137,4 +137,13 @@ interface RestApi {
         @Query("only_media") onlyMedia: Boolean?,
         @Query("pinned") pinned: Boolean?
     ): Call<List<Status>>
+
+    @GET("api/v1/timelines/tag/{hashtag}")
+    fun hashtagTimeline(
+        @Path("hashtag") hashtag: String,
+        @Query("local") local: Boolean?,
+        @Query("max_id") maxId: String?,
+        @Query("since_id") sinceId: String?,
+        @Query("limit") limit: Int?
+    ): Call<List<Status>>
 }

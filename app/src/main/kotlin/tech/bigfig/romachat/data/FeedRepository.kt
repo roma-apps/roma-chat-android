@@ -26,17 +26,27 @@ class FeedRepository @Inject constructor(
     private val restApi: RestApi, private val accountManager: AccountManager
 ) {
 
-    fun getHomeFeed(fromId:String?) = apiCallToLiveData(restApi.homeTimeline(fromId, null, null)) { it }
+    fun getHomeFeed(fromId: String?) = apiCallToLiveData(restApi.homeTimeline(fromId, null, null)) { it }
 
-    fun getAllFeed(fromId:String?) = apiCallToLiveData(restApi.publicTimeline(true, fromId, null, null)) { it }
+    fun getAllFeed(fromId: String?) = apiCallToLiveData(restApi.publicTimeline(true, fromId, null, null)) { it }
 
-    fun getUserFeed(fromId:String?) = apiCallToLiveData(
+    fun getUserFeed(fromId: String?) = apiCallToLiveData(
         restApi.accountStatuses(
             accountManager.activeAccount?.accountId ?: throw IllegalStateException("Active account is null"),
             fromId,
             null,
             null,
             true,
+            null,
+            null
+        )
+    ) { it }
+
+    fun getHashFeed(hashTag: String, fromId: String?) = apiCallToLiveData(
+        restApi.hashtagTimeline(
+            hashTag,
+            null,
+            fromId,
             null,
             null
         )

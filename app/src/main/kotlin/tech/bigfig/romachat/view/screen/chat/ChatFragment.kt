@@ -38,10 +38,12 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.ActivityNavigator
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.theartofdev.edmodo.cropper.CropImage
 import pub.devrel.easypermissions.EasyPermissions
+import tech.bigfig.romachat.NavGraphDirections
 import tech.bigfig.romachat.R
 import tech.bigfig.romachat.app.App
 import tech.bigfig.romachat.data.entity.Attachment
@@ -215,6 +217,10 @@ class ChatFragment : Fragment(), MessageItemDialogFragment.Listener {
     }
 
     private var adapterListener = object : ChatAdapter.ChatAdapterListener {
+        override fun onHashTagClick(hashTag: String) {
+            findNavController().navigate(NavGraphDirections.actionGlobalHashTagFragment(hashTag))
+        }
+
         override fun onAccountClick(accountId: String) {
             ProfileFragment.newInstance(accountId).show(childFragmentManager, "dialog")
         }

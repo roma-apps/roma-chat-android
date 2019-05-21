@@ -30,6 +30,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.ActivityNavigator
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.paginate.Paginate
 import tech.bigfig.romachat.NavGraphDirections
@@ -66,6 +67,7 @@ class FeedFragment : Fragment() {
 
         viewModel.feedType =
             arguments?.getSerializable(ARG_TYPE) as FeedType? ?: throw IllegalArgumentException("Empty type")
+        viewModel.hashTag = arguments?.getString(ARG_HASHTAG)
 
         viewModel.posts.observe(this, Observer { posts ->
             if (posts != null) {
@@ -127,6 +129,7 @@ class FeedFragment : Fragment() {
         }
 
         override fun onTagClick(tag: String) {
+            findNavController().navigate(NavGraphDirections.actionGlobalHashTagFragment(tag))
         }
 
         override fun onAccountClick(id: String) {
@@ -198,6 +201,15 @@ class FeedFragment : Fragment() {
                 }
             }
 
+        fun newInstanceHashTag(hashTag: String): FeedFragment =
+            FeedFragment().apply {
+                arguments = Bundle().apply {
+                    putSerializable(ARG_TYPE, FeedType.HASHTAG)
+                    putString(ARG_HASHTAG, hashTag)
+                }
+            }
+
         private const val ARG_TYPE = "ARG_TYPE"
+        private const val ARG_HASHTAG = "ARG_HASHTAG"
     }
 }

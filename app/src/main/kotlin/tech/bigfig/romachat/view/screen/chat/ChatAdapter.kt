@@ -71,6 +71,7 @@ class ChatAdapter(
                 TextFormatter.setClickableText(binding.chatMessageContent, emojifiedText, message.mentions,
                     object : ContentClickListener {
                         override fun onTagClick(tag: String) {
+                            listener?.onHashTagClick(tag)
                         }
 
                         override fun onAccountClick(id: String) {
@@ -105,6 +106,7 @@ class ChatAdapter(
         fun onMessageLongClick(message: MessageViewData)
         fun onUrlClick(url: String)
         fun onAccountClick(accountId: String)
+        fun onHashTagClick(hashTag: String)
     }
 }
 

@@ -38,8 +38,8 @@
             app:argType="tech.bigfig.romachat.data.entity.Media[]" />
         <argument
             android:name="currentMediaIndex"
-            app:argType="integer"
-            android:defaultValue="0" />
+            android:defaultValue="0"
+            app:argType="integer" />
     </activity>
     <fragment
         android:id="@+id/cameraResultRecipientFragment"
@@ -52,7 +52,7 @@
     <fragment
         android:id="@+id/userSearchFragment"
         android:name="tech.bigfig.romachat.view.screen.search.UserSearchFragment"
-        android:label="UserSearchFragment"/>
+        android:label="UserSearchFragment" />
 
     <action
         android:id="@+id/action_global_chatFragment"
@@ -60,4 +60,15 @@
     <action
         android:id="@+id/action_global_viewMediaActivity"
         app:destination="@id/viewMediaActivity" />
+    <fragment
+        android:id="@+id/hashTagFragment"
+        android:name="tech.bigfig.romachat.view.screen.feed.HashTagFragment"
+        android:label="HashTagFragment" >
+        <argument
+            android:name="hashTag"
+            app:argType="string" />
+    </fragment>
+    <action
+        android:id="@+id/action_global_hashTagFragment"
+        app:destination="@id/hashTagFragment" />
 </navigation>

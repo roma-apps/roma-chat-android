@@ -14,4 +14,10 @@
         <item name="android:windowNoTitle">true</item>
     </style>
 
+    <style name="CameraNavText">
+        <item name="android:textColor">#fff</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
 </resources>

@@ -27,11 +27,12 @@ import androidx.navigation.fragment.findNavController
 import tech.bigfig.romachat.R
 import tech.bigfig.romachat.databinding.FragmentMainBinding
 import tech.bigfig.romachat.view.screen.camera.CameraFragment
+import tech.bigfig.romachat.view.screen.camera.CameraFragmentListener
 import tech.bigfig.romachat.view.screen.chatlist.ChatListFragment
 import tech.bigfig.romachat.view.screen.feed.FeedHostFragment
 
 
-class MainFragment : Fragment() {
+class MainFragment : Fragment(), CameraFragmentListener {
 
     private lateinit var binding: FragmentMainBinding
 
@@ -63,6 +64,14 @@ class MainFragment : Fragment() {
             }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+   override fun onChatClick() {
+        binding.mainPager.currentItem = 0
+    }
+
+    override fun onFeedClick() {
+        binding.mainPager.currentItem = 2
     }
 
     class MainFragmentPagerAdapter(fragmentManager: FragmentManager) :

@@ -178,6 +178,18 @@ class CameraFragment : Fragment(), EasyPermissions.PermissionCallbacks, CameraHo
         }
     }
 
+    override fun onChatClick() {
+        if (parentFragment is CameraFragmentListener) {
+            (parentFragment as CameraFragmentListener).onChatClick()
+        }
+    }
+
+    override fun onFeedClick() {
+        if (parentFragment is CameraFragmentListener) {
+            (parentFragment as CameraFragmentListener).onFeedClick()
+        }
+    }
+
     override fun getRotation(): Int {
         return activity?.windowManager?.defaultDisplay?.rotation ?: 0
     }
@@ -478,4 +490,14 @@ interface CameraFragmentHandler {
     fun onFlashClick()
 
     fun onTurnOnPermissionClick()
+
+    fun onChatClick()
+
+    fun onFeedClick()
+}
+
+interface CameraFragmentListener {
+    fun onChatClick()
+
+    fun onFeedClick()
 }

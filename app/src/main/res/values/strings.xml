@@ -28,6 +28,8 @@
     <string name="camera_permission_rationale">To use the app, please allow access to your camera.</string>
     <string name="camera_permission_rationale_action">Turn on</string>
     <string name="camera_no_camera_found">No camera found</string>
+    <string name="camera_to_chat">Chats</string>
+    <string name="camera_to_feed">Feed</string>
 
     <string name="chat_list_title">Friends</string>
     <string name="chat_list_menu_user_search">Add friends</string>

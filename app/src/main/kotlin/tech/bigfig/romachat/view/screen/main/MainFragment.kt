@@ -30,9 +30,10 @@ import tech.bigfig.romachat.view.screen.camera.CameraFragment
 import tech.bigfig.romachat.view.screen.camera.CameraFragmentListener
 import tech.bigfig.romachat.view.screen.chatlist.ChatListFragment
 import tech.bigfig.romachat.view.screen.feed.FeedHostFragment
+import tech.bigfig.romachat.view.utils.BackFragment
 
 
-class MainFragment : Fragment(), CameraFragmentListener {
+class MainFragment : Fragment(), CameraFragmentListener, BackFragment {
 
     private lateinit var binding: FragmentMainBinding
 
@@ -66,7 +67,17 @@ class MainFragment : Fragment(), CameraFragmentListener {
         }
     }
 
-   override fun onChatClick() {
+    override fun onBackPressed(): Boolean {
+        // Scroll to camera if back is pressed
+        return if (binding.mainPager.currentItem == 1) {
+            false
+        } else {
+            binding.mainPager.currentItem = 1
+            true
+        }
+    }
+
+    override fun onChatClick() {
         binding.mainPager.currentItem = 0
     }
 

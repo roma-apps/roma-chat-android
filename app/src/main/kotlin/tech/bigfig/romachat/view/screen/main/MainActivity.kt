@@ -23,6 +23,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import tech.bigfig.romachat.R
 import tech.bigfig.romachat.view.screen.chat.ChatMessagesService
+import tech.bigfig.romachat.view.utils.fireOnBackPressedEvent
 
 
 class MainActivity : AppCompatActivity() {
@@ -33,6 +34,12 @@ class MainActivity : AppCompatActivity() {
 
         if (savedInstanceState == null) {
             ChatMessagesService.startFetchingAllMessages(this)
+        }
+    }
+
+    override fun onBackPressed() {
+        if (!fireOnBackPressedEvent(this)) {
+            super.onBackPressed()
         }
     }
 

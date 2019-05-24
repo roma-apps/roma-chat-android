@@ -22,6 +22,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
@@ -76,7 +77,16 @@ class FeedFragment : Fragment() {
                 adapter.setItems(posts)
 
                 processPagination(posts.size)
+
+                binding.swipeRefresh.isRefreshing = false
             }
+        })
+
+        viewModel.errorToShow.observe(this, Observer { messageId ->
+            if (activity != null && messageId != null) {
+                Toast.makeText(activity, messageId, Toast.LENGTH_LONG).show()
+            }
+            binding.swipeRefresh.isRefreshing = false
         })
 
         viewModel.loadData()
@@ -87,8 +97,12 @@ class FeedFragment : Fragment() {
 
         binding.retryListener = object : RetryListener {
             override fun onRetry() {
-                viewModel.loadData()
+                viewModel.reloadData()
             }
+        }
+
+        binding.swipeRefresh.setOnRefreshListener {
+            viewModel.reloadData()
         }
 
         adapter = FeedAdapter(adapterListener)

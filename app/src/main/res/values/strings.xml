@@ -64,6 +64,7 @@
     <string name="feed_tab_home">Feed</string>
     <string name="feed_tab_all">All</string>
     <string name="feed_tab_me">Me</string>
+    <string name="feed_error_load">Failed loading the data</string>
 
     <!--These are for timestamps on statuses. For example: "16s" or "2d"-->
     <string name="abbreviated_in_years">in %dy</string>

@@ -21,6 +21,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
+import tech.bigfig.romachat.R
 import tech.bigfig.romachat.data.FeedRepository
 import tech.bigfig.romachat.data.Result
 import tech.bigfig.romachat.data.ResultStatus
@@ -41,7 +42,14 @@ class FeedViewModel @Inject constructor(val repository: FeedRepository) : ViewMo
 
     private val postList = mutableListOf<Status>()
 
+    val errorToShow: MutableLiveData<Int?> = MutableLiveData()
+
     fun loadData() {
+        loadData.value = true
+    }
+
+    fun reloadData() {
+        postList.clear()
         loadData.value = true
     }
 
@@ -69,6 +77,7 @@ class FeedViewModel @Inject constructor(val repository: FeedRepository) : ViewMo
                     if (firstTimeLoading) {
                         firstPageStatus.postValue(Result.loading())
                     }
+                    errorToShow.postValue(null)
                     null
                 }
 
@@ -76,6 +85,7 @@ class FeedViewModel @Inject constructor(val repository: FeedRepository) : ViewMo
 
                     firstTimeLoading = false
                     firstPageStatus.postValue(Result.success(null))
+                    errorToShow.postValue(null)
 
                     if (result.data != null) {
                         postList.addAll(result.data)
@@ -88,6 +98,8 @@ class FeedViewModel @Inject constructor(val repository: FeedRepository) : ViewMo
                 ResultStatus.ERROR -> {
                     if (firstTimeLoading) {
                         firstPageStatus.postValue(Result.error(result.error ?: ""))
+                    } else {
+                        errorToShow.postValue(R.string.feed_error_load)
                     }
                     null
                 }

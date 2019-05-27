@@ -52,7 +52,6 @@ import tech.bigfig.romachat.data.entity.MediaType
 import tech.bigfig.romachat.databinding.FragmentChatBinding
 import tech.bigfig.romachat.utils.OpenLinkHelper
 import tech.bigfig.romachat.utils.isImageMedia
-import tech.bigfig.romachat.view.screen.profile.ProfileFragment
 import tech.bigfig.romachat.view.utils.RetryListener
 import timber.log.Timber
 import javax.inject.Inject
@@ -222,7 +221,7 @@ class ChatFragment : Fragment(), MessageItemDialogFragment.Listener {
         }
 
         override fun onAccountClick(accountId: String) {
-            ProfileFragment.newInstance(accountId).show(childFragmentManager, "dialog")
+            findNavController().navigate(NavGraphDirections.actionGlobalProfileFragment(accountId))
         }
 
         override fun onUrlClick(url: String) {
@@ -252,7 +251,8 @@ class ChatFragment : Fragment(), MessageItemDialogFragment.Listener {
 
                 val options = ActivityOptionsCompat.makeSceneTransitionAnimation(activity!!, view, url)
                 val extras = ActivityNavigator.Extras.Builder().setActivityOptions(options).build()
-                view.findNavController().navigate(ChatFragmentDirections.actionToViewMediaActivity(arrayOf(media)), extras)
+                view.findNavController()
+                    .navigate(ChatFragmentDirections.actionToViewMediaActivity(arrayOf(media)), extras)
             }
         }
 

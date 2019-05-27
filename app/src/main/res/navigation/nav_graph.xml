@@ -63,7 +63,7 @@
     <fragment
         android:id="@+id/hashTagFragment"
         android:name="tech.bigfig.romachat.view.screen.feed.HashTagFragment"
-        android:label="HashTagFragment" >
+        android:label="HashTagFragment">
         <argument
             android:name="hashTag"
             app:argType="string" />
@@ -71,4 +71,20 @@
     <action
         android:id="@+id/action_global_hashTagFragment"
         app:destination="@id/hashTagFragment" />
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="tech.bigfig.romachat.view.screen.profile.ProfileFragment"
+        android:label="ProfileFragment">
+        <argument
+            android:name="accountId"
+            app:argType="string" />
+        <argument
+            android:name="account"
+            android:defaultValue="@null"
+            app:argType="tech.bigfig.romachat.data.entity.Account"
+            app:nullable="true" />
+    </fragment>
+    <action
+        android:id="@+id/action_global_profileFragment"
+        app:destination="@id/profileFragment" />
 </navigation>

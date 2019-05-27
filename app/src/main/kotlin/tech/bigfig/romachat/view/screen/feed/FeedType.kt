@@ -20,6 +20,6 @@ package tech.bigfig.romachat.view.screen.feed
 enum class FeedType {
     HOME,
     ALL,
-    ME,
+    ACCOUNT,
     HASHTAG
 }

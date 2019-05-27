@@ -42,7 +42,6 @@ import tech.bigfig.romachat.data.entity.MediaType
 import tech.bigfig.romachat.data.entity.Status
 import tech.bigfig.romachat.databinding.FragmentFeedBinding
 import tech.bigfig.romachat.utils.OpenLinkHelper
-import tech.bigfig.romachat.view.screen.profile.ProfileFragment
 import tech.bigfig.romachat.view.utils.RetryListener
 import timber.log.Timber
 import javax.inject.Inject
@@ -69,6 +68,7 @@ class FeedFragment : Fragment() {
         viewModel.feedType =
             arguments?.getSerializable(ARG_TYPE) as FeedType? ?: throw IllegalArgumentException("Empty type")
         viewModel.hashTag = arguments?.getString(ARG_HASHTAG)
+        viewModel.accountId = arguments?.getString(ARG_ACCOUNT_ID)
 
         viewModel.posts.observe(this, Observer { posts ->
             if (posts != null) {
@@ -147,7 +147,7 @@ class FeedFragment : Fragment() {
         }
 
         override fun onAccountClick(id: String) {
-            ProfileFragment.newInstance(id).show(childFragmentManager, "dialog")
+            findNavController().navigate(NavGraphDirections.actionGlobalProfileFragment(id))
         }
 
         override fun onUrlClick(url: String) {
@@ -171,18 +171,16 @@ class FeedFragment : Fragment() {
     private var loadingMore = false
 
     private fun processPagination(totalSize: Int) {
-        if (paginate == null) {
+        if (paginate == null && totalSize > 0) {
             // Init pagination after first part of data is loaded
             paginate = Paginate.with(binding.feedList, paginateCallbacks)
                 .setLoadingTriggerThreshold(5)
                 .addLoadingListItem(true)
                 .build()
-
-            return
+        } else {
+            loadingMore = false
+            paginate?.setHasMoreDataToLoad(prevTotalSize < totalSize) // Stop showing loader if there is no new data
         }
-
-        loadingMore = false
-        paginate?.setHasMoreDataToLoad(prevTotalSize < totalSize) // Stop showing loader if there is no new data
         prevTotalSize = totalSize
     }
 
@@ -223,7 +221,16 @@ class FeedFragment : Fragment() {
                 }
             }
 
+        fun newInstanceAccount(accountId: String): FeedFragment =
+            FeedFragment().apply {
+                arguments = Bundle().apply {
+                    putSerializable(ARG_TYPE, FeedType.ACCOUNT)
+                    putString(ARG_ACCOUNT_ID, accountId)
+                }
+            }
+
         private const val ARG_TYPE = "ARG_TYPE"
         private const val ARG_HASHTAG = "ARG_HASHTAG"
+        private const val ARG_ACCOUNT_ID = "ARG_ACCOUNT_ID"
     }
 }

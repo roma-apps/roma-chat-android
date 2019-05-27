@@ -15,9 +15,21 @@
     </style>
 
     <style name="CameraNavText">
-        <item name="android:textColor">#fff</item>
+        <item name="android:textColor">@color/text_white</item>
         <item name="android:fontFamily">sans-serif-medium</item>
         <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="AccountExpandedTitle">
+        <item name="android:textColor">@color/text_white</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textSize">24sp</item>
+    </style>
+
+    <style name="AccountCollapsedTitle">
+        <item name="android:textColor">@color/text_white</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textSize">20sp</item>
     </style>
 
 </resources>

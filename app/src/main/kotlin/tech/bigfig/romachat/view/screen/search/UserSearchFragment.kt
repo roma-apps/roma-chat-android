@@ -28,10 +28,11 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import tech.bigfig.romachat.NavGraphDirections
 import tech.bigfig.romachat.app.App
 import tech.bigfig.romachat.databinding.FragmentUserSearchBinding
-import tech.bigfig.romachat.view.screen.profile.ProfileFragment
 import tech.bigfig.romachat.view.utils.RetryListener
 import timber.log.Timber
 import javax.inject.Inject
@@ -107,7 +108,7 @@ class UserSearchFragment : Fragment() {
 
     private val adapterListener = object : UserSearchAdapter.UserSearchAdapterListener {
         override fun onUserClick(item: UserSearchResultViewData) {
-            ProfileFragment.newInstanceFromSearch(item).show(childFragmentManager, "dialog")
+            findNavController().navigate(NavGraphDirections.actionGlobalProfileFragment(item.account.id))//TODO
         }
 
         override fun onAddClick(item: UserSearchResultViewData) {

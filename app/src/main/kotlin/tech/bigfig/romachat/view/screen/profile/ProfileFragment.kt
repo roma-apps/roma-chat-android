@@ -21,27 +21,32 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import androidx.navigation.fragment.navArgs
 import tech.bigfig.romachat.NavGraphDirections
+import tech.bigfig.romachat.R
 import tech.bigfig.romachat.app.App
 import tech.bigfig.romachat.data.db.entity.ChatAccountEntity
 import tech.bigfig.romachat.databinding.FragmentProfileBinding
-import tech.bigfig.romachat.view.screen.search.UserSearchResultViewData
+import tech.bigfig.romachat.view.screen.feed.FeedFragment
 import tech.bigfig.romachat.view.utils.RetryListener
 import timber.log.Timber
 import javax.inject.Inject
 
-class ProfileFragment : BottomSheetDialogFragment() {
+class ProfileFragment : Fragment() {
 
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
 
     private lateinit var viewModel: ProfileViewModel
     private lateinit var binding: FragmentProfileBinding
+
+    private val navArgs: ProfileFragmentArgs by navArgs()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
@@ -50,12 +55,11 @@ class ProfileFragment : BottomSheetDialogFragment() {
         viewModel = ViewModelProviders.of(this, viewModelFactory)
             .get(ProfileViewModel::class.java)
 
-        val userId = arguments?.getString(ARG_USER_ID)
-        val searchResult = arguments?.getParcelable<UserSearchResultViewData>(ARG_SEARCH_RESULT)
-
         viewModel.user.observe(this, Observer { user ->
             if (user != null) {
                 Timber.d("showing user profile for $user")
+
+                binding.collapsingToolbar.title = user.displayName
                 binding.chat.setOnClickListener {
 
                     findNavController().navigate(
@@ -69,12 +73,11 @@ class ProfileFragment : BottomSheetDialogFragment() {
                             )
                         )
                     )
-                    dismiss()
                 }
             }
         })
 
-        viewModel.initData(userId, searchResult)
+        viewModel.initData(navArgs.accountId, navArgs.account)
 
         binding = FragmentProfileBinding.inflate(inflater, container, false)
         binding.viewModel = viewModel
@@ -86,26 +89,18 @@ class ProfileFragment : BottomSheetDialogFragment() {
             }
         }
 
+        (activity as AppCompatActivity).apply {
+            setSupportActionBar(binding.toolbar)
+            supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        }
+        binding.toolbar.setNavigationOnClickListener { activity?.onBackPressed() }
+        binding.collapsingToolbar.title = " "
+
+        if (savedInstanceState == null) {
+            childFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, FeedFragment.newInstanceAccount(navArgs.accountId)).commit()
+        }
+
         return binding.root
-    }
-
-    companion object {
-
-        fun newInstance(userId: String): ProfileFragment =
-            ProfileFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_USER_ID, userId)
-                }
-            }
-
-        fun newInstanceFromSearch(searchResult: UserSearchResultViewData): ProfileFragment =
-            ProfileFragment().apply {
-                arguments = Bundle().apply {
-                    putParcelable(ARG_SEARCH_RESULT, searchResult)
-                }
-            }
-
-        private const val ARG_USER_ID = "ARG_USER_ID"
-        private const val ARG_SEARCH_RESULT = "ARG_SEARCH_RESULT"
     }
 }

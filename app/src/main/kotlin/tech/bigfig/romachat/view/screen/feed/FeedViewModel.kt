@@ -32,6 +32,7 @@ class FeedViewModel @Inject constructor(val repository: FeedRepository) : ViewMo
 
     var feedType: FeedType? = null
     var hashTag: String? = null
+    var accountId: String? = null
 
     // Show loader/error/list of items depending on api response only for first page,
     // for next pages recyclerview loader will be shown
@@ -57,7 +58,11 @@ class FeedViewModel @Inject constructor(val repository: FeedRepository) : ViewMo
         return when (feedType) {
             FeedType.HOME -> repository.getHomeFeed(getLastPostId())
             FeedType.ALL -> repository.getAllFeed(getLastPostId())
-            FeedType.ME -> repository.getUserFeed(getLastPostId())
+            FeedType.ACCOUNT -> if (accountId == null) repository.getCurrentUserFeed(getLastPostId())
+            else repository.getUserFeed(
+                accountId ?: throw IllegalStateException("Empty accountId"),
+                getLastPostId()
+            )
             FeedType.HASHTAG -> repository.getHashFeed(
                 hashTag ?: throw IllegalStateException("Empty hashtag"),
                 getLastPostId()

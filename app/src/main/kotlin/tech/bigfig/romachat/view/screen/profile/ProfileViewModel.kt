@@ -22,28 +22,27 @@ import tech.bigfig.romachat.data.Result
 import tech.bigfig.romachat.data.ResultStatus
 import tech.bigfig.romachat.data.UserRepository
 import tech.bigfig.romachat.data.entity.Account
-import tech.bigfig.romachat.view.screen.search.UserSearchResultViewData
 import javax.inject.Inject
 
 class ProfileViewModel @Inject constructor(val repository: UserRepository) : ViewModel() {
 
-    private var userId: String? = null
+    private var accountId: String? = null
 
     private val loadData = MutableLiveData<Boolean>()
 
     val showProfile = MutableLiveData<Boolean>()
-    private val searchResultsViewData = MutableLiveData<ProfileViewData?>()
+    private val accountViewData = MutableLiveData<ProfileViewData?>()
 
     fun loadData() {
         loadData.value = true
     }
 
-    fun initData(userId: String?, searchResult: UserSearchResultViewData?) {
-        if (searchResult != null) {// We are from search results, all data is ready
-            searchResultsViewData.postValue(convertAccountToViewData(searchResult.account))
+    fun initData(accountId: String, account: Account?) {
+        if (account != null) {// We are from search results, all data is ready
+            accountViewData.postValue(convertAccountToViewData(account))
             showProfile.postValue(true)
-        } else if (userId?.isNotEmpty() == true) { //We know only user Id, load all the rest
-            this.userId = userId
+        } else if (accountId.isNotEmpty()) { //We know only user Id, load all the rest
+            this.accountId = accountId
             loadData.value = true
         } else {
             throw IllegalArgumentException("Both userId and searchResults are empty")
@@ -53,7 +52,7 @@ class ProfileViewModel @Inject constructor(val repository: UserRepository) : Vie
     val userCall: LiveData<Result<Account>> = Transformations.switchMap(loadData) {
         Transformations.map(
             repository.getAccount(
-                userId ?: throw IllegalStateException("User id is empty")
+                accountId ?: throw IllegalStateException("User id is empty")
             )
         ) { it }
     }
@@ -83,7 +82,7 @@ class ProfileViewModel @Inject constructor(val repository: UserRepository) : Vie
             }
         }) { data -> this.postValue(data) }
 
-        addSource(searchResultsViewData) { data -> this.postValue(data) }
+        addSource(accountViewData) { data -> this.postValue(data) }
     }
 
     private fun convertAccountToViewData(account: Account): ProfileViewData {

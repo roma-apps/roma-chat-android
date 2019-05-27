@@ -71,6 +71,6 @@ class FeedHostFragment : Fragment() {
     enum class Tab(val feedType: FeedType, val titleResourceId: Int) {
         HOME(FeedType.HOME, R.string.feed_tab_home),
         ALL(FeedType.ALL, R.string.feed_tab_all),
-        ME(FeedType.ME, R.string.feed_tab_me)
+        ME(FeedType.ACCOUNT, R.string.feed_tab_me)
     }
 }

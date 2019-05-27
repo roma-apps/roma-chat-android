@@ -52,7 +52,11 @@ class FeedHostFragment : Fragment() {
         fun newInstance() = FeedHostFragment()
     }
 
-    class FeedHostFragmentPagerAdapter(private val tabs: Array<Tab>, fragmentManager: FragmentManager, val context: Context?) :
+    class FeedHostFragmentPagerAdapter(
+        private val tabs: Array<Tab>,
+        fragmentManager: FragmentManager,
+        private val context: Context?
+    ) :
         FragmentPagerAdapter(fragmentManager) {
 
         override fun getCount(): Int {
@@ -60,7 +64,12 @@ class FeedHostFragment : Fragment() {
         }
 
         override fun getItem(position: Int): Fragment {
-            return FeedFragment.newInstance(tabs[position].feedType)
+            return when (tabs[position].feedType) {
+                FeedType.ACCOUNT ->
+                    ProfileInsideFeedFragment.newInstance()
+                else ->
+                    FeedFragment.newInstance(tabs[position].feedType)
+            }
         }
 
         override fun getPageTitle(position: Int): CharSequence? {

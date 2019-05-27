@@ -45,8 +45,13 @@ class ProfileViewModel @Inject constructor(val repository: UserRepository) : Vie
             this.accountId = accountId
             loadData.value = true
         } else {
-            throw IllegalArgumentException("Both userId and searchResults are empty")
+            throw IllegalArgumentException("Both accountId and account are empty")
         }
+    }
+
+    fun initDataForCurrentUser() {
+        accountId = repository.getCurrentAccount()?.accountId ?: throw IllegalStateException("Current user is null")
+        loadData.value = true
     }
 
     val userCall: LiveData<Result<Account>> = Transformations.switchMap(loadData) {

@@ -46,8 +46,12 @@ class HashTagFragment : Fragment() {
         }
         binding.toolbar.setNavigationOnClickListener { activity?.onBackPressed() }
 
-        if (savedInstanceState == null) {
-            childFragmentManager.beginTransaction().replace(R.id.fragment_container, FeedFragment.newInstanceHashTag(navArgs.hashTag)).commit()
+        if (savedInstanceState == null && childFragmentManager.findFragmentByTag("TAG") == null) {
+            childFragmentManager.beginTransaction().replace(
+                R.id.fragment_container,
+                FeedFragment.newInstanceHashTag(navArgs.hashTag),
+                "TAG"
+            ).commit()
         }
 
         return binding.root

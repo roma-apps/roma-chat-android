@@ -96,9 +96,12 @@ class ProfileFragment : Fragment() {
         binding.toolbar.setNavigationOnClickListener { activity?.onBackPressed() }
         binding.collapsingToolbar.title = " "
 
-        if (savedInstanceState == null) {
-            childFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, FeedFragment.newInstanceAccount(navArgs.accountId)).commit()
+        if (savedInstanceState == null && childFragmentManager.findFragmentByTag("TAG") == null) {
+            childFragmentManager.beginTransaction().replace(
+                R.id.fragment_container,
+                FeedFragment.newInstanceAccount(navArgs.accountId),
+                "TAG"
+            ).commit()
         }
 
         return binding.root

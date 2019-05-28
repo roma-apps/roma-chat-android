@@ -66,9 +66,12 @@ class ProfileInsideFeedFragment : Fragment() {
             }
         }
 
-        if (savedInstanceState == null) {
-            childFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, FeedFragment.newInstance(FeedType.ACCOUNT)).commit()
+        if (savedInstanceState == null && childFragmentManager.findFragmentByTag("TAG") == null) {
+            childFragmentManager.beginTransaction().replace(
+                R.id.fragment_container,
+                FeedFragment.newInstance(FeedType.ACCOUNT),
+                "TAG"
+            ).commit()
         }
 
         return binding.root

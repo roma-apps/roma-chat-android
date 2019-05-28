@@ -190,7 +190,7 @@ class FeedFragment : Fragment() {
             Timber.d("onLoadMore")
             if (loadingMore) return
             loadingMore = true
-            viewModel.loadData()
+            viewModel.loadMore()
         }
 
         override fun isLoading(): Boolean {

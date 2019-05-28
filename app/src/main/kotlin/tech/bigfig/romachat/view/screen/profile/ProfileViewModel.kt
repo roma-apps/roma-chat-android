@@ -27,6 +27,7 @@ import javax.inject.Inject
 class ProfileViewModel @Inject constructor(val repository: UserRepository) : ViewModel() {
 
     private var accountId: String? = null
+    private var account: Account? = null
 
     private val loadData = MutableLiveData<Boolean>()
 
@@ -38,20 +39,28 @@ class ProfileViewModel @Inject constructor(val repository: UserRepository) : Vie
     }
 
     fun initData(accountId: String, account: Account?) {
-        if (account != null) {// We are from search results, all data is ready
-            accountViewData.postValue(convertAccountToViewData(account))
-            showProfile.postValue(true)
-        } else if (accountId.isNotEmpty()) { //We know only user Id, load all the rest
-            this.accountId = accountId
-            loadData.value = true
-        } else {
-            throw IllegalArgumentException("Both accountId and account are empty")
+        when {
+            account != null -> { // We are from search results, all data is ready
+                if (this.account != account) {
+                    this.account = account
+                    accountViewData.postValue(convertAccountToViewData(account))
+                    showProfile.postValue(true)
+                }
+            }
+            accountId.isNotEmpty() -> //We know only user Id, load all the rest
+                if (this.accountId != accountId) {
+                    this.accountId = accountId
+                    loadData.value = true
+                }
+            else -> throw IllegalArgumentException("Both accountId and account are empty")
         }
     }
 
     fun initDataForCurrentUser() {
-        accountId = repository.getCurrentAccount()?.accountId ?: throw IllegalStateException("Current user is null")
-        loadData.value = true
+        if (accountId == null) {
+            accountId = repository.getCurrentAccount()?.accountId ?: throw IllegalStateException("Current user is null")
+            loadData.value = true
+        }
     }
 
     val userCall: LiveData<Result<Account>> = Transformations.switchMap(loadData) {

@@ -46,6 +46,11 @@ class FeedViewModel @Inject constructor(val repository: FeedRepository) : ViewMo
     val errorToShow: MutableLiveData<Int?> = MutableLiveData()
 
     fun loadData() {
+        if (firstPageStatus.value?.status != ResultStatus.SUCCESS)
+            loadData.value = true
+    }
+
+    fun loadMore() {
         loadData.value = true
     }
 

@@ -29,9 +29,9 @@ import tech.bigfig.romachat.view.screen.chatlist.ChatListViewModel
 import tech.bigfig.romachat.view.screen.feed.FeedViewModel
 import tech.bigfig.romachat.view.screen.login.LoginViewModel
 import tech.bigfig.romachat.view.screen.profile.ProfileViewModel
-import tech.bigfig.romachat.view.screen.splash.SplashViewModel
 import tech.bigfig.romachat.view.screen.recipient.CameraResultRecipientViewModel
 import tech.bigfig.romachat.view.screen.search.UserSearchViewModel
+import tech.bigfig.romachat.view.screen.splash.SplashViewModel
 import tech.bigfig.romachat.view.utils.ViewModelFactory
 
 @Module

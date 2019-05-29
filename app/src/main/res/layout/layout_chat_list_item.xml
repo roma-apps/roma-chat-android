@@ -59,7 +59,7 @@
                 android:layout_marginTop="4dp"
                 android:ellipsize="end"
                 android:singleLine="true"
-                android:text="@{chat.account.username}"
+                android:text="@{@string/username_pattern(chat.account.username)}"
                 android:textColor="@color/text_light_color"
                 android:textSize="14sp"
                 app:layout_constraintBottom_toBottomOf="parent"

@@ -63,7 +63,7 @@
                 android:layout_marginEnd="16dp"
                 android:ellipsize="end"
                 android:singleLine="true"
-                android:text="@{searchResult.account.username}"
+                android:text="@{@string/username_pattern(searchResult.account.username)}"
                 android:textColor="@color/text_light_color"
                 android:textSize="14sp"
                 app:layout_constraintBottom_toBottomOf="parent"

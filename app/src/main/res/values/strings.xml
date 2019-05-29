@@ -25,6 +25,8 @@
     <string name="a11y_switch_camera">switch camera</string>
     <string name="a11y_flash">flash</string>
 
+    <string name="username_pattern">\@%s</string>
+
     <string name="camera_permission_rationale">To use the app, please allow access to your camera.</string>
     <string name="camera_permission_rationale_action">Turn on</string>
     <string name="camera_no_camera_found">No camera found</string>

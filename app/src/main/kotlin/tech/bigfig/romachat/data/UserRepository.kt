@@ -42,5 +42,9 @@ class UserRepository @Inject constructor(
             )
         ) { it }
 
+    fun getRelationship(accountId: String) = apiCallToLiveData(restApi.relationships(listOf(accountId))) { it }
+
     fun follow(accountId: String) = apiCallToLiveData(restApi.followAccount(accountId, true)) { it }
+
+    fun unfollow(accountId: String) = apiCallToLiveData(restApi.unfollowAccount(accountId)) { it }
 }

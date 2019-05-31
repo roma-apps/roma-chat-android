@@ -69,8 +69,14 @@ interface RestApi {
     @POST("api/v1/accounts/{id}/follow")
     fun followAccount(@Path("id") accountId: String, @Field("reblogs") showReblogs: Boolean): Call<Relationship>
 
+    @POST("api/v1/accounts/{id}/unfollow")
+    fun unfollowAccount(@Path("id") accountId: String): Call<Relationship>
+
     @GET("api/v1/accounts/{id}")
     fun account(@Path("id") accountId: String): Call<Account>
+
+    @GET("api/v1/accounts/relationships")
+    fun relationships(@Query("id[]") accountIds: List<String>): Call<List<Relationship>>
 
     //-----
     // CHAT

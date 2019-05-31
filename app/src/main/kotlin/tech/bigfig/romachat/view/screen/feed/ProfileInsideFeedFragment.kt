@@ -53,6 +53,7 @@ class ProfileInsideFeedFragment : Fragment() {
                 Timber.d("showing user profile for $user")
             }
         })
+        viewModel.relationship.observe(this, Observer { })
 
         viewModel.initDataForCurrentUser()
 

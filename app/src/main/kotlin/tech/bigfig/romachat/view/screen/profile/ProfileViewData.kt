@@ -23,5 +23,6 @@ data class ProfileViewData(
     val localUsername: String,
     val displayName: String,
     val avatarUrl: String,
-    val note: String
+    val note: String,
+    val isCurrentAccount: Boolean
 )

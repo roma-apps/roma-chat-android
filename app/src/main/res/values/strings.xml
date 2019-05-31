@@ -61,6 +61,8 @@
     <string name="user_search_added">Added</string>
     <string name="user_search_adding">Adding</string>
     <string name="profile_add_friend">Add Friend</string>
+    <string name="profile_processing_friend">Requesting…</string>
+    <string name="profile_remove_friend">Remove Friend</string>
     <string name="profile_chat">Chat</string>
 
     <string name="feed_tab_home">Feed</string>

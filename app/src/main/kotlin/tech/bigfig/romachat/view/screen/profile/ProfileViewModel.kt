@@ -22,17 +22,23 @@ import tech.bigfig.romachat.data.Result
 import tech.bigfig.romachat.data.ResultStatus
 import tech.bigfig.romachat.data.UserRepository
 import tech.bigfig.romachat.data.entity.Account
+import tech.bigfig.romachat.data.entity.Relationship
+import tech.bigfig.romachat.view.screen.search.AddUserStatus
+import timber.log.Timber
 import javax.inject.Inject
 
 class ProfileViewModel @Inject constructor(val repository: UserRepository) : ViewModel() {
 
     private var accountId: String? = null
     private var account: Account? = null
+    private var currentAccount = repository.getCurrentAccount()
 
     private val loadData = MutableLiveData<Boolean>()
 
     val showProfile = MutableLiveData<Boolean>()
     private val accountViewData = MutableLiveData<ProfileViewData?>()
+
+    var addUserStatus = MutableLiveData<AddUserStatus>()
 
     fun loadData() {
         loadData.value = true
@@ -58,7 +64,7 @@ class ProfileViewModel @Inject constructor(val repository: UserRepository) : Vie
 
     fun initDataForCurrentUser() {
         if (accountId == null) {
-            accountId = repository.getCurrentAccount()?.accountId ?: throw IllegalStateException("Current user is null")
+            accountId = currentAccount?.accountId ?: throw IllegalStateException("Current user is null")
             loadData.value = true
         }
     }
@@ -81,7 +87,6 @@ class ProfileViewModel @Inject constructor(val repository: UserRepository) : Vie
 
                 ResultStatus.SUCCESS -> {
                     if (result.data != null) {
-                        showProfile.postValue(true)
                         convertAccountToViewData(result.data)
                     } else {
                         showProfile.postValue(false)
@@ -99,6 +104,88 @@ class ProfileViewModel @Inject constructor(val repository: UserRepository) : Vie
         addSource(accountViewData) { data -> this.postValue(data) }
     }
 
+    val relationship: LiveData<Relationship?> = Transformations.switchMap(user) { profile ->
+        if (profile != null) {
+            Transformations.map(repository.getRelationship(profile.id)) { result ->
+                when (result.status) {
+                    ResultStatus.LOADING -> {
+                        null
+                    }
+
+                    ResultStatus.SUCCESS -> {
+                        showProfile.postValue(true)
+
+                        if (result.data != null) {
+                            val relationship = result.data.firstOrNull()
+                            if (relationship == null) null
+                            else {
+                                addUserStatus.postValue(relationship.getStatus())
+                                relationship
+                            }
+                        } else {
+                            addUserStatus.postValue(AddUserStatus.NOT_ADDED)
+                            null
+                        }
+                    }
+
+                    ResultStatus.ERROR -> {
+                        showProfile.postValue(true)
+                        Timber.d("relationship error ${result.error}")
+                        null
+                    }
+                }
+            }
+        } else null
+    }
+
+    fun addOrRemoveUser() {
+        when (addUserStatus.value) {
+            AddUserStatus.ADDING -> return
+            AddUserStatus.NOT_ADDED -> accountToAdd.value = accountId
+            AddUserStatus.ADDED -> accountToRemove.value = accountId
+        }
+    }
+
+    private val accountToAdd = MutableLiveData<String>()
+    val addUser: LiveData<Unit> =
+        Transformations.switchMap(accountToAdd) { accountId ->
+            Transformations.map(repository.follow(accountId)) { result ->
+                Timber.d("follow ${result.status}")
+                when (result.status) {
+                    ResultStatus.LOADING ->
+                        addUserStatus.postValue(AddUserStatus.ADDING)
+
+                    ResultStatus.SUCCESS ->
+                        addUserStatus.postValue(if (result.data != null) result.data.getStatus() else AddUserStatus.NOT_ADDED)
+
+                    ResultStatus.ERROR -> {
+                        Timber.d("follow error ${result.error}")
+                        addUserStatus.postValue(AddUserStatus.NOT_ADDED)
+                    }
+                }
+            }
+        }
+
+    private val accountToRemove = MutableLiveData<String>()
+    val removeUser: LiveData<Unit> =
+        Transformations.switchMap(accountToRemove) { accountId ->
+            Transformations.map(repository.unfollow(accountId)) { result ->
+                Timber.d("unfollow ${result.status}")
+                when (result.status) {
+                    ResultStatus.LOADING ->
+                        addUserStatus.postValue(AddUserStatus.ADDING)
+
+                    ResultStatus.SUCCESS ->
+                        addUserStatus.postValue(if (result.data != null) result.data.getStatus() else AddUserStatus.ADDED)
+
+                    ResultStatus.ERROR -> {
+                        Timber.d("unfollow error ${result.error}")
+                        addUserStatus.postValue(AddUserStatus.ADDED)
+                    }
+                }
+            }
+        }
+
     private fun convertAccountToViewData(account: Account): ProfileViewData {
         return ProfileViewData(
             account.id,
@@ -106,8 +193,13 @@ class ProfileViewModel @Inject constructor(val repository: UserRepository) : Vie
             account.localUsername,
             account.displayName,
             account.avatar,
-            account.note.toString()
+            account.note.toString(),
+            account.id == currentAccount?.accountId
         )
+    }
+
+    private fun Relationship.getStatus(): AddUserStatus {
+        return if (this.following) AddUserStatus.ADDED else AddUserStatus.NOT_ADDED
     }
 
 }

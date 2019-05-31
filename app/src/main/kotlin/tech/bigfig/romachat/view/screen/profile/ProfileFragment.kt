@@ -60,8 +60,7 @@ class ProfileFragment : Fragment() {
                 Timber.d("showing user profile for $user")
 
                 binding.collapsingToolbar.title = user.displayName
-                binding.chat.setOnClickListener {
-
+                binding.fab.setOnClickListener {
                     findNavController().navigate(
                         NavGraphDirections.actionGlobalChatFragment(
                             ChatAccountEntity(
@@ -74,8 +73,14 @@ class ProfileFragment : Fragment() {
                         )
                     )
                 }
+                binding.follow.setOnClickListener { viewModel.addOrRemoveUser() }
             }
         })
+
+        viewModel.relationship.observe(this, Observer { })
+
+        viewModel.addUser.observe(this, Observer { })
+        viewModel.removeUser.observe(this, Observer { })
 
         viewModel.initData(navArgs.accountId, navArgs.account)
 

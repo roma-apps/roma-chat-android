@@ -13,6 +13,8 @@
 
         <import type="tech.bigfig.romachat.data.ResultStatus" />
 
+        <import type="tech.bigfig.romachat.view.screen.search.AddUserStatus" />
+
         <variable
             name="viewModel"
             type="tech.bigfig.romachat.view.screen.profile.ProfileViewModel" />
@@ -90,8 +92,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
-                        android:layout_marginEnd="16dp"
                         android:layout_marginTop="16dp"
+                        android:layout_marginEnd="16dp"
                         android:text="@{viewModel.user.note}"
                         android:textColor="@color/text_white"
                         android:textSize="14sp"
@@ -100,25 +102,19 @@
                         app:layout_constraintTop_toBottomOf="@+id/userName"
                         tools:text="Some text about me" />
 
-                    <!--<Button-->
-                    <!--android:id="@+id/follow"-->
-                    <!--android:layout_width="wrap_content"-->
-                    <!--android:layout_height="wrap_content"-->
-                    <!--android:layout_marginTop="16dp"-->
-                    <!--android:layout_marginBottom="24dp"-->
-                    <!--android:text="@string/profile_add_friend"-->
-                    <!--android:visibility="@{user.addUserStatus == AddUserStatus.ADDED ? View.GONE : View.VISIBLE}"-->
-                    <!--app:layout_constraintEnd_toEndOf="parent"-->
-                    <!--app:layout_constraintStart_toStartOf="parent"-->
-                    <!--app:layout_constraintTop_toBottomOf="@+id/about" />-->
-
                     <Button
-                        android:id="@+id/chat"
+                        android:id="@+id/follow"
+                        style="@style/DefaultButtonLight"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
                         android:layout_marginTop="16dp"
+                        android:layout_marginEnd="8dp"
                         android:layout_marginBottom="16dp"
-                        android:text="@string/profile_chat"
+                        android:minWidth="150dp"
+                        android:textAlignment="center"
+                        android:text="@{viewModel.addUserStatus == AddUserStatus.ADDED ? @string/profile_remove_friend : viewModel.addUserStatus == AddUserStatus.ADDING ? @string/profile_processing_friend : @string/profile_add_friend}"
+                        android:visibility="@{safeUnbox(viewModel.user == null || viewModel.user.isCurrentAccount == true || viewModel.addUserStatus == null) ? View.INVISIBLE: View.VISIBLE}"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
@@ -158,6 +154,16 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="@dimen/fab_margin"
+            android:tint="#fff"
+            android:visibility="@{safeUnbox(viewModel.user == null || viewModel.user.isCurrentAccount == true) ? View.GONE: View.VISIBLE}"
+            app:srcCompat="@drawable/ic_chat" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

@@ -114,6 +114,10 @@ class FeedFragment : Fragment() {
     }
 
     private val adapterListener = object : FeedAdapter.FeedAdapterListener {
+        override fun onAvatarClick(status: Status) {
+            findNavController().navigate(NavGraphDirections.actionGlobalProfileFragment(status.account.id))
+        }
+
         override fun onMediaClick(status: Status, mediaIndex: Int, view: View) {
             if (status.attachments.isEmpty()) return
 

@@ -29,6 +29,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import tech.bigfig.romachat.NavGraphDirections
 import tech.bigfig.romachat.R
 import tech.bigfig.romachat.app.App
 import tech.bigfig.romachat.data.entity.ChatInfo
@@ -89,6 +90,10 @@ class ChatListFragment : Fragment() {
     }
 
     private val adapterListener = object : ChatListAdapter.ChatListAdapterListener {
+        override fun onAvatarClick(chatInfo: ChatInfo) {
+            findNavController().navigate(NavGraphDirections.actionGlobalProfileFragment(chatInfo.account.id))
+        }
+
         override fun onChatClick(chatInfo: ChatInfo) {
             findNavController().navigate(MainFragmentDirections.actionToChatFragment(chatInfo.account))
         }

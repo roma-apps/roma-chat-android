@@ -63,6 +63,8 @@ class FeedAdapter(
             binding.post = item
             binding.executePendingBindings()
 
+            binding.avatar.setOnClickListener { listener?.onAvatarClick(item) }
+
             val emojifiedText = CustomEmojiHelper.emojifyText(item.content, item.emojis, binding.content)
             TextFormatter.setClickableText(binding.content, emojifiedText, item.mentions, listener)
 
@@ -114,6 +116,7 @@ class FeedAdapter(
 
     interface FeedAdapterListener : ContentClickListener {
         fun onMediaClick(status: Status, mediaIndex: Int, view: View)
+        fun onAvatarClick(status: Status)
     }
 }
 

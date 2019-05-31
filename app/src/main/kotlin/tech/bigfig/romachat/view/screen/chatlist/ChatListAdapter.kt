@@ -61,10 +61,12 @@ class ChatListAdapter(
             binding.executePendingBindings()
 
             binding.root.setOnClickListener { listener?.onChatClick(chatInfo) }
+            binding.chatItemUserAvatar.setOnClickListener { listener?.onAvatarClick(chatInfo) }
         }
     }
 
     interface ChatListAdapterListener {
         fun onChatClick(chatInfo: ChatInfo)
+        fun onAvatarClick(chatInfo: ChatInfo)
     }
 }

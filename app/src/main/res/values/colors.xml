@@ -20,4 +20,9 @@
     <color name="camera_icon">#fff</color>
 
     <color name="divider">#ccc</color>
+
+    <color name="icon_tint">#757575</color>
+
+    <color name="orange">#ca8f04</color>
+    <color name="orange_light">#fab207</color>
 </resources>

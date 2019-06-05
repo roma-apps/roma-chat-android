@@ -25,10 +25,13 @@ import tech.bigfig.romachat.R
 import tech.bigfig.romachat.data.FeedRepository
 import tech.bigfig.romachat.data.Result
 import tech.bigfig.romachat.data.ResultStatus
+import tech.bigfig.romachat.data.StatusRepository
 import tech.bigfig.romachat.data.entity.Status
+import timber.log.Timber
 import javax.inject.Inject
 
-class FeedViewModel @Inject constructor(val repository: FeedRepository) : ViewModel() {
+class FeedViewModel @Inject constructor(private val repository: FeedRepository, private val statusRepository: StatusRepository) :
+    ViewModel() {
 
     var feedType: FeedType? = null
     var hashTag: String? = null
@@ -116,4 +119,40 @@ class FeedViewModel @Inject constructor(val repository: FeedRepository) : ViewMo
             }
         }
     }
+
+    fun favorite(status: Status) {
+        Timber.d("favorite ${status.id}")
+        statusToFavorite.postValue(status)
+    }
+
+    private val statusToFavorite = MutableLiveData<Status>()
+    val favorite: LiveData<Status?> =
+        Transformations.switchMap(statusToFavorite) { status ->
+            Transformations.map(
+                if (status.favourited) statusRepository.unfavorite(status.id)
+                else statusRepository.favorite(status.id)
+            ) { result ->
+                when (result.status) {
+                    ResultStatus.LOADING -> {
+                        null
+                    }
+
+                    ResultStatus.SUCCESS -> {
+                        if (result.data != null) {
+                            val index = postList.indexOf(status)
+                            if (index > 0) {
+                                postList[index] = result.data
+                            }
+                        }
+                        result.data
+                    }
+
+                    ResultStatus.ERROR -> {
+                        Timber.d("favorite error ${result.error}")
+                        errorToShow.postValue(R.string.feed_error_favorite)
+                        null
+                    }
+                }
+            }
+        }
 }

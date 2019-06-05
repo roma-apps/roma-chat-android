@@ -24,6 +24,9 @@
     <string name="a11y_take_photo">take photo</string>
     <string name="a11y_switch_camera">switch camera</string>
     <string name="a11y_flash">flash</string>
+    <string name="a11y_reply">reply</string>
+    <string name="a11y_repost">repost</string>
+    <string name="a11y_favorite">favorite</string>
 
     <string name="username_pattern">\@%s</string>
 
@@ -69,6 +72,7 @@
     <string name="feed_tab_all">All</string>
     <string name="feed_tab_me">Me</string>
     <string name="feed_error_load">Failed loading the data</string>
+    <string name="feed_error_favorite">Failed updating the data</string>
 
     <!--These are for timestamps on statuses. For example: "16s" or "2d"-->
     <string name="abbreviated_in_years">in %dy</string>

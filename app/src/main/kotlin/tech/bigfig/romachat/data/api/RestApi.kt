@@ -152,4 +152,10 @@ interface RestApi {
         @Query("since_id") sinceId: String?,
         @Query("limit") limit: Int?
     ): Call<List<Status>>
+
+    @POST("api/v1/statuses/{id}/favourite")
+    fun favoriteStatus(@Path("id") statusId: String): Call<Status>
+
+    @POST("api/v1/statuses/{id}/unfavourite")
+    fun unfavoriteStatus(@Path("id") statusId: String): Call<Status>
 }

@@ -44,8 +44,11 @@ class FeedAdapter(
     private val listener: FeedAdapterListener?
 ) : ListAdapter<Status, FeedAdapter.ViewHolder>(DiffCallback()) {
 
+    private lateinit var values: MutableList<Status>
+
     fun setItems(newValues: List<Status>) {
-        submitList(newValues)
+        values = newValues.toMutableList()
+        submitList(values)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -57,6 +60,14 @@ class FeedAdapter(
         holder.bind(getItem(position))
     }
 
+    fun updateItem(status: Status) {
+        val index = values.indexOf(status)
+        if (index > 0) {
+            values[index] = status
+            notifyItemChanged(index)
+        }
+    }
+
     inner class ViewHolder(val binding: LayoutFeedListItemBinding) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: Status) {
@@ -64,6 +75,8 @@ class FeedAdapter(
             binding.executePendingBindings()
 
             binding.avatar.setOnClickListener { listener?.onAvatarClick(item) }
+            binding.favorite.setOnClickListener { listener?.onFavoriteClick(item) }
+            binding.favoriteCount.setOnClickListener { listener?.onFavoriteClick(item) }
 
             val emojifiedText = CustomEmojiHelper.emojifyText(item.content, item.emojis, binding.content)
             TextFormatter.setClickableText(binding.content, emojifiedText, item.mentions, listener)
@@ -117,6 +130,7 @@ class FeedAdapter(
     interface FeedAdapterListener : ContentClickListener {
         fun onMediaClick(status: Status, mediaIndex: Int, view: View)
         fun onAvatarClick(status: Status)
+        fun onFavoriteClick(status: Status)
     }
 }
 

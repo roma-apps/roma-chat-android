@@ -33,6 +33,7 @@ import androidx.navigation.ActivityNavigator
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.SimpleItemAnimator
 import com.paginate.Paginate
 import tech.bigfig.romachat.NavGraphDirections
 import tech.bigfig.romachat.app.App
@@ -82,6 +83,12 @@ class FeedFragment : Fragment() {
             }
         })
 
+        viewModel.favorite.observe(this, Observer { status ->
+            if (status != null) {
+                adapter.updateItem(status)
+            }
+        })
+
         viewModel.errorToShow.observe(this, Observer { messageId ->
             if (activity != null && messageId != null) {
                 Toast.makeText(activity, messageId, Toast.LENGTH_LONG).show()
@@ -110,10 +117,20 @@ class FeedFragment : Fragment() {
         binding.feedList.layoutManager = LinearLayoutManager(context)
         binding.feedList.adapter = adapter
 
+        //fix for image blinking https://stackoverflow.com/a/32227316/2219237
+        val animator = binding.feedList.itemAnimator
+        if (animator is SimpleItemAnimator) {
+            animator.supportsChangeAnimations = false
+        }
+
         return binding.root
     }
 
     private val adapterListener = object : FeedAdapter.FeedAdapterListener {
+        override fun onFavoriteClick(status: Status) {
+            viewModel.favorite(status)
+        }
+
         override fun onAvatarClick(status: Status) {
             findNavController().navigate(NavGraphDirections.actionGlobalProfileFragment(status.account.id))
         }

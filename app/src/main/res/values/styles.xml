@@ -46,4 +46,10 @@
         <item name="android:textSize">20sp</item>
     </style>
 
+    <style name="FeedIconText">
+        <item name="android:textColor">@color/icon_tint</item>
+        <item name="android:fontFamily">sans-serif-light</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
 </resources>

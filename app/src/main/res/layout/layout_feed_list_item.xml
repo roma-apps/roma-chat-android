@@ -76,9 +76,9 @@
                 android:layout_marginTop="8dp"
                 android:textColor="@color/text_color"
                 android:textSize="16sp"
-                app:title="@{post}"
                 app:layout_constraintStart_toEndOf="@+id/avatar"
                 app:layout_constraintTop_toBottomOf="@+id/name"
+                app:title="@{post}"
                 tools:text="Title" />
 
             <TextView
@@ -99,12 +99,89 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                app:flexWrap="wrap"
-                app:showDivider="middle|end"
                 app:dividerDrawable="@drawable/feed_media_divider"
+                app:flexWrap="wrap"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="@+id/content"
-                app:layout_constraintTop_toBottomOf="@+id/content" />
+                app:layout_constraintTop_toBottomOf="@+id/content"
+                app:showDivider="middle|end" />
+
+            <ImageView
+                android:id="@+id/reply"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:contentDescription="@string/a11y_reply"
+                android:src="@drawable/ic_reply"
+                android:tint="@color/icon_tint"
+                app:layout_constraintStart_toStartOf="@+id/name"
+                app:layout_constraintTop_toBottomOf="@+id/attachments"
+                tools:src="@drawable/ic_reply" />
+
+            <TextView
+                android:id="@+id/reply_count"
+                style="@style/FeedIconText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="@{Integer.toString(post.reblogsCount)}"
+                android:visibility="@{post.reblogsCount > 0 ? View.VISIBLE : View.GONE}"
+                app:layout_constraintBottom_toBottomOf="@+id/reply"
+                app:layout_constraintStart_toEndOf="@+id/reply"
+                app:layout_constraintTop_toTopOf="@+id/reply"
+                tools:text="1" />
+
+            <ImageView
+                android:id="@+id/favorite"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="72dp"
+                android:contentDescription="@string/a11y_favorite"
+                android:src="@{post.favourited ? @drawable/ic_star : @drawable/ic_star_empty}"
+                android:tint="@{post.favourited ? @color/orange_light : @color/icon_tint}"
+                app:layout_constraintBottom_toBottomOf="@+id/reply"
+                app:layout_constraintStart_toStartOf="@+id/name"
+                app:layout_constraintTop_toTopOf="@+id/reply"
+                tools:src="@drawable/ic_star_empty" />
+
+            <TextView
+                android:id="@+id/favorite_count"
+                style="@style/FeedIconText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="@{Integer.toString(post.favouritesCount)}"
+                android:visibility="@{post.favouritesCount > 0 ? View.VISIBLE : View.GONE}"
+                app:layout_constraintBottom_toBottomOf="@+id/favorite"
+                app:layout_constraintStart_toEndOf="@+id/favorite"
+                app:layout_constraintTop_toTopOf="@+id/favorite"
+                tools:text="1" />
+
+            <ImageView
+                android:id="@+id/repost"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="144dp"
+                android:src="@drawable/ic_repost"
+                android:visibility="@{post.rebloggingAllowed() ? View.VISIBLE : View.GONE}"
+                android:contentDescription="@string/a11y_repost"
+                android:tint="@color/icon_tint"
+                app:layout_constraintBottom_toBottomOf="@+id/reply"
+                app:layout_constraintStart_toStartOf="@+id/name"
+                app:layout_constraintTop_toTopOf="@+id/reply" />
+
+            <TextView
+                android:id="@+id/repost_count"
+                style="@style/FeedIconText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="@{Integer.toString(post.reblogsCount)}"
+                android:visibility="@{post.reblogsCount > 0 ? View.VISIBLE : View.GONE}"
+                app:layout_constraintBottom_toBottomOf="@+id/repost"
+                app:layout_constraintStart_toEndOf="@+id/repost"
+                app:layout_constraintTop_toTopOf="@+id/repost"
+                tools:text="1" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

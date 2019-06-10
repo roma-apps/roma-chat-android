@@ -72,7 +72,7 @@
     <string name="feed_tab_all">All</string>
     <string name="feed_tab_me">Me</string>
     <string name="feed_error_load">Failed loading the data</string>
-    <string name="feed_error_favorite">Failed updating the data</string>
+    <string name="feed_error_update">Failed updating the data</string>
 
     <string name="new_post_title_reply">Reply</string>
     <string name="new_post_reply_pattern">Replying to @%s</string>

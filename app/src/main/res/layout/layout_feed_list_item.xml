@@ -162,10 +162,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="144dp"
-                android:src="@drawable/ic_repost"
-                android:visibility="@{post.rebloggingAllowed() ? View.VISIBLE : View.GONE}"
                 android:contentDescription="@string/a11y_repost"
-                android:tint="@color/icon_tint"
+                android:src="@drawable/ic_repost"
+                android:tint="@{post.reblogged ? @color/orange_light : @color/icon_tint}"
+                android:visibility="@{post.rebloggingAllowed() ? View.VISIBLE : View.GONE}"
                 app:layout_constraintBottom_toBottomOf="@+id/reply"
                 app:layout_constraintStart_toStartOf="@+id/name"
                 app:layout_constraintTop_toTopOf="@+id/reply" />

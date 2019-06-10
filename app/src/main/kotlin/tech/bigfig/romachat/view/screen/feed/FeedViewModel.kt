@@ -30,7 +30,10 @@ import tech.bigfig.romachat.data.entity.Status
 import timber.log.Timber
 import javax.inject.Inject
 
-class FeedViewModel @Inject constructor(private val repository: FeedRepository, private val statusRepository: StatusRepository) :
+class FeedViewModel @Inject constructor(
+    private val repository: FeedRepository,
+    private val statusRepository: StatusRepository
+) :
     ViewModel() {
 
     var feedType: FeedType? = null
@@ -149,7 +152,45 @@ class FeedViewModel @Inject constructor(private val repository: FeedRepository, 
 
                     ResultStatus.ERROR -> {
                         Timber.d("favorite error ${result.error}")
-                        errorToShow.postValue(R.string.feed_error_favorite)
+                        errorToShow.postValue(R.string.feed_error_update)
+                        null
+                    }
+                }
+            }
+        }
+
+    fun repost(status: Status) {
+        Timber.d("repost ${status.id}")
+        statusToRepost.postValue(status)
+    }
+
+    private val statusToRepost = MutableLiveData<Status>()
+    val repost: LiveData<Status?> =
+        Transformations.switchMap(statusToRepost) { status ->
+            Transformations.map(
+                if (status.reblogged) statusRepository.unreblog(status.id)
+                else statusRepository.reblog(status.id)
+            ) { result ->
+                when (result.status) {
+                    ResultStatus.LOADING -> {
+                        null
+                    }
+
+                    ResultStatus.SUCCESS -> {
+                        if (result.data != null) {
+                            //original post which was reposted is in "reblog" field of response
+                            val index = postList.indexOf(status)
+                            if (index > 0 && result.data.reblog != null) {
+                                postList[index] = result.data.reblog
+                                return@map result.data.reblog
+                            }
+                        }
+                        result.data
+                    }
+
+                    ResultStatus.ERROR -> {
+                        Timber.d("reblog error ${result.error}")
+                        errorToShow.postValue(R.string.feed_error_update)
                         null
                     }
                 }

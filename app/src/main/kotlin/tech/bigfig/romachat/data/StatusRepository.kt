@@ -26,4 +26,8 @@ class StatusRepository @Inject constructor(private val restApi: RestApi) {
     fun favorite(statusId: String) = apiCallToLiveData(restApi.favoriteStatus(statusId)) { it }
 
     fun unfavorite(statusId: String) = apiCallToLiveData(restApi.unfavoriteStatus(statusId)) { it }
+
+    fun reblog(statusId: String) = apiCallToLiveData(restApi.reblogStatus(statusId)) { it }
+
+    fun unreblog(statusId: String) = apiCallToLiveData(restApi.unreblogStatus(statusId)) { it }
 }

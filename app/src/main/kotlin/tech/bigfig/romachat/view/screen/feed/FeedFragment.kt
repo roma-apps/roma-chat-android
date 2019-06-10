@@ -88,6 +88,11 @@ class FeedFragment : Fragment() {
                 adapter.updateItem(status)
             }
         })
+        viewModel.repost.observe(this, Observer { status ->
+            if (status != null) {
+                adapter.updateItem(status)
+            }
+        })
 
         viewModel.errorToShow.observe(this, Observer { messageId ->
             if (activity != null && messageId != null) {
@@ -127,6 +132,10 @@ class FeedFragment : Fragment() {
     }
 
     private val adapterListener = object : FeedAdapter.FeedAdapterListener {
+        override fun onRepostClick(status: Status) {
+            viewModel.repost(status)
+        }
+
         override fun onReplyClick(status: Status) {
             findNavController().navigate(NavGraphDirections.actionGlobalNewPostFragment(status))
         }

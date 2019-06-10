@@ -158,4 +158,10 @@ interface RestApi {
 
     @POST("api/v1/statuses/{id}/unfavourite")
     fun unfavoriteStatus(@Path("id") statusId: String): Call<Status>
+
+    @POST("api/v1/statuses/{id}/reblog")
+    fun reblogStatus(@Path("id") statusId: String): Call<Status>
+
+    @POST("api/v1/statuses/{id}/unreblog")
+    fun unreblogStatus(@Path("id") statusId: String): Call<Status>
 }

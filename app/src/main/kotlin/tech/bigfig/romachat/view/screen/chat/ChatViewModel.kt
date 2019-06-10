@@ -314,11 +314,4 @@ class ChatViewModel @Inject constructor(
         return if (date.theSameDay(today)) context.getString(R.string.chat_message_date_today).toUpperCase() else
             sdf.format(date).toUpperCase()
     }
-
-    companion object {
-        private const val CHARACTER_LIMIT = 500
-
-        private const val IMAGE_SIZE_LIMIT = 8388608 // 8MB
-        private const val VIDEO_SIZE_LIMIT = 41943040 // 40MB
-    }
 }

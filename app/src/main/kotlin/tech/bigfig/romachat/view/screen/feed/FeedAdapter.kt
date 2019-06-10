@@ -77,6 +77,8 @@ class FeedAdapter(
             binding.avatar.setOnClickListener { listener?.onAvatarClick(item) }
             binding.favorite.setOnClickListener { listener?.onFavoriteClick(item) }
             binding.favoriteCount.setOnClickListener { listener?.onFavoriteClick(item) }
+            binding.reply.setOnClickListener { listener?.onReplyClick(item) }
+            binding.replyCount.setOnClickListener { listener?.onReplyClick(item) }
 
             val emojifiedText = CustomEmojiHelper.emojifyText(item.content, item.emojis, binding.content)
             TextFormatter.setClickableText(binding.content, emojifiedText, item.mentions, listener)
@@ -131,6 +133,7 @@ class FeedAdapter(
         fun onMediaClick(status: Status, mediaIndex: Int, view: View)
         fun onAvatarClick(status: Status)
         fun onFavoriteClick(status: Status)
+        fun onReplyClick(status: Status)
     }
 }
 

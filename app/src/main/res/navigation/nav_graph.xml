@@ -87,4 +87,17 @@
     <action
         android:id="@+id/action_global_profileFragment"
         app:destination="@id/profileFragment" />
+    <fragment
+        android:id="@+id/newPostFragment"
+        android:name="tech.bigfig.romachat.view.screen.compose.NewPostFragment"
+        android:label="NewPostFragment" >
+        <argument
+            android:name="statusToReply"
+            app:argType="tech.bigfig.romachat.data.entity.Status"
+            app:nullable="true"
+            android:defaultValue="@null" />
+    </fragment>
+    <action
+        android:id="@+id/action_global_newPostFragment"
+        app:destination="@id/newPostFragment" />
 </navigation>

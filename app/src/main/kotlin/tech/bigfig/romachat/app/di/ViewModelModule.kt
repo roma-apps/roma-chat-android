@@ -26,6 +26,7 @@ import tech.bigfig.romachat.view.screen.camera.CameraViewModel
 import tech.bigfig.romachat.view.screen.cameraresult.CameraResultViewModel
 import tech.bigfig.romachat.view.screen.chat.ChatViewModel
 import tech.bigfig.romachat.view.screen.chatlist.ChatListViewModel
+import tech.bigfig.romachat.view.screen.compose.NewPostViewModel
 import tech.bigfig.romachat.view.screen.feed.FeedViewModel
 import tech.bigfig.romachat.view.screen.login.LoginViewModel
 import tech.bigfig.romachat.view.screen.profile.ProfileViewModel
@@ -89,4 +90,9 @@ abstract class ViewModelModule {
     @IntoMap
     @ViewModelKey(ProfileViewModel::class)
     abstract fun bindProfileViewModel(viewModel: ProfileViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(NewPostViewModel::class)
+    abstract fun bindNewPostViewModel(viewModel: NewPostViewModel): ViewModel
 }

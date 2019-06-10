@@ -23,6 +23,7 @@ import tech.bigfig.romachat.view.screen.cameraresult.CameraResultFragment
 import tech.bigfig.romachat.view.screen.chat.ChatFragment
 import tech.bigfig.romachat.view.screen.chat.ChatMessagesService
 import tech.bigfig.romachat.view.screen.chatlist.ChatListFragment
+import tech.bigfig.romachat.view.screen.compose.NewPostFragment
 import tech.bigfig.romachat.view.screen.feed.FeedFragment
 import tech.bigfig.romachat.view.screen.feed.ProfileInsideFeedFragment
 import tech.bigfig.romachat.view.screen.login.LoginActivity
@@ -57,6 +58,8 @@ interface AppComponent {
     fun inject(fragment: ProfileFragment)
 
     fun inject(fragment: ProfileInsideFeedFragment)
+
+    fun inject(fragment: NewPostFragment)
 
     fun inject(service: ChatMessagesService)
 }

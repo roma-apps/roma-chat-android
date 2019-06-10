@@ -73,15 +73,19 @@ class ChatRepository @Inject constructor(
         return db.messageDao().loadAll(accountId)
     }
 
-    fun postMessage(message: String): LiveData<Result<Status>> {
+    fun postMessage(
+        message: String,
+        replyStatusId: String? = null,
+        visibility: Status.Visibility = Status.Visibility.DIRECT
+    ): LiveData<Result<Status>> {
         return apiCallToLiveData(
             restApi.createStatus(
                 "Bearer " + accountManager.activeAccount?.accessToken,
                 accountManager.activeAccount?.domain!!,
                 message,
+                replyStatusId,
                 null,
-                null,
-                Status.Visibility.DIRECT.serverString(),
+                visibility.serverString(),
                 false,
                 null,
                 StringUtils.randomAlphanumericString(16)

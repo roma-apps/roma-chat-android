@@ -127,6 +127,10 @@ class FeedFragment : Fragment() {
     }
 
     private val adapterListener = object : FeedAdapter.FeedAdapterListener {
+        override fun onReplyClick(status: Status) {
+            findNavController().navigate(NavGraphDirections.actionGlobalNewPostFragment(status))
+        }
+
         override fun onFavoriteClick(status: Status) {
             viewModel.favorite(status)
         }

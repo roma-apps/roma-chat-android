@@ -19,8 +19,11 @@ import android.os.Parcelable
 import android.text.Spanned
 import com.google.gson.annotations.SerializedName
 import kotlinx.android.parcel.Parcelize
+import kotlinx.android.parcel.WriteWith
+import tech.bigfig.romachat.utils.SpannedParceler
 import java.util.*
 
+@Parcelize
 data class Status(
     var id: String,
     var url: String?, // not present if it's reblog
@@ -28,7 +31,7 @@ data class Status(
     @SerializedName("in_reply_to_id") var inReplyToId: String?,
     @SerializedName("in_reply_to_account_id") val inReplyToAccountId: String?,
     val reblog: Status?,
-    val content: Spanned,
+    val content: @WriteWith<SpannedParceler>() Spanned,
     @SerializedName("created_at") val createdAt: Date,
     val emojis: List<Emoji>,
     @SerializedName("reblogs_count") val reblogsCount: Int,
@@ -42,7 +45,7 @@ data class Status(
     val mentions: Array<Mention>,
     val application: Application?,
     var pinned: Boolean?
-) {
+) : Parcelable {
 
     val actionableId: String
         get() = reblog?.id ?: id
@@ -128,12 +131,6 @@ data class Status(
         @SerializedName("username") var localUsername: String?
     ) : Parcelable
 
-    class Application {
-        var name: String? = null
-        var website: String? = null
-    }
-
-    companion object {
-        const val MAX_MEDIA_ATTACHMENTS = 4
-    }
+    @Parcelize
+    data class Application(val name: String?, val website: String?) : Parcelable
 }

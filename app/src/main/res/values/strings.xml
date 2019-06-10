@@ -74,6 +74,10 @@
     <string name="feed_error_load">Failed loading the data</string>
     <string name="feed_error_favorite">Failed updating the data</string>
 
+    <string name="new_post_title_reply">Reply</string>
+    <string name="new_post_reply_pattern">Replying to @%s</string>
+    <string name="new_post_hint">What\'s happening?</string>
+
     <!--These are for timestamps on statuses. For example: "16s" or "2d"-->
     <string name="abbreviated_in_years">in %dy</string>
     <string name="abbreviated_in_days">in %dd</string>

@@ -42,11 +42,11 @@ import java.util.*
 
 class FeedAdapter(
     private val listener: FeedAdapterListener?
-) : ListAdapter<Status, FeedAdapter.ViewHolder>(DiffCallback()) {
+) : ListAdapter<FeedViewData, FeedAdapter.ViewHolder>(DiffCallback()) {
 
-    private lateinit var values: MutableList<Status>
+    private lateinit var values: MutableList<FeedViewData>
 
-    fun setItems(newValues: List<Status>) {
+    fun setItems(newValues: List<FeedViewData>) {
         values = newValues.toMutableList()
         submitList(values)
     }
@@ -60,21 +60,23 @@ class FeedAdapter(
         holder.bind(getItem(position))
     }
 
-    fun updateItem(status: Status) {
-        val index = values.indexOf(status)
-        if (index > 0) {
-            values[index] = status
+    fun updateItem(item: FeedViewData) {
+        val index = values.indexOf(item)
+        if (index > -1) {
+            values[index] = item
             notifyItemChanged(index)
         }
     }
 
     inner class ViewHolder(val binding: LayoutFeedListItemBinding) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(item: Status) {
+        fun bind(item: FeedViewData) {
             binding.post = item
             binding.executePendingBindings()
 
             binding.avatar.setOnClickListener { listener?.onAvatarClick(item) }
+            binding.repostUsername.setOnClickListener { listener?.onRepostedByClick(item) }
+            binding.repostStatus.setOnClickListener { listener?.onRepostedByClick(item) }
             binding.favorite.setOnClickListener { listener?.onFavoriteClick(item) }
             binding.favoriteCount.setOnClickListener { listener?.onFavoriteClick(item) }
             binding.reply.setOnClickListener { listener?.onReplyClick(item) }
@@ -82,17 +84,17 @@ class FeedAdapter(
             binding.repost.setOnClickListener { listener?.onRepostClick(item) }
             binding.repostCount.setOnClickListener { listener?.onRepostClick(item) }
 
-            val emojifiedText = CustomEmojiHelper.emojifyText(item.content, item.emojis, binding.content)
-            TextFormatter.setClickableText(binding.content, emojifiedText, item.mentions, listener)
+            val emojifiedText = CustomEmojiHelper.emojifyText(item.status.content, item.status.emojis, binding.content)
+            TextFormatter.setClickableText(binding.content, emojifiedText, item.status.mentions, listener)
 
-            binding.attachments.visibility = if (item.attachments.isNotEmpty()) View.VISIBLE else View.GONE
-            if (item.attachments.isNotEmpty()) {
+            binding.attachments.visibility = if (item.status.attachments.isNotEmpty()) View.VISIBLE else View.GONE
+            if (item.status.attachments.isNotEmpty()) {
                 binding.attachments.removeAllViews()
-                item.attachments.forEachIndexed { index, attachment ->
+                item.status.attachments.forEachIndexed { index, attachment ->
                     val imageView = ImageView(binding.attachments.context).apply {
                         scaleType = ImageView.ScaleType.CENTER_CROP
                         adjustViewBounds = false
-                        setOnClickListener { listener?.onMediaClick(item, index, this) }
+                        setOnClickListener { listener?.onMediaClick(item.status, index, this) }
                     }
 
                     val height =
@@ -118,25 +120,28 @@ class FeedAdapter(
         }
     }
 
-    class DiffCallback : DiffUtil.ItemCallback<Status>() {
-        override fun areItemsTheSame(oldItem: Status, newItem: Status): Boolean {
-            return oldItem.id == newItem.id
+    class DiffCallback : DiffUtil.ItemCallback<FeedViewData>() {
+        override fun areItemsTheSame(oldItem: FeedViewData, newItem: FeedViewData): Boolean {
+            return oldItem.status.id == newItem.status.id && oldItem.repostedBy == newItem.repostedBy
         }
 
-        override fun areContentsTheSame(oldItem: Status, newItem: Status): Boolean {
-            return oldItem.account.displayName == newItem.account.displayName
-                    && oldItem.account.avatar == newItem.account.avatar
-                    && SpannableStringBuilder(oldItem.content) == SpannableStringBuilder(newItem.content)
-                    && oldItem.createdAt == newItem.createdAt
+        override fun areContentsTheSame(oldItem: FeedViewData, newItem: FeedViewData): Boolean {
+            return oldItem.status.account.displayName == newItem.status.account.displayName
+                    && oldItem.status.account.avatar == newItem.status.account.avatar
+                    && SpannableStringBuilder(oldItem.status.content) == SpannableStringBuilder(newItem.status.content)
+                    && oldItem.status.createdAt == newItem.status.createdAt
+                    && oldItem.isRepost == newItem.isRepost
+                    && oldItem.repostedBy?.id == newItem.repostedBy?.id
         }
     }
 
     interface FeedAdapterListener : ContentClickListener {
         fun onMediaClick(status: Status, mediaIndex: Int, view: View)
-        fun onAvatarClick(status: Status)
-        fun onFavoriteClick(status: Status)
-        fun onReplyClick(status: Status)
-        fun onRepostClick(status: Status)
+        fun onAvatarClick(feedViewData: FeedViewData)
+        fun onFavoriteClick(feedViewData: FeedViewData)
+        fun onReplyClick(feedViewData: FeedViewData)
+        fun onRepostClick(feedViewData: FeedViewData)
+        fun onRepostedByClick(feedViewData: FeedViewData)
     }
 }
 

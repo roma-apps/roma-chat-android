@@ -15,7 +15,7 @@
 
         <variable
             name="post"
-            type="tech.bigfig.romachat.data.entity.Status" />
+            type="tech.bigfig.romachat.view.screen.feed.FeedViewData" />
 
     </data>
 
@@ -28,15 +28,43 @@
             android:layout_height="wrap_content"
             android:padding="16dp">
 
+            <TextView
+                android:id="@+id/repost_username"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="64dp"
+                android:fontFamily="sans-serif-medium"
+                android:paddingBottom="16dp"
+                android:text="@{post.repostedBy.displayName}"
+                android:textColor="@color/text_color"
+                android:visibility="@{post.isRepost ? View.VISIBLE : View.GONE}"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="\@user reposted" />
+
+            <TextView
+                android:id="@+id/repost_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:paddingBottom="16dp"
+                android:textStyle="italic"
+                android:text="@string/feed_reposted_pattern"
+                android:textColor="@color/text_color"
+                android:visibility="@{post.isRepost ? View.VISIBLE : View.GONE}"
+                app:layout_constraintStart_toEndOf="@id/repost_username"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="\@user reposted" />
+
             <ImageView
                 android:id="@+id/avatar"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:contentDescription="@string/a11y_user_avatar"
                 android:src="@drawable/default_user_avatar"
-                app:avatarUrl="@{post.account.avatar}"
+                app:avatarUrl="@{post.status.account.avatar}"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toBottomOf="@id/repost_status" />
 
             <TextView
                 android:id="@+id/name"
@@ -47,12 +75,12 @@
                 android:ellipsize="end"
                 android:fontFamily="sans-serif-medium"
                 android:singleLine="true"
-                android:text="@{post.account.displayName}"
+                android:text="@{post.status.account.displayName}"
                 android:textColor="@color/text_color"
                 android:textSize="16sp"
                 app:layout_constraintEnd_toStartOf="@+id/date"
                 app:layout_constraintStart_toEndOf="@+id/avatar"
-                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/repost_status"
                 tools:text="User name" />
 
             <TextView
@@ -63,9 +91,9 @@
                 android:singleLine="true"
                 android:textColor="@color/text_light_color"
                 android:textSize="16sp"
-                app:date="@{post.createdAt}"
+                app:date="@{post.status.createdAt}"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/repost_status"
                 tools:text="10m" />
 
             <TextView
@@ -78,7 +106,7 @@
                 android:textSize="16sp"
                 app:layout_constraintStart_toEndOf="@+id/avatar"
                 app:layout_constraintTop_toBottomOf="@+id/name"
-                app:title="@{post}"
+                app:title="@{post.status}"
                 tools:text="Title" />
 
             <TextView
@@ -110,7 +138,7 @@
                 android:id="@+id/reply"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="16dp"
                 android:contentDescription="@string/a11y_reply"
                 android:src="@drawable/ic_reply"
                 android:tint="@color/icon_tint"
@@ -124,8 +152,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:text="@{Integer.toString(post.reblogsCount)}"
-                android:visibility="@{post.reblogsCount > 0 ? View.VISIBLE : View.GONE}"
+                android:text="@{Integer.toString(post.status.repliesCount)}"
+                android:visibility="@{post.status.repliesCount > 0 ? View.VISIBLE : View.GONE}"
                 app:layout_constraintBottom_toBottomOf="@+id/reply"
                 app:layout_constraintStart_toEndOf="@+id/reply"
                 app:layout_constraintTop_toTopOf="@+id/reply"
@@ -137,8 +165,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="72dp"
                 android:contentDescription="@string/a11y_favorite"
-                android:src="@{post.favourited ? @drawable/ic_star : @drawable/ic_star_empty}"
-                android:tint="@{post.favourited ? @color/orange_light : @color/icon_tint}"
+                android:src="@{post.status.favourited ? @drawable/ic_star : @drawable/ic_star_empty}"
+                android:tint="@{post.status.favourited ? @color/orange_light : @color/icon_tint}"
                 app:layout_constraintBottom_toBottomOf="@+id/reply"
                 app:layout_constraintStart_toStartOf="@+id/name"
                 app:layout_constraintTop_toTopOf="@+id/reply"
@@ -150,8 +178,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:text="@{Integer.toString(post.favouritesCount)}"
-                android:visibility="@{post.favouritesCount > 0 ? View.VISIBLE : View.GONE}"
+                android:text="@{Integer.toString(post.status.favouritesCount)}"
+                android:visibility="@{post.status.favouritesCount > 0 ? View.VISIBLE : View.GONE}"
                 app:layout_constraintBottom_toBottomOf="@+id/favorite"
                 app:layout_constraintStart_toEndOf="@+id/favorite"
                 app:layout_constraintTop_toTopOf="@+id/favorite"
@@ -164,8 +192,8 @@
                 android:layout_marginStart="144dp"
                 android:contentDescription="@string/a11y_repost"
                 android:src="@drawable/ic_repost"
-                android:tint="@{post.reblogged ? @color/orange_light : @color/icon_tint}"
-                android:visibility="@{post.rebloggingAllowed() ? View.VISIBLE : View.GONE}"
+                android:tint="@{post.status.reblogged ? @color/orange_light : @color/icon_tint}"
+                android:visibility="@{post.status.rebloggingAllowed() ? View.VISIBLE : View.GONE}"
                 app:layout_constraintBottom_toBottomOf="@+id/reply"
                 app:layout_constraintStart_toStartOf="@+id/name"
                 app:layout_constraintTop_toTopOf="@+id/reply" />
@@ -176,8 +204,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:text="@{Integer.toString(post.reblogsCount)}"
-                android:visibility="@{post.reblogsCount > 0 ? View.VISIBLE : View.GONE}"
+                android:text="@{Integer.toString(post.status.reblogsCount)}"
+                android:visibility="@{post.status.reblogsCount > 0 ? View.VISIBLE : View.GONE}"
                 app:layout_constraintBottom_toBottomOf="@+id/repost"
                 app:layout_constraintStart_toEndOf="@+id/repost"
                 app:layout_constraintTop_toTopOf="@+id/repost"

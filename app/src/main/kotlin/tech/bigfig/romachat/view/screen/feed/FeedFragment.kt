@@ -132,20 +132,26 @@ class FeedFragment : Fragment() {
     }
 
     private val adapterListener = object : FeedAdapter.FeedAdapterListener {
-        override fun onRepostClick(status: Status) {
-            viewModel.repost(status)
+        override fun onRepostedByClick(feedViewData: FeedViewData) {
+            if (feedViewData.repostedBy != null) {
+                findNavController().navigate(NavGraphDirections.actionGlobalProfileFragment(feedViewData.repostedBy.id))
+            }
         }
 
-        override fun onReplyClick(status: Status) {
-            findNavController().navigate(NavGraphDirections.actionGlobalNewPostFragment(status))
+        override fun onRepostClick(feedViewData: FeedViewData) {
+            viewModel.repost(feedViewData)
         }
 
-        override fun onFavoriteClick(status: Status) {
-            viewModel.favorite(status)
+        override fun onReplyClick(feedViewData: FeedViewData) {
+            findNavController().navigate(NavGraphDirections.actionGlobalNewPostFragment(feedViewData.status))
         }
 
-        override fun onAvatarClick(status: Status) {
-            findNavController().navigate(NavGraphDirections.actionGlobalProfileFragment(status.account.id))
+        override fun onFavoriteClick(feedViewData: FeedViewData) {
+            viewModel.favorite(feedViewData)
+        }
+
+        override fun onAvatarClick(feedViewData: FeedViewData) {
+            findNavController().navigate(NavGraphDirections.actionGlobalProfileFragment(feedViewData.status.account.id))
         }
 
         override fun onMediaClick(status: Status, mediaIndex: Int, view: View) {

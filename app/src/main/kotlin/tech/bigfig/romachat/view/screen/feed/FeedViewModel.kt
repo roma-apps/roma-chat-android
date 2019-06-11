@@ -47,7 +47,7 @@ class FeedViewModel @Inject constructor(
 
     private val loadData = MutableLiveData<Boolean>()
 
-    private val postList = mutableListOf<Status>()
+    private val postList = mutableListOf<FeedViewData>()
 
     val errorToShow: MutableLiveData<Int?> = MutableLiveData()
 
@@ -86,7 +86,7 @@ class FeedViewModel @Inject constructor(
         return postList.lastOrNull()?.id
     }
 
-    val posts: LiveData<List<Status>?> = Transformations.switchMap(loadData) {
+    val posts: LiveData<List<FeedViewData>?> = Transformations.switchMap(loadData) {
         Transformations.map(getFeed()) { result ->
             when (result.status) {
                 ResultStatus.LOADING -> {
@@ -104,7 +104,7 @@ class FeedViewModel @Inject constructor(
                     errorToShow.postValue(null)
 
                     if (result.data != null) {
-                        postList.addAll(result.data)
+                        postList.addAll(result.data.map { status -> status.toViewData() })
                     }
 
                     // ListAdapter requires new copy of the list
@@ -123,17 +123,26 @@ class FeedViewModel @Inject constructor(
         }
     }
 
-    fun favorite(status: Status) {
-        Timber.d("favorite ${status.id}")
-        statusToFavorite.postValue(status)
+    private fun Status.toViewData(): FeedViewData {
+        return FeedViewData(
+            this.id,
+            this.reblog != null,
+            this.account,
+            reblog ?: this
+        )
     }
 
-    private val statusToFavorite = MutableLiveData<Status>()
-    val favorite: LiveData<Status?> =
-        Transformations.switchMap(statusToFavorite) { status ->
+    fun favorite(feedViewData: FeedViewData) {
+        Timber.d("favorite ${feedViewData.status.id}")
+        statusToFavorite.postValue(feedViewData)
+    }
+
+    private val statusToFavorite = MutableLiveData<FeedViewData>()
+    val favorite: LiveData<FeedViewData?> =
+        Transformations.switchMap(statusToFavorite) { feed ->
             Transformations.map(
-                if (status.favourited) statusRepository.unfavorite(status.id)
-                else statusRepository.favorite(status.id)
+                if (feed.status.favourited) statusRepository.unfavorite(feed.status.id)
+                else statusRepository.favorite(feed.status.id)
             ) { result ->
                 when (result.status) {
                     ResultStatus.LOADING -> {
@@ -142,12 +151,16 @@ class FeedViewModel @Inject constructor(
 
                     ResultStatus.SUCCESS -> {
                         if (result.data != null) {
-                            val index = postList.indexOf(status)
-                            if (index > 0) {
-                                postList[index] = result.data
+                            postList.forEach {post->
+                                if (post.status.id == feed.status.id) {
+                                    post.status = result.data
+                                    return@map post
+                                }
                             }
+                            null
+                        } else {
+                            null
                         }
-                        result.data
                     }
 
                     ResultStatus.ERROR -> {
@@ -159,17 +172,17 @@ class FeedViewModel @Inject constructor(
             }
         }
 
-    fun repost(status: Status) {
-        Timber.d("repost ${status.id}")
-        statusToRepost.postValue(status)
+    fun repost(feedViewData: FeedViewData) {
+        Timber.d("repost ${feedViewData.status.id}")
+        statusToRepost.postValue(feedViewData)
     }
 
-    private val statusToRepost = MutableLiveData<Status>()
-    val repost: LiveData<Status?> =
-        Transformations.switchMap(statusToRepost) { status ->
+    private val statusToRepost = MutableLiveData<FeedViewData>()
+    val repost: LiveData<FeedViewData?> =
+        Transformations.switchMap(statusToRepost) { feed ->
             Transformations.map(
-                if (status.reblogged) statusRepository.unreblog(status.id)
-                else statusRepository.reblog(status.id)
+                if (feed.status.reblogged) statusRepository.unreblog(feed.status.id)
+                else statusRepository.reblog(feed.status.id)
             ) { result ->
                 when (result.status) {
                     ResultStatus.LOADING -> {
@@ -178,14 +191,22 @@ class FeedViewModel @Inject constructor(
 
                     ResultStatus.SUCCESS -> {
                         if (result.data != null) {
-                            //original post which was reposted is in "reblog" field of response
-                            val index = postList.indexOf(status)
-                            if (index > 0 && result.data.reblog != null) {
-                                postList[index] = result.data.reblog
-                                return@map result.data.reblog
+                            postList.forEach {post->
+                                if (post.status.id == feed.status.id ) {
+                                    //original post which was reposted is in "reblog" field of response
+                                    if (result.data.reblog!=null) {
+                                        post.status = result.data.reblog
+                                    } else {
+                                        //TODO check the case when user unrepost from his own feed (in this case post should disappear?)
+                                        post.status = result.data
+                                    }
+                                    return@map post
+                                }
                             }
+                            null
+                        } else {
+                            null
                         }
-                        result.data
                     }
 
                     ResultStatus.ERROR -> {

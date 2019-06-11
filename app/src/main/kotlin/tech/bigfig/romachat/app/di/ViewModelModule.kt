@@ -33,6 +33,7 @@ import tech.bigfig.romachat.view.screen.profile.ProfileViewModel
 import tech.bigfig.romachat.view.screen.recipient.CameraResultRecipientViewModel
 import tech.bigfig.romachat.view.screen.search.UserSearchViewModel
 import tech.bigfig.romachat.view.screen.splash.SplashViewModel
+import tech.bigfig.romachat.view.screen.thread.PostThreadViewModel
 import tech.bigfig.romachat.view.utils.ViewModelFactory
 
 @Module
@@ -95,4 +96,9 @@ abstract class ViewModelModule {
     @IntoMap
     @ViewModelKey(NewPostViewModel::class)
     abstract fun bindNewPostViewModel(viewModel: NewPostViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(PostThreadViewModel::class)
+    abstract fun bindPostThreadViewModel(viewModel: PostThreadViewModel): ViewModel
 }

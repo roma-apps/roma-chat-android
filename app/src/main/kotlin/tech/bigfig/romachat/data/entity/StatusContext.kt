@@ -1,5 +1,4 @@
-/*
- * Copyright (c) 2019 Vasily Kabunov
+/* Copyright 2017 Andrew Dawson
  *
  * This file is a part of Roma.
  *
@@ -12,16 +11,11 @@
  * Public License for more details.
  *
  * You should have received a copy of the GNU General Public License along with Roma; if not,
- * see <http://www.gnu.org/licenses>.
- */
+ * see <http://www.gnu.org/licenses>. */
 
-package tech.bigfig.romachat.view.utils
+package tech.bigfig.romachat.data.entity
 
-interface ContentClickListener<T> {
-    fun onTagClick(tag: String)
-    fun onAccountClick(id: String)
-    fun onUrlClick(url: String)
-
-    fun onClick(param: T)
-    fun onLongClick()
-}
+data class StatusContext (
+    val ancestors: List<Status>,
+    val descendants: List<Status>
+)

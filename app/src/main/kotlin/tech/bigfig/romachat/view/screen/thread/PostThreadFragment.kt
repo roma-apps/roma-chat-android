@@ -15,7 +15,7 @@
  * see <http://www.gnu.org/licenses>.
  */
 
-package tech.bigfig.romachat.view.screen.feed
+package tech.bigfig.romachat.view.screen.thread
 
 
 import android.os.Bundle
@@ -23,6 +23,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
@@ -32,30 +33,34 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.ActivityNavigator
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.SimpleItemAnimator
-import com.paginate.Paginate
 import tech.bigfig.romachat.NavGraphDirections
 import tech.bigfig.romachat.app.App
 import tech.bigfig.romachat.data.entity.Attachment
 import tech.bigfig.romachat.data.entity.Media
 import tech.bigfig.romachat.data.entity.MediaType
 import tech.bigfig.romachat.data.entity.Status
-import tech.bigfig.romachat.databinding.FragmentFeedBinding
+import tech.bigfig.romachat.databinding.FragmentPostThreadBinding
 import tech.bigfig.romachat.utils.OpenLinkHelper
+import tech.bigfig.romachat.view.screen.feed.FeedAdapter
+import tech.bigfig.romachat.view.screen.feed.FeedViewData
 import tech.bigfig.romachat.view.utils.RetryListener
 import timber.log.Timber
 import javax.inject.Inject
 
 
-class FeedFragment : Fragment() {
+class PostThreadFragment : Fragment() {
 
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
 
-    private lateinit var binding: FragmentFeedBinding
-    private lateinit var viewModel: FeedViewModel
+    private lateinit var binding: FragmentPostThreadBinding
+    private lateinit var viewModel: PostThreadViewModel
     private lateinit var adapter: FeedAdapter
+
+    private val navArgs: PostThreadFragmentArgs by navArgs()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -64,12 +69,9 @@ class FeedFragment : Fragment() {
         App.getApplication(activity!!).appComponent.inject(this)
 
         viewModel = ViewModelProviders.of(this, viewModelFactory)
-            .get(FeedViewModel::class.java)
+            .get(PostThreadViewModel::class.java)
 
-        viewModel.feedType =
-            arguments?.getSerializable(ARG_TYPE) as FeedType? ?: throw IllegalArgumentException("Empty type")
-        viewModel.hashTag = arguments?.getString(ARG_HASHTAG)
-        viewModel.accountId = arguments?.getString(ARG_ACCOUNT_ID)
+        viewModel.status = navArgs.status
 
         viewModel.posts.observe(this, Observer { posts ->
             if (posts != null) {
@@ -77,7 +79,12 @@ class FeedFragment : Fragment() {
 
                 adapter.setItems(posts)
 
-                processPagination(posts.size)
+                posts.forEachIndexed { index, post ->
+                    if (post.id == navArgs.status.id) {
+                        binding.feedList.smoothScrollToPosition(index)
+                        return@forEachIndexed
+                    }
+                }
 
                 binding.swipeRefresh.isRefreshing = false
             }
@@ -103,7 +110,7 @@ class FeedFragment : Fragment() {
 
         viewModel.loadData()
 
-        binding = FragmentFeedBinding.inflate(layoutInflater, container, false)
+        binding = FragmentPostThreadBinding.inflate(layoutInflater, container, false)
         binding.viewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
 
@@ -112,6 +119,13 @@ class FeedFragment : Fragment() {
                 viewModel.reloadData()
             }
         }
+
+        (activity as AppCompatActivity).apply {
+            setSupportActionBar(binding.toolbar)
+            supportActionBar?.setDisplayHomeAsUpEnabled(true)
+            title = ""
+        }
+        binding.toolbar.setNavigationOnClickListener { activity?.onBackPressed() }
 
         binding.swipeRefresh.setOnRefreshListener {
             viewModel.reloadData()
@@ -197,81 +211,9 @@ class FeedFragment : Fragment() {
         }
 
         override fun onClick(param: FeedViewData) {
-            findNavController().navigate(NavGraphDirections.actionGlobalPostThreadFragment(param.status))
         }
 
         override fun onLongClick() {
         }
-    }
-
-    //-----------
-    // PAGINATION
-
-    private var paginate: Paginate? = null
-    private var prevTotalSize = 0
-    private var loadingMore = false
-
-    private fun processPagination(totalSize: Int) {
-        if (paginate == null && totalSize > 0) {
-            // Init pagination after first part of data is loaded
-            paginate = Paginate.with(binding.feedList, paginateCallbacks)
-                .setLoadingTriggerThreshold(5)
-                .addLoadingListItem(true)
-                .build()
-        } else {
-            loadingMore = false
-            paginate?.setHasMoreDataToLoad(prevTotalSize < totalSize) // Stop showing loader if there is no new data
-        }
-        prevTotalSize = totalSize
-    }
-
-    private val paginateCallbacks = object : Paginate.Callbacks {
-        override fun onLoadMore() {
-            // Load next page of data (e.g. network or database)
-            Timber.d("onLoadMore")
-            if (loadingMore) return
-            loadingMore = true
-            viewModel.loadMore()
-        }
-
-        override fun isLoading(): Boolean {
-            // Indicate whether new page loading is in progress or not
-            return loadingMore
-        }
-
-        override fun hasLoadedAllItems(): Boolean {
-            // Indicate whether all data (pages) are loaded or not
-            return false
-        }
-    }
-
-    companion object {
-
-        fun newInstance(feedType: FeedType): FeedFragment =
-            FeedFragment().apply {
-                arguments = Bundle().apply {
-                    putSerializable(ARG_TYPE, feedType)
-                }
-            }
-
-        fun newInstanceHashTag(hashTag: String): FeedFragment =
-            FeedFragment().apply {
-                arguments = Bundle().apply {
-                    putSerializable(ARG_TYPE, FeedType.HASHTAG)
-                    putString(ARG_HASHTAG, hashTag)
-                }
-            }
-
-        fun newInstanceAccount(accountId: String): FeedFragment =
-            FeedFragment().apply {
-                arguments = Bundle().apply {
-                    putSerializable(ARG_TYPE, FeedType.ACCOUNT)
-                    putString(ARG_ACCOUNT_ID, accountId)
-                }
-            }
-
-        private const val ARG_TYPE = "ARG_TYPE"
-        private const val ARG_HASHTAG = "ARG_HASHTAG"
-        private const val ARG_ACCOUNT_ID = "ARG_ACCOUNT_ID"
     }
 }

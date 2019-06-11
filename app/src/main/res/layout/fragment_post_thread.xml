@@ -11,7 +11,7 @@
 
         <variable
             name="viewModel"
-            type="tech.bigfig.romachat.view.screen.feed.FeedViewModel" />
+            type="tech.bigfig.romachat.view.screen.thread.PostThreadViewModel" />
 
         <variable
             name="retryListener"
@@ -23,15 +23,25 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/colorPrimary"
+            android:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
             android:id="@+id/swipe_refresh"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:visibility="@{viewModel.firstPageStatus.status == ResultStatus.SUCCESS ? View.VISIBLE : View.INVISIBLE}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toBottomOf="@+id/toolbar">
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/feed_list"
@@ -46,7 +56,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:visibility="@{viewModel.firstPageStatus.status == ResultStatus.LOADING ? View.VISIBLE : View.INVISIBLE}"
+            android:visibility="@{viewModel.firstTimeStatus.status == ResultStatus.LOADING ? View.VISIBLE : View.INVISIBLE}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -55,7 +65,7 @@
         <include
             android:id="@+id/include"
             layout="@layout/layout_error_try_again"
-            app:result="@{(Result) viewModel.firstPageStatus}"
+            app:result="@{(Result) viewModel.firstTimeStatus}"
             app:retryListener="@{() -> retryListener.onRetry()}" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

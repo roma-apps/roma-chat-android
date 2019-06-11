@@ -100,4 +100,16 @@
     <action
         android:id="@+id/action_global_newPostFragment"
         app:destination="@id/newPostFragment" />
+    <fragment
+        android:id="@+id/postThreadFragment"
+        android:name="tech.bigfig.romachat.view.screen.thread.PostThreadFragment"
+        android:label="PostThreadFragment" >
+        <argument
+            android:name="status"
+            app:argType="tech.bigfig.romachat.data.entity.Status" />
+
+    </fragment>
+    <action
+        android:id="@+id/action_global_postThreadFragment"
+        app:destination="@id/postThreadFragment" />
 </navigation>

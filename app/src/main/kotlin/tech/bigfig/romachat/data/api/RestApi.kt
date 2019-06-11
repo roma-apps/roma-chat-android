@@ -164,4 +164,7 @@ interface RestApi {
 
     @POST("api/v1/statuses/{id}/unreblog")
     fun unreblogStatus(@Path("id") statusId: String): Call<Status>
+
+    @GET("api/v1/statuses/{id}/context")
+    fun statusContext(@Path("id") statusId: String): Call<StatusContext>
 }

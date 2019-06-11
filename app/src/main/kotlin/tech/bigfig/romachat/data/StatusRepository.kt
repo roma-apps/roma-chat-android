@@ -30,4 +30,6 @@ class StatusRepository @Inject constructor(private val restApi: RestApi) {
     fun reblog(statusId: String) = apiCallToLiveData(restApi.reblogStatus(statusId)) { it }
 
     fun unreblog(statusId: String) = apiCallToLiveData(restApi.unreblogStatus(statusId)) { it }
+
+    fun getContext(statusId: String) = apiCallToLiveData(restApi.statusContext(statusId)) { it }
 }

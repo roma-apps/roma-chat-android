@@ -85,7 +85,7 @@ class FeedAdapter(
             binding.repostCount.setOnClickListener { listener?.onRepostClick(item) }
 
             val emojifiedText = CustomEmojiHelper.emojifyText(item.status.content, item.status.emojis, binding.content)
-            TextFormatter.setClickableText(binding.content, emojifiedText, item.status.mentions, listener)
+            TextFormatter.setClickableText(binding.content, emojifiedText, item.status.mentions, item, listener)
 
             binding.attachments.visibility = if (item.status.attachments.isNotEmpty()) View.VISIBLE else View.GONE
             if (item.status.attachments.isNotEmpty()) {
@@ -135,7 +135,7 @@ class FeedAdapter(
         }
     }
 
-    interface FeedAdapterListener : ContentClickListener {
+    interface FeedAdapterListener : ContentClickListener<FeedViewData> {
         fun onMediaClick(status: Status, mediaIndex: Int, view: View)
         fun onAvatarClick(feedViewData: FeedViewData)
         fun onFavoriteClick(feedViewData: FeedViewData)

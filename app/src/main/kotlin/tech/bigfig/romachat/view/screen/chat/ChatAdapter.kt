@@ -68,8 +68,8 @@ class ChatAdapter(
             if (!message.isMedia && message.content != null) {
                 val emojifiedText =
                     CustomEmojiHelper.emojifyText(message.content, message.emojis, binding.chatMessageContent)
-                TextFormatter.setClickableText(binding.chatMessageContent, emojifiedText, message.mentions,
-                    object : ContentClickListener {
+                TextFormatter.setClickableText(binding.chatMessageContent, emojifiedText, message.mentions, message,
+                    object : ContentClickListener<MessageViewData> {
                         override fun onTagClick(tag: String) {
                             listener?.onHashTagClick(tag)
                         }
@@ -82,8 +82,8 @@ class ChatAdapter(
                             listener?.onUrlClick(url)
                         }
 
-                        override fun onClick() {
-                            listener?.onMessageClick(message, binding.chatMessageMediaPreview)
+                        override fun onClick(param: MessageViewData) {
+                            listener?.onMessageClick(param, binding.chatMessageMediaPreview)
                         }
 
                         override fun onLongClick() {

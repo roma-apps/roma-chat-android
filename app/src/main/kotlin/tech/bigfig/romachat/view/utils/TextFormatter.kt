@@ -40,9 +40,9 @@ object TextFormatter {
      * @param mentions any '@' mentions which are known to be in the content
      * @param listener to notify about particular spans that are clicked
      */
-    fun setClickableText(
+    fun <T> setClickableText(
         view: TextView, content: Spanned,
-        mentions: Array<Status.Mention>?, listener: ContentClickListener?
+        mentions: Array<Status.Mention>?, param: T, listener: ContentClickListener<T>?
     ) {
         val builder = SpannableStringBuilder(content)
         val urlSpans = content.getSpans(0, content.length, URLSpan::class.java)
@@ -106,7 +106,7 @@ object TextFormatter {
         view.linksClickable = true
         view.movementMethod = LinkMovementMethod.getInstance()
 
-        view.setOnClickListener { listener?.onClick() }
+        view.setOnClickListener { listener?.onClick(param) }
         view.setOnLongClickListener {
             listener?.onLongClick()
             true

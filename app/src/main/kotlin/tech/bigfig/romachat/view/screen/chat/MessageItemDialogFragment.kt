@@ -55,6 +55,7 @@ class MessageItemDialogFragment : DialogFragment() {
                 binding.messageContent.chatMessageContent,
                 emojifiedText,
                 message.mentions,
+                null,
                 null
             )
         }

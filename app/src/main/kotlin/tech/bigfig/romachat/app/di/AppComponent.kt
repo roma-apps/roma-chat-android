@@ -31,6 +31,7 @@ import tech.bigfig.romachat.view.screen.profile.ProfileFragment
 import tech.bigfig.romachat.view.screen.recipient.CameraResultRecipientFragment
 import tech.bigfig.romachat.view.screen.search.UserSearchFragment
 import tech.bigfig.romachat.view.screen.splash.SplashActivity
+import tech.bigfig.romachat.view.screen.thread.PostThreadFragment
 import javax.inject.Singleton
 
 @Singleton
@@ -60,6 +61,8 @@ interface AppComponent {
     fun inject(fragment: ProfileInsideFeedFragment)
 
     fun inject(fragment: NewPostFragment)
+
+    fun inject(fragment: PostThreadFragment)
 
     fun inject(service: ChatMessagesService)
 }

@@ -67,7 +67,7 @@ data class Account(
 
 @Parcelize
 data class AccountSource(
-    val privacy: Status.Visibility,
+    val privacy: Status.Visibility?,
     val sensitive: Boolean,
     val note: String,
     val fields: List<StringField>?

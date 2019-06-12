@@ -243,7 +243,7 @@ class Camera constructor(
         )
 
     private val cameraStateCallback = object : CameraDevice.StateCallback() {
-        override fun onOpened(camera: CameraDevice?) {
+        override fun onOpened(camera: CameraDevice) {
             cameraDevice = camera
             openLock.release()
             isClosed = false
@@ -251,20 +251,20 @@ class Camera constructor(
             startCamera(surface)
         }
 
-        override fun onClosed(camera: CameraDevice?) {
+        override fun onClosed(camera: CameraDevice) {
             isClosed = true
         }
 
-        override fun onDisconnected(camera: CameraDevice?) {
+        override fun onDisconnected(camera: CameraDevice) {
             openLock.release()
-            camera?.close()
+            camera.close()
             cameraDevice = null
             isClosed = true
         }
 
-        override fun onError(camera: CameraDevice?, error: Int) {
+        override fun onError(camera: CameraDevice, error: Int) {
             openLock.release()
-            camera?.close()
+            camera.close()
             cameraDevice = null
             isClosed = true
         }
@@ -288,7 +288,7 @@ class Camera constructor(
         try {
             val builder = createPreviewRequestBuilder()
             captureSession?.setRepeatingRequest(
-                builder?.build(), captureCallback, backgroundHelper.backgroundHandler
+                builder.build(), captureCallback, backgroundHelper.backgroundHandler
             )
         } catch (e: CameraAccessException) {
             Timber.e(e.toString())
@@ -363,11 +363,11 @@ class Camera constructor(
         try {
             state = State.WAITING_PRECAPTURE
             val builder = createPreviewRequestBuilder()
-            builder?.set(
+            builder.set(
                 CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER,
                 CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_START
             )
-            captureSession?.capture(builder?.build(), captureCallback, backgroundHelper.backgroundHandler)
+            captureSession?.capture(builder.build(), captureCallback, backgroundHelper.backgroundHandler)
         } catch (e: CameraAccessException) {
             Timber.e("runPreCapture $e")
         }
@@ -398,7 +398,7 @@ class Camera constructor(
             val builder = createPreviewRequestBuilder()
             if (!characteristics.isContinuousAutoFocusSupported()) {
                 // If continuous AF is not supported, start AF here
-                builder?.set(
+                builder.set(
                     CaptureRequest.CONTROL_AF_TRIGGER,
                     CameraMetadata.CONTROL_AF_TRIGGER_START
                 )
@@ -406,7 +406,7 @@ class Camera constructor(
 
             // Tell #captureCallback to wait for the lock.
             captureSession?.capture(
-                builder?.build(), captureCallback,
+                builder.build(), captureCallback,
                 backgroundHelper.backgroundHandler
             )
         } catch (e: CameraAccessException) {
@@ -415,9 +415,10 @@ class Camera constructor(
     }
 
     @Throws(CameraAccessException::class)
-    private fun createPreviewRequestBuilder(): CaptureRequest.Builder? {
+    private fun createPreviewRequestBuilder(): CaptureRequest.Builder {
         val builder = cameraDevice?.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
-        builder?.addTarget(surface)
+            ?: throw IllegalStateException("cameraDevice is null")
+        builder.addTarget(surface ?: throw IllegalStateException("surface is null"))
         enableDefaultModes(builder)
         return builder
     }
@@ -459,14 +460,14 @@ class Camera constructor(
             enableDefaultModes(builder)
             if (!characteristics.isContinuousAutoFocusSupported()) {
                 // If continuous AF is not supported, start AF here
-                builder?.set(
+                builder.set(
                     CaptureRequest.CONTROL_AF_TRIGGER,
                     CaptureRequest.CONTROL_AF_TRIGGER_CANCEL
                 )
             }
             state = State.PREVIEW
             captureSession?.setRepeatingRequest(
-                builder?.build(), captureCallback,
+                builder.build(), captureCallback,
                 backgroundHelper.backgroundHandler
             )
         } catch (e: CameraAccessException) {
@@ -488,11 +489,12 @@ class Camera constructor(
 
             // This is the CaptureRequest.Builder that we use to take a picture.
             val builder = cameraDevice?.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE)
+                ?: throw IllegalStateException("cameraDevice is null")
             enableDefaultModes(builder)
 
-            builder?.apply {
-                addTarget(imageReader?.surface)
-                addTarget(surface)
+            builder.apply {
+                addTarget(imageReader?.surface ?: throw IllegalStateException("imageReader.surface is null"))
+                addTarget(surface ?: throw IllegalStateException("surface is null"))
 
                 // Sensor orientation is 90 for most devices, or 270 for some devices (eg. Nexus 5X)
                 // We have to take that into account and rotate JPEG properly.
@@ -507,7 +509,7 @@ class Camera constructor(
             captureSession?.apply {
                 stopRepeating()
                 captureSession?.capture(
-                    builder?.build(),
+                    builder.build(),
                     object : CameraCaptureSession.CaptureCallback() {
                         override fun onCaptureCompleted(
                             session: CameraCaptureSession,

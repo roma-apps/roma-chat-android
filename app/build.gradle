@@ -11,8 +11,8 @@ android {
         applicationId "tech.bigfig.romachat"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 10
-        versionName "0.6"
+        versionCode 11
+        versionName "0.7"
         setProperty("archivesBaseName", "RomaChat-$versionName")
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

@@ -44,6 +44,7 @@ import tech.bigfig.romachat.data.entity.MediaType
 import tech.bigfig.romachat.data.entity.Status
 import tech.bigfig.romachat.databinding.FragmentPostThreadBinding
 import tech.bigfig.romachat.utils.OpenLinkHelper
+import tech.bigfig.romachat.view.screen.feed.FeedActionsViewModel
 import tech.bigfig.romachat.view.screen.feed.FeedAdapter
 import tech.bigfig.romachat.view.screen.feed.FeedViewData
 import tech.bigfig.romachat.view.utils.RetryListener
@@ -58,6 +59,7 @@ class PostThreadFragment : Fragment() {
 
     private lateinit var binding: FragmentPostThreadBinding
     private lateinit var viewModel: PostThreadViewModel
+    private lateinit var feedActionsViewModel: FeedActionsViewModel
     private lateinit var adapter: FeedAdapter
 
     private val navArgs: PostThreadFragmentArgs by navArgs()
@@ -70,6 +72,8 @@ class PostThreadFragment : Fragment() {
 
         viewModel = ViewModelProviders.of(this, viewModelFactory)
             .get(PostThreadViewModel::class.java)
+        feedActionsViewModel = ViewModelProviders.of(activity ?: throw Exception("Invalid Activity"), viewModelFactory)
+            .get(FeedActionsViewModel::class.java)
 
         viewModel.status = navArgs.status
 
@@ -90,25 +94,31 @@ class PostThreadFragment : Fragment() {
             }
         })
 
-        viewModel.favorite.observe(this, Observer { status ->
-            if (status != null) {
-                adapter.updateItem(status)
-            }
-        })
-        viewModel.repost.observe(this, Observer { status ->
-            if (status != null) {
-                adapter.updateItem(status)
-            }
-        })
-
         viewModel.errorToShow.observe(this, Observer { messageId ->
             if (activity != null && messageId != null) {
                 Toast.makeText(activity, messageId, Toast.LENGTH_LONG).show()
             }
             binding.swipeRefresh.isRefreshing = false
         })
+        feedActionsViewModel.errorToShow.observe(this, Observer { messageId ->
+            if (activity != null && messageId != null) {
+                Toast.makeText(activity, messageId, Toast.LENGTH_LONG).show()
+            }
+        })
 
         viewModel.loadData()
+
+        feedActionsViewModel.favorite.observe(this, Observer { action ->
+            if (action != null) {
+                adapter.updateItem(action)
+            }
+        })
+
+        feedActionsViewModel.repost.observe(this, Observer { action ->
+            if (action != null) {
+                adapter.updateItem(action)
+            }
+        })
 
         binding = FragmentPostThreadBinding.inflate(layoutInflater, container, false)
         binding.viewModel = viewModel
@@ -153,7 +163,7 @@ class PostThreadFragment : Fragment() {
         }
 
         override fun onRepostClick(feedViewData: FeedViewData) {
-            viewModel.repost(feedViewData)
+            feedActionsViewModel.repost(feedViewData)
         }
 
         override fun onReplyClick(feedViewData: FeedViewData) {
@@ -161,7 +171,7 @@ class PostThreadFragment : Fragment() {
         }
 
         override fun onFavoriteClick(feedViewData: FeedViewData) {
-            viewModel.favorite(feedViewData)
+            feedActionsViewModel.favorite(feedViewData)
         }
 
         override fun onAvatarClick(feedViewData: FeedViewData) {

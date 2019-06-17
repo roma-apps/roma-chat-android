@@ -26,9 +26,8 @@ import tech.bigfig.romachat.data.Result
 import tech.bigfig.romachat.data.ResultStatus
 import tech.bigfig.romachat.data.StatusRepository
 import tech.bigfig.romachat.data.entity.Status
-import tech.bigfig.romachat.data.entity.StatusContext
 import tech.bigfig.romachat.view.screen.feed.FeedViewData
-import timber.log.Timber
+import tech.bigfig.romachat.view.screen.feed.convertStatusToViewData
 import javax.inject.Inject
 
 class PostThreadViewModel @Inject constructor(
@@ -77,9 +76,12 @@ class PostThreadViewModel @Inject constructor(
                     errorToShow.postValue(null)
 
                     if (result.data != null) {
-                        postList.addAll(0, result.data.descendants.map { status -> status.toViewData() })
-                        postList.add(0, status?.toViewData() ?: throw IllegalStateException("Status is empty"))
-                        postList.addAll(0, result.data.ancestors.map { status -> status.toViewData() })
+                        postList.addAll(0, result.data.descendants.map { status -> convertStatusToViewData(status) })
+                        postList.add(
+                            0,
+                            convertStatusToViewData(status ?: throw IllegalStateException("Status is empty"))
+                        )
+                        postList.addAll(0, result.data.ancestors.map { status -> convertStatusToViewData(status) })
                     }
 
                     // ListAdapter requires new copy of the list
@@ -97,99 +99,4 @@ class PostThreadViewModel @Inject constructor(
             }
         }
     }
-
-    private fun Status.toViewData(): FeedViewData {
-        return FeedViewData(
-            this.id,
-            this.reblog != null,
-            this.account,
-            reblog ?: this
-        )
-    }
-
-    fun favorite(feedViewData: FeedViewData) {
-        Timber.d("favorite ${feedViewData.status.id}")
-        statusToFavorite.postValue(feedViewData)
-    }
-
-    private val statusToFavorite = MutableLiveData<FeedViewData>()
-    val favorite: LiveData<FeedViewData?> =
-        Transformations.switchMap(statusToFavorite) { feed ->
-            Transformations.map(
-                if (feed.status.favourited) repository.unfavorite(feed.status.id)
-                else repository.favorite(feed.status.id)
-            ) { result ->
-                when (result.status) {
-                    ResultStatus.LOADING -> {
-                        null
-                    }
-
-                    ResultStatus.SUCCESS -> {
-                        if (result.data != null) {
-                            postList.forEach { post ->
-                                if (post.status.id == feed.status.id) {
-                                    post.status = result.data
-                                    return@map post
-                                }
-                            }
-                            null
-                        } else {
-                            null
-                        }
-                    }
-
-                    ResultStatus.ERROR -> {
-                        Timber.d("favorite error ${result.error}")
-                        errorToShow.postValue(R.string.feed_error_update)
-                        null
-                    }
-                }
-            }
-        }
-
-    fun repost(feedViewData: FeedViewData) {
-        Timber.d("repost ${feedViewData.status.id}")
-        statusToRepost.postValue(feedViewData)
-    }
-
-    private val statusToRepost = MutableLiveData<FeedViewData>()
-    val repost: LiveData<FeedViewData?> =
-        Transformations.switchMap(statusToRepost) { feed ->
-            Transformations.map(
-                if (feed.status.reblogged) repository.unreblog(feed.status.id)
-                else repository.reblog(feed.status.id)
-            ) { result ->
-                when (result.status) {
-                    ResultStatus.LOADING -> {
-                        null
-                    }
-
-                    ResultStatus.SUCCESS -> {
-                        if (result.data != null) {
-                            postList.forEach { post ->
-                                if (post.status.id == feed.status.id) {
-                                    //original post which was reposted is in "reblog" field of response
-                                    if (result.data.reblog != null) {
-                                        post.status = result.data.reblog
-                                    } else {
-                                        //TODO check the case when user unrepost from his own feed (in this case post should disappear?)
-                                        post.status = result.data
-                                    }
-                                    return@map post
-                                }
-                            }
-                            null
-                        } else {
-                            null
-                        }
-                    }
-
-                    ResultStatus.ERROR -> {
-                        Timber.d("reblog error ${result.error}")
-                        errorToShow.postValue(R.string.feed_error_update)
-                        null
-                    }
-                }
-            }
-        }
 }

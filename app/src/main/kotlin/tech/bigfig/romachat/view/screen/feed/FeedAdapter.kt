@@ -61,6 +61,8 @@ class FeedAdapter(
     }
 
     fun updateItem(item: FeedViewData) {
+        if (!::values.isInitialized) return
+
         val index = values.indexOf(item)
         if (index > -1) {
             values[index] = item

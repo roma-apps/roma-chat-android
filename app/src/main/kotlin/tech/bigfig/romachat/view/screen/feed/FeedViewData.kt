@@ -28,3 +28,12 @@ data class FeedViewData(
 
     var status: Status
 )
+
+fun convertStatusToViewData(status: Status): FeedViewData {
+    return FeedViewData(
+        status.id,
+        status.reblog != null,
+        status.account,
+        status.reblog ?: status
+    )
+}

@@ -28,6 +28,7 @@ import tech.bigfig.romachat.view.screen.chat.ChatViewModel
 import tech.bigfig.romachat.view.screen.chatlist.ChatListViewModel
 import tech.bigfig.romachat.view.screen.compose.NewPostViewModel
 import tech.bigfig.romachat.view.screen.feed.FeedViewModel
+import tech.bigfig.romachat.view.screen.feed.FeedActionsViewModel
 import tech.bigfig.romachat.view.screen.login.LoginViewModel
 import tech.bigfig.romachat.view.screen.profile.ProfileViewModel
 import tech.bigfig.romachat.view.screen.recipient.CameraResultRecipientViewModel
@@ -86,6 +87,11 @@ abstract class ViewModelModule {
     @IntoMap
     @ViewModelKey(FeedViewModel::class)
     abstract fun bindFeedViewModel(viewModel: FeedViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(FeedActionsViewModel::class)
+    abstract fun bindSharedFeedViewModel(viewModel: FeedActionsViewModel): ViewModel
 
     @Binds
     @IntoMap

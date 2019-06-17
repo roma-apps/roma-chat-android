@@ -55,6 +55,7 @@ class FeedFragment : Fragment() {
 
     private lateinit var binding: FragmentFeedBinding
     private lateinit var viewModel: FeedViewModel
+    private lateinit var feedActionsViewModel: FeedActionsViewModel
     private lateinit var adapter: FeedAdapter
 
     override fun onCreateView(
@@ -65,6 +66,8 @@ class FeedFragment : Fragment() {
 
         viewModel = ViewModelProviders.of(this, viewModelFactory)
             .get(FeedViewModel::class.java)
+        feedActionsViewModel = ViewModelProviders.of(activity ?: throw Exception("Invalid Activity"), viewModelFactory)
+            .get(FeedActionsViewModel::class.java)
 
         viewModel.feedType =
             arguments?.getSerializable(ARG_TYPE) as FeedType? ?: throw IllegalArgumentException("Empty type")
@@ -83,22 +86,16 @@ class FeedFragment : Fragment() {
             }
         })
 
-        viewModel.favorite.observe(this, Observer { status ->
-            if (status != null) {
-                adapter.updateItem(status)
-            }
-        })
-        viewModel.repost.observe(this, Observer { status ->
-            if (status != null) {
-                adapter.updateItem(status)
-            }
-        })
-
         viewModel.errorToShow.observe(this, Observer { messageId ->
             if (activity != null && messageId != null) {
                 Toast.makeText(activity, messageId, Toast.LENGTH_LONG).show()
             }
             binding.swipeRefresh.isRefreshing = false
+        })
+        feedActionsViewModel.errorToShow.observe(this, Observer { messageId ->
+            if (activity != null && messageId != null) {
+                Toast.makeText(activity, messageId, Toast.LENGTH_LONG).show()
+            }
         })
 
         viewModel.loadData()
@@ -128,6 +125,29 @@ class FeedFragment : Fragment() {
             animator.supportsChangeAnimations = false
         }
 
+        feedActionsViewModel.favorite.observe(this, Observer { action ->
+            if (action != null) {
+                viewModel.onStatusUpdated(action)
+            }
+        })
+
+        feedActionsViewModel.repost.observe(this, Observer { action ->
+            if (action != null) {
+                viewModel.onStatusUpdated(action)
+
+                //refresh user's feed to add/remove reposted status
+                if (viewModel.feedType == FeedType.HOME || viewModel.feedType == FeedType.ACCOUNT) {
+                    viewModel.reloadData()
+                }
+            }
+        })
+
+        viewModel.updatedPost.observe(this, Observer { status ->
+            if (status != null) {
+                adapter.updateItem(status)
+            }
+        })
+
         return binding.root
     }
 
@@ -139,7 +159,7 @@ class FeedFragment : Fragment() {
         }
 
         override fun onRepostClick(feedViewData: FeedViewData) {
-            viewModel.repost(feedViewData)
+            feedActionsViewModel.repost(feedViewData)
         }
 
         override fun onReplyClick(feedViewData: FeedViewData) {
@@ -147,7 +167,7 @@ class FeedFragment : Fragment() {
         }
 
         override fun onFavoriteClick(feedViewData: FeedViewData) {
-            viewModel.favorite(feedViewData)
+            feedActionsViewModel.favorite(feedViewData)
         }
 
         override fun onAvatarClick(feedViewData: FeedViewData) {
